@@ -1,0 +1,141 @@
+#tilda_pages_list {
+    margin-top: 20px;
+}
+
+.ui-tabs.ui-tabs-vertical {
+    padding: 0;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-widget-header {
+    border: none;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-tabs-nav {
+    float: left;
+    padding: 0;
+    width: 30%;
+    margin-top: 15px;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-tabs-nav li {
+    clear: left;
+    width: 100%;
+    margin: 0.2em 0;
+    overflow: hidden;
+    position: relative;
+    right: 2px;
+    z-index: 2;
+    border: 1px solid #fff;
+    border-width: 1px 0 1px 1px;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-tabs-nav li a {
+    display: block;
+    width: 100%;
+    padding: 15px 20px;
+    box-sizing: border-box;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
+    border: 1px solid #DEDEDE;
+    border-width: 1px 0 1px 1px;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active a {
+    background: #FDFDFD;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-tabs-nav li a:hover {
+    cursor: pointer;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
+    margin-bottom: 0.2em;
+    padding-bottom: 0;
+    border-right: 1px solid white;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-tabs-nav li:last-child {
+    margin-bottom: 10px;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-tabs-panel {
+    float: left;
+    width: 70%;
+    border: 1px solid #DEDEDD;
+    border-radius: 0;
+    position: relative;
+    margin-left: -1px;
+    box-sizing: border-box;
+    background: #FDFDFD;
+    min-height: 130px;
+}
+
+.tilda_projects_tabs {
+    margin-top: 25px;
+}
+
+.tilda_projects_tabs .form .row + .row {
+    margin-top: 10px;
+}
+
+.tilda_projects_tabs .form .row .widget {
+    margin: 0;
+}
+
+.tilda_projects_tabs .desc {
+    color: #ABA8A8;
+}
+
+#tilda_pages_list .current_page {
+    background: #fa8669;
+    color: #fff;
+    padding: 20px;
+    margin: -6px -12px -12px -12px;
+}
+
+#tilda_pages_list .current_page .info {
+    float: left;
+    margin-left: 25px;
+    font-size: 14px;
+}
+
+#tilda_pages_list .current_page .info .title {
+    line-height: 1.4em;
+}
+
+#tilda_pages_list .current_page .info .name {
+    line-height: 1.4em;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#tilda_pages_list .remove_tilda {
+    margin: 5px 35px 0 0;
+    color: #000;
+    text-decoration: none;
+}
+
+#tilda_pages_list .remove_tilda:hover {
+    text-decoration: underline;
+}
+
+#tilda_pages_list .close {
+    display: none;
+}
+
+.text-align-right {
+    text-align: right !important;
+}
+
+.silver {
+    color: #9F9F9F;
+}
+
+.red {
+    color: #C60000;
+}
+
+.hide{
+    display: none;
+}
