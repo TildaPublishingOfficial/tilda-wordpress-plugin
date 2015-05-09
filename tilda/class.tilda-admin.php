@@ -175,8 +175,8 @@ class Tilda_Admin
             return;
         }
 
-        wp_enqueue_script('jquery-ui-tabs');
-        wp_enqueue_script('tilda_js', TILDA_PLUGIN_URL . 'js/plugin.js', array('jquery'));
+
+        wp_enqueue_script('tilda_js', TILDA_PLUGIN_URL . 'js/plugin.js', array('jquery','jquery-ui-tabs'));
 
         wp_enqueue_style('jquery-ui-tabs', TILDA_PLUGIN_URL . 'css/jquery-ui-tabs.css');
         wp_enqueue_style('tilda_css', TILDA_PLUGIN_URL . 'css/styles.css');
