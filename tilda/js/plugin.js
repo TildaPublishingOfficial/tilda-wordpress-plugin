@@ -8,7 +8,7 @@
         $('.tilda_projects_tabs')
             .tabs()
             .addClass('ui-tabs-vertical ui-helper-clearfix')
-            .on('click','[type="radio"]',function(){
+            .on('click', '[type="radio"]', function () {
                 var $panel = $(this).parents('.ui-tabs-panel').eq(0);
 
                 $tilda_project_id.val($panel.attr('data-project-id'));
@@ -17,19 +17,19 @@
         $('#tilda_toggle')
             .click(function (e) {
                 var val = $tilda_status.val();
-                if (val == 'on'){
+                if (val == 'on') {
                     $tilda_status.val('off');
-                    $('#submit').click();
-                }else{
+                } else {
                     $tilda_status.val('on');
                 }
+                $('#post').submit();
+            });
 
+        $('.tilda_edit_page')
+            .click(function (e) {
+                e.preventDefault();
+                $tilda_pages_list.removeClass('close');
             })
-
-        $('.tilda_edit_page').click(function(e){
-            e.preventDefault();
-            $tilda_pages_list.removeClass('close');
-        })
     })
 })(jQuery);
 

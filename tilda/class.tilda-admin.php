@@ -114,6 +114,7 @@ class Tilda_Admin
 
     public static function pages_list_callback($post)
     {
+
         $data = get_post_meta($post->ID, '_tilda', true);
         $page_id = $data["page_id"];
         $project_id = $data["project_id"];
@@ -175,8 +176,7 @@ class Tilda_Admin
             return;
         }
 
-        wp_enqueue_script('jquery-ui-tabs');
-        wp_enqueue_script('tilda_js', TILDA_PLUGIN_URL . 'js/plugin.js', array('jquery'));
+        wp_enqueue_script('tilda_js', TILDA_PLUGIN_URL . 'js/plugin.js', array('jquery','jquery-ui-tabs'));
 
         wp_enqueue_style('jquery-ui-tabs', TILDA_PLUGIN_URL . 'css/jquery-ui-tabs.css');
         wp_enqueue_style('tilda_css', TILDA_PLUGIN_URL . 'css/styles.css');
@@ -246,6 +246,7 @@ class Tilda_Admin
 
     public static function create_page($page, $project)
     {
+
         $page->html = htmlspecialchars_decode($page->html);
         $page->sync_time = current_time('mysql');
 
@@ -269,7 +270,7 @@ class Tilda_Admin
         $html = preg_replace_callback(
             '/<img.*?src="(.*?)".*?>/',
             function ($matches) use ($page,$project) {
-                $src = self::download_image($matches[1],$page->id,$project->id);
+                $src = Tilda_Admin::download_image($matches[1],$page->id,$project->id);
                 return str_replace($matches[1],$src, $matches[0]);
             },
             $html
@@ -281,6 +282,7 @@ class Tilda_Admin
     }
 
     public static function download_image($src,$page_id, $project_id){
+
         $upload_dir = Tilda::get_upload_dir() . $project_id . '/pages/'.$page_id.'/';
         $upload_path = Tilda::get_upload_path() . $project_id . '/pages/'.$page_id.'/';
 
@@ -300,9 +302,6 @@ class Tilda_Admin
     {
         $projects = self::get_projects();
         $page = $projects[$project_id]->pages[$page_id];
-/*
-        preg_match_all('/<img.*?src="(.*?)".*?>/',$page->html,$out);
-*/
 
         return $page;
     }
