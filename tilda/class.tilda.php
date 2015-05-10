@@ -25,6 +25,9 @@ class Tilda
         $upload = wp_upload_dir();
         $upload_dir = $upload['basedir'];
         $upload_dir = $upload_dir . '/tilda_pages/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755);
+        }
         return $upload_dir;
     }
 
