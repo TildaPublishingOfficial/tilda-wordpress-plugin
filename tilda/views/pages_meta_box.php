@@ -29,9 +29,13 @@ if ($has_current) {
             <a href=" https://tilda.cc/page/?pageid=<?= $data["page_id"] ?>" target="_blank" class="button">
                 Редактировать
             </a>
-            <button type="submit" name="tilda[update_page]" class="button" value="1">
+
+            <a href="#" class="button sync">
                 Синхронизировать
-            </button>
+            </a>
+
+            <input type="hidden" name="tilda[update_page]" id="update_page" value=""/>
+
             <a href="#" class="button tilda_edit_page">
                 Подключить другую
             </a>
@@ -40,10 +44,12 @@ if ($has_current) {
     </div>
 <?
 }?>
+
 <div class="tilda_pages_list <? if ($has_current) {echo 'close';}?>">
     <? if ($projects_list) {?>
+        <p>Пожалуйста выберите страницу из списка</p>
         <div class="tilda_projects_tabs">
-            <div class="form">
+            <div class="form clearfix">
                 <ul>
                     <? foreach ($projects_list as $project): ?>
                         <li><a href="#project-<?= $project->id ?>"><?= $project->title ?></a></li>
@@ -58,7 +64,7 @@ if ($has_current) {
                                            name="tilda[page_id]"
                                            id="tilda_page_<?= $page->id; ?>"
                                            value="<?= $page->id; ?>"
-                                        <? if ($data["page_id"] == $page->id) {
+                                        <? if (isset($data["page_id"]) && ($data["page_id"] == $page->id)) {
                                             echo 'checked';
                                         } ?>
                                         >
@@ -71,6 +77,7 @@ if ($has_current) {
             </div>
         </div>
         <div class="clear"></div>
+
         <p class="desc silver">
             Выбранная страница будет полностью скопирована на ваш сайт. В дальнейшем, если будут внесены какие-то
             изменения в страницу на Тильде, то необходимо будет обновить страницу вручную, нажав кнопку “Обновить
@@ -80,12 +87,12 @@ if ($has_current) {
     <? Tilda::show_errors(); ?>
     <div class="clear">
 
-        <a href="javascript:void(0)" id="tilda_toggle" class="alignleft remove_tilda<? if (!$has_current):?> hide<? endif;?>">
+        <a href="javascript:void(0)" id="tilda_toggle" class="alignleft remove_tilda">
             Отменить привязку
         </a>
 
         <p class="submit text-align-right">
-            <input type="submit" name="submit" id="submit" class="button" value="Сохранить">
+            <input type="submit" class="button" value="Сохранить">
 
             <button type="submit" class="button" name="tilda[update_data]" value="update_data">
                 Обновить список

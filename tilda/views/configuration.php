@@ -7,7 +7,7 @@
  */
 ?>
 
-<div class="wrap">
+<div class="tilda wrap">
     <h2>Настройка Tilda.cc API</h2>
 
     <form id="tilda_options" action="options.php" method="post">
@@ -17,4 +17,6 @@
         submit_button('Сохранить', 'primary');
         ?>
     </form>
+
+    <? Tilda::show_errors(); ?>
 </div>

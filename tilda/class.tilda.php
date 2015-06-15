@@ -24,7 +24,7 @@ class Tilda
     {
         $upload = wp_upload_dir();
         $upload_dir = $upload['basedir'];
-        $upload_dir = $upload_dir . '/tilda_pages/';
+        $upload_dir = $upload_dir . '/tilda/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0755);
         }
@@ -36,7 +36,7 @@ class Tilda
         $errors = self::$errors->get_error_messages();
         echo '<ul class="errors">';
         foreach ($errors as $error) {
-            echo '<li class="error silver"><span class="red">Ошибка:</span> ' . $error . '</li>';
+            echo '<li class="error silver" style="color:#9F9F9F;"><span class="red" style="color:#C60000">Ошибка:</span> ' . $error . '</li>';
         }
         echo '</ul>';
     }
@@ -45,7 +45,7 @@ class Tilda
     {
         $upload = wp_upload_dir();
         $upload_dir = $upload['baseurl'];
-        $upload_dir = $upload_dir . '/tilda_pages/';
+        $upload_dir = $upload_dir . '/tilda/';
         return $upload_dir;
     }
 

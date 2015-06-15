@@ -4,6 +4,7 @@ class Tilda_Admin
 {
 
     private static $initiated = false;
+    private static $libs = array('curl_init','timezonedb');
 
     public static function init()
     {
@@ -19,7 +20,7 @@ class Tilda_Admin
 
         add_action('admin_init', array('Tilda_Admin', 'admin_init'));
         add_action('admin_menu', array('Tilda_Admin', 'admin_menu'), 5);
-        add_action('add_meta_boxes', array('Tilda_Admin', 'add_meta_box'));
+        add_action('add_meta_boxes', array('Tilda_Admin', 'add_meta_box'),5);
         add_action('admin_enqueue_scripts', array('Tilda_Admin', 'admin_enqueue_scripts'));
         add_action('save_post', array('Tilda_Admin', 'save_tilda_data'), 10);
 
@@ -116,8 +117,8 @@ class Tilda_Admin
     {
 
         $data = get_post_meta($post->ID, '_tilda', true);
-        $page_id = $data["page_id"];
-        $project_id = $data["project_id"];
+        $page_id = isset($data["page_id"]) ? $data["page_id"] : false;
+        $project_id = isset($data["project_id"]) ? $data["project_id"] : false;
 
         if (isset($data['update_data']) && $data['update_data'] == 'update_data') {
             self::initialize();
@@ -131,8 +132,10 @@ class Tilda_Admin
             Tilda::$errors->add( 'refresh',__('Refresh pages list','tilda'));
         }
 
-        if ((isset($data['update_page']) && $data['update_page'] == '1')) {
+        if (isset($data['update_page']) && $data['update_page'] == 'update_page') {
             self::update_page($page_id,$project_id);
+            unset($data['update_page']);
+            update_post_meta($post->ID, '_tilda', $data);
         }
 
         if (isset($data["page_id"]) && !empty($data["page_id"])){
@@ -270,8 +273,13 @@ class Tilda_Admin
         $html = preg_replace_callback(
             '/<img.*?src="(.*?)".*?>/',
             function ($matches) use ($page,$project) {
-                $src = Tilda_Admin::download_image($matches[1],$page->id,$project->id);
-                return str_replace($matches[1],$src, $matches[0]);
+                $isBase64 = strpos($matches[1],'data:image');
+                if ($isBase64 === false){
+                    $src = Tilda_Admin::download_image($matches[1],$page->id,$project->id);
+                    return str_replace($matches[1],$src, $matches[0]);
+                }else{
+                    return $matches[0];
+                }
             },
             $html
         );
@@ -293,7 +301,8 @@ class Tilda_Admin
         }
 
         $name = basename($src);
-        file_put_contents($upload_dir . $name, file_get_contents($src));
+        $contents = file_get_contents($src);
+        if ($contents) file_put_contents($upload_dir . $name, $contents);
 
         return $upload_path . $name;
     }
@@ -315,8 +324,6 @@ class Tilda_Admin
     private static function scandir($dir)
     {
         $list = scandir($dir);
-        unset($list[0], $list[1]);
-
         return array_values($list);
     }
 
@@ -325,11 +332,13 @@ class Tilda_Admin
         $list = self::scandir($dir);
 
         foreach ($list as $file) {
-            if (is_dir($dir . $file)) {
-                self::clear_dir($dir . $file . '/');
-                rmdir($dir . $file);
-            } else {
-                unlink($dir . $file);
+            if ($file != '.' && $file != '..') {
+                if (is_dir($dir . $file)) {
+                    self::clear_dir($dir . $file . '/');
+                    rmdir($dir . $file);
+                } else {
+                    unlink($dir . $file);
+                }
             }
         }
     }
@@ -423,11 +432,21 @@ class Tilda_Admin
         return $input;
     }
 
+    private static function validate_required_libs(){
+        $libs = self::$libs;
+        foreach ($libs as $lib_name){
+            if(!extension_loaded($lib_name)){
+                Tilda::$errors->add( 'no_library',__('Not found library ','tilda').$lib_name);
+            }
+        }
+
+
+    }
     public static function display_configuration_page()
     {
-        $projects = self::get_projects();
+//        self::validate_required_libs();
 
-        self::view('configuration', array('projects' => $projects));
+        self::view('configuration');
     }
 
     public static function switcher_callback($post)

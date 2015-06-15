@@ -1,3 +1,23 @@
+#tilda_switcher .inside,
+#tilda_pages_list .inside{
+    font-size: 0;
+    line-height: 0;
+}
+.current_page,
+.tilda_pages_list,
+.tilda.wrap{
+    font-size: 14px;
+    line-height: 1.2em;
+}
+/* Clearfix
+--------------------------------------------------------------------------*/
+.clearfix:before, .clearfix:after { content: "\0020"; display: block; height: 0; overflow: hidden; }
+.clearfix:after { clear: both; }
+.clearfix { zoom: 1; }
+
+.tilda_pages_list{
+    padding-top: 15px;
+}
 #tilda_pages_list {
     margin-top: 20px;
 }
@@ -69,6 +89,7 @@
     box-sizing: border-box;
     background: #FDFDFD;
     min-height: 130px;
+    height: 100%;
 }
 
 .tilda_projects_tabs {
