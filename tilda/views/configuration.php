@@ -18,5 +18,5 @@
         ?>
     </form>
 
-    <? Tilda::show_errors(); ?>
+    <?phpTilda::show_errors(); ?>
 </div>

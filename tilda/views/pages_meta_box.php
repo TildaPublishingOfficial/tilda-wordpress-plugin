@@ -5,6 +5,7 @@
  * Date: 14.04.15
  * Time: 13:16
  */
+
 $status = isset($data["status"]) && !empty($data["status"]) ? $data["status"] : 'off';
 $has_current = isset($data["current_page"]) && !empty($data["current_page"])? true : false;
 
@@ -16,13 +17,13 @@ if ($has_current) {
         <div class="info">
             <div class="title">Выводится страница:</div>
             <div class="name"><?= $data["current_page"]->title ?></div>
-            <? if (isset($data["current_page"]->sync_time)):?>
+            <?php if (isset($data["current_page"]->sync_time)):?>
                 <div>
                     <small>
-                        <? printf('Синхронизация: %1$s %2$s', mysql2date(get_option('date_format'), $data["current_page"]->sync_time), mysql2date(get_option('time_format'), $data["current_page"]->sync_time)); ?>
+                        <?php printf('Синхронизация: %1$s %2$s', mysql2date(get_option('date_format'), $data["current_page"]->sync_time), mysql2date(get_option('time_format'), $data["current_page"]->sync_time)); ?>
                     </small>
                 </div>
-            <? endif; ?>
+            <?php endif; ?>
         </div>
 
         <div class="alignright">
@@ -45,35 +46,35 @@ if ($has_current) {
 <?
 }?>
 
-<div class="tilda_pages_list <? if ($has_current) {echo 'close';}?>">
-    <? if ($projects_list) {?>
+<div class="tilda_pages_list <?php if ($has_current) {echo 'close';}?>">
+    <?php if ($projects_list) {?>
         <p>Пожалуйста выберите страницу из списка</p>
         <div class="tilda_projects_tabs">
             <div class="form clearfix">
                 <ul>
-                    <? foreach ($projects_list as $project): ?>
+                    <?php foreach ($projects_list as $project): ?>
                         <li><a href="#project-<?= $project->id ?>"><?= $project->title ?></a></li>
-                    <? endforeach; ?>
+                    <?php endforeach; ?>
                 </ul>
-                <? foreach ($projects_list as $project): ?>
+                <?php foreach ($projects_list as $project): ?>
                     <div id="project-<?= $project->id ?>" data-project-id="<?= $project->id; ?>">
-                        <? foreach ($project->pages as $page): ?>
+                        <?php foreach ($project->pages as $page): ?>
                             <div class="row">
                                 <div class="widget">
                                     <input type="radio"
                                            name="tilda[page_id]"
                                            id="tilda_page_<?= $page->id; ?>"
                                            value="<?= $page->id; ?>"
-                                        <? if (isset($data["page_id"]) && ($data["page_id"] == $page->id)) {
+                                        <?php if (isset($data["page_id"]) && ($data["page_id"] == $page->id)) {
                                             echo 'checked';
                                         } ?>
                                         >
                                     <label for="tilda_page_<?= $page->id; ?>"><?= $page->title; ?></label>
                                 </div>
                             </div>
-                        <? endforeach; ?>
+                        <?php endforeach; ?>
                     </div>
-                <? endforeach; ?>
+                <?php endforeach; ?>
             </div>
         </div>
         <div class="clear"></div>
@@ -83,8 +84,8 @@ if ($has_current) {
             изменения в страницу на Тильде, то необходимо будет обновить страницу вручную, нажав кнопку “Обновить
             страницу”.
         </p>
-    <? } ?>
-    <? Tilda::show_errors(); ?>
+    <?php } ?>
+    <?php Tilda::show_errors(); ?>
     <div class="clear">
 
         <a href="javascript:void(0)" id="tilda_toggle" class="alignleft remove_tilda">
@@ -104,4 +105,4 @@ if ($has_current) {
     </div>
 
 </div>
-<? wp_nonce_field('tilda_switcher', 'tilda_nonce'); ?>
+<?php wp_nonce_field('tilda_switcher', 'tilda_nonce'); ?>

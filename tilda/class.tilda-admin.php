@@ -119,28 +119,28 @@ class Tilda_Admin
         $data = get_post_meta($post->ID, '_tilda', true);
         $page_id = isset($data["page_id"]) ? $data["page_id"] : false;
         $project_id = isset($data["project_id"]) ? $data["project_id"] : false;
-
-        if (isset($data['update_data']) && $data['update_data'] == 'update_data') {
-            self::initialize();
-            unset($data['update_data']);
-            update_post_meta($post->ID, '_tilda', $data);
-        }
-
+//
+//        if (isset($data['update_data']) && $data['update_data'] == 'update_data') {
+//            self::initialize();
+//            unset($data['update_data']);
+//            update_post_meta($post->ID, '_tilda', $data);
+//        }
+//
         $projects_list = self::get_projects();
-
-        if (!$projects_list){
-            Tilda::$errors->add( 'refresh',__('Refresh pages list','tilda'));
-        }
-
-        if (isset($data['update_page']) && $data['update_page'] == 'update_page') {
-            self::update_page($page_id,$project_id);
-            unset($data['update_page']);
-            update_post_meta($post->ID, '_tilda', $data);
-        }
-
-        if (isset($data["page_id"]) && !empty($data["page_id"])){
-            $data["current_page"] = self::get_page($data["page_id"],$data["project_id"]);
-        }
+//
+//        if (!$projects_list){
+//            Tilda::$errors->add( 'refresh',__('Refresh pages list','tilda'));
+//        }
+//
+//        if (isset($data['update_page']) && $data['update_page'] == 'update_page') {
+//            self::update_page($page_id,$project_id);
+//            unset($data['update_page']);
+//            update_post_meta($post->ID, '_tilda', $data);
+//        }
+//
+//        if (isset($data["page_id"]) && !empty($data["page_id"])){
+//            $data["current_page"] = self::get_page($data["page_id"],$data["project_id"]);
+//        }
 
         self::view(
             'pages_meta_box',
@@ -469,7 +469,7 @@ class Tilda_Admin
         }
 
         $file = TILDA_PLUGIN_DIR . 'views/' . $name . '.php';
-
+        
         include($file);
     }
 }
