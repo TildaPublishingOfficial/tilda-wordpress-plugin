@@ -73,6 +73,15 @@
                 $('#publish').click();
             });
 
+        $('#tilda_save_page').click(function(){
+            if ($tilda_update_page.length == 0) {
+                $(this).parent().append('<input type="hidden" name="tilda[update_page]" value="update_page">')
+            }
+            $tilda_update_page.val('update_page');
+            $('#publish').click();
+            return false;
+        });
+        
         $('.tilda_edit_page')
             .click(function (e) {
                 e.preventDefault();

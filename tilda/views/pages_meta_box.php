@@ -21,9 +21,12 @@ if ($has_current) {
                 <div>
                     <small>
                         <?php printf('Синхронизация: %1$s %2$s', mysql2date(get_option('date_format'), $data["current_page"]->sync_time), mysql2date(get_option('time_format'), $data["current_page"]->sync_time)); ?>
+                        <?=(!empty(self::$global_message) ? "<br>\n".self::$global_message : '')?>
                     </small>
                 </div>
             <?php endif; ?>
+            
+            <?php Tilda::show_errors(); ?>
         </div>
 
         <div class="alignright">
@@ -93,7 +96,7 @@ if ($has_current) {
         </a>
 
         <p class="submit text-align-right">
-            <input type="submit" class="button" value="Сохранить">
+            <input type="submit" class="button" value="Сохранить" id="tilda_save_page">
 
             <button type="submit" class="button" name="tilda[update_data]" value="update_data">
                 Обновить список

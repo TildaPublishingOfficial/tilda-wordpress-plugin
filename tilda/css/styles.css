@@ -160,3 +160,8 @@
 .hide{
     display: none;
 }
+
+#tilda_pages_list .current_page .info .errors .error {
+    background: #FFFFFF;
+    padding: 10px;
+}

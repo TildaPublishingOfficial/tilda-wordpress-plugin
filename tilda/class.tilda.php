@@ -10,11 +10,12 @@ class Tilda
 {
     private static $initiated = false;
     public static $errors;
-
+    public static $active_on_page = null;
 
     public static function init()
     {
         if (!self::$initiated) {
+            
             self::init_consts();
             self::init_hooks();
         }
@@ -22,6 +23,8 @@ class Tilda
 
     public static function get_upload_dir()
     {
+        
+
         $upload = wp_upload_dir();
         $upload_dir = $upload['basedir'];
         $upload_dir = $upload_dir . '/tilda/';
@@ -33,6 +36,8 @@ class Tilda
 
     public static function show_errors()
     {
+        
+
         $errors = self::$errors->get_error_messages();
         echo '<ul class="errors">';
         foreach ($errors as $error) {
@@ -43,6 +48,8 @@ class Tilda
 
     public static function get_upload_path()
     {
+        
+
         $upload = wp_upload_dir();
         $upload_dir = $upload['baseurl'];
         $upload_dir = $upload_dir . '/tilda/';
@@ -51,6 +58,7 @@ class Tilda
 
     public static function plugin_activation()
     {
+        
 
         $upload_dir = self::get_upload_dir();
 
@@ -61,6 +69,8 @@ class Tilda
 
     private static function init_consts()
     {
+        
+
         self::$initiated = true;
         self::$errors = new WP_Error();
 
@@ -74,21 +84,35 @@ class Tilda
 
     private static function init_hooks()
     {
+        
+
         self::$initiated = true;
         self::load_textdomain();
         add_action('wp_enqueue_scripts', array('Tilda', 'enqueue_scripts'));
         add_filter('the_content', array('Tilda', 'the_content') );
+        //add_filter('sidebars_widgets', array('Tilda', 'sidebar_widgets'));
     }
 
+    
     private static function load_textdomain() {
+        
+
         load_plugin_textdomain('tilda', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
     }
 
     public static function enqueue_scripts()
     {
         global $post;
+
         $data = get_post_meta($post->ID, '_tilda', true);
 
+        if(isset($data['status']) && $data['status'] == 'on') { 
+            Tilda::$active_on_page = true;
+        } else {
+            Tilda::$active_on_page = false;
+        }
+        
+        
         if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
             $page = self::get_local_page($data["page_id"],$data["project_id"]);
 
@@ -108,11 +132,25 @@ class Tilda
 
     }
 
+    public static function  sidebars_widgets($sidebars_widgets)
+    {
+        var_dump($sidebars_widgets);
+        return '';
+    }
+    
     public static function the_content($content)
     {
+        //return $content;
+
         global $post;
 
         $data = get_post_meta($post->ID, '_tilda', true);
+
+        if(isset($data['status']) && $data['status'] == 'on') { 
+            Tilda::$active_on_page = true;
+        } else {
+            Tilda::$active_on_page = false;
+        }
 
         if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
             $page = self::get_local_page($data["page_id"],$data["project_id"]);
@@ -144,6 +182,8 @@ class Tilda
 
     public static function get_from_api($type, $id = false)
     {
+        
+
         $suffix = '';
         $code = $type;
         switch ($type) {
@@ -151,11 +191,15 @@ class Tilda
                 break;
             case 'project':
                 $suffix = 'projectid=' . $id;
+                $type .= 'export';
                 break;
             case 'pageslist':
                 $suffix = 'projectid=' . $id;
                 break;
             case 'page':
+                $suffix = 'pageid=' . $id;
+                break;
+            case 'pageexport':
                 $suffix = 'pageid=' . $id;
                 break;
         }
@@ -174,36 +218,53 @@ class Tilda
         if ($out->status == 'FOUND'){
             return $out->result;
         }else{
-           self::$errors->add( $code, __($out->message, 'tilda') );
+           self::$errors->add( $code, __($out->message, 'tilda').' query: '.$suffix );
            return self::$errors;
         }
     }
 
     public static function get_projects()
     {
+        
+
         return self::get_from_api('projectslist');
 
     }
 
     public static function get_project($id)
     {
+        
+
         return self::get_from_api('project', $id);
 
     }
 
     public static function get_pageslist($id)
     {
+        
+
         return self::get_from_api('pageslist', $id);
 
     }
 
     public static function get_page($id)
     {
+        
+
         return self::get_from_api('page', $id);
+    }
+
+    public static function get_pageexport($id)
+    {
+        
+
+        return self::get_from_api('pageexport', $id);
     }
 
     public static function get_local_projects()
     {
+        
+
         $projects = get_option('tilda_projects');
 
         return $projects;
@@ -211,9 +272,24 @@ class Tilda
 
     public static function get_local_page($page_id, $project_id)
     {
-        $projects = self::get_local_projects();
-        $page = $projects[$project_id]->pages[$page_id];
+        
 
+        $projects = self::get_local_projects();
+
+        $page = $projects[$project_id]->pages[$page_id];
+        $upload_path = Tilda::get_upload_path() . $project_id . '/';
+
+        $ar = array();
+        foreach($projects[$project_id]->css as $css) {
+            $ar[] = $upload_path . 'css/'.$css->to;
+        }
+        $page->css = $ar;
+
+        $ar = array();
+        foreach($projects[$project_id]->js as $js) {
+            $ar[] = $upload_path . 'js/' . $js->to;
+        }
+        $page->js = $ar;
         return $page;
     }
 
