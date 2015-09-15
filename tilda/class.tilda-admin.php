@@ -163,7 +163,7 @@ class Tilda_Admin
         if (!$projects_list){
             Tilda::$errors->add( 'refresh',__('Refresh pages list','tilda'));
         }
-
+        
         self::view(
             'pages_meta_box',
             array('projects_list' => $projects_list, 'data' => $data)
@@ -257,6 +257,15 @@ class Tilda_Admin
         $project = Tilda::get_project($project_id);
         if (is_wp_error($project)){
             return;
+        }
+
+        if (
+            isset($project)
+            || !isset($project->css)
+            || !isset($project->css[0])
+            || !isset($project->css[0]->to)
+        ) {
+            self::initialize();
         }
 
         $new_page = Tilda::get_pageexport($page_id);
