@@ -91,8 +91,39 @@ class Tilda
         add_action('wp_enqueue_scripts', array('Tilda', 'enqueue_scripts'));
         add_filter('the_content', array('Tilda', 'the_content') );
         //add_filter('sidebars_widgets', array('Tilda', 'sidebar_widgets'));
+
+        // !Важно не забыть повесить эти 2 хука. Дабы wp не отправил 0 или пустой ответ
+        // call /wp-admin/admin-ajax.php?action=nopriv_tilda_sync_event
+        // записывает задание в очередь
+        add_action("wp_ajax_tilda_sync_event", array("Tilda", "add_sync_event"));
+        add_action("wp_ajax_nopriv_tilda_sync_event", array("Tilda", "add_sync_event"));
+
+        // когда наступит время начнет выполнять задание
+        add_action( 'tilda_sync_single_event', array('Tilda','sync_single_event'));
+
     }
 
+    /**
+     * Добавляем разовое задание на закачку обновленных страниц с тильды
+     */
+    public static function add_sync_event()
+    {
+        // put this line inside a function, 
+        // presumably in response to something the user does
+        // otherwise it will schedule a new event on every page visit
+        if(empty($_REQUEST['page_id']) || empty($_REQUEST['project_id'])) {
+            echo "ERROR";
+            die();
+        }
+        wp_schedule_single_event( time() + 10, 'tilda_sync_single_event', array($_REQUEST['page_id'], $_REQUEST['project_id']) );
+        echo "OK";
+        die();
+    }
+    
+    public static function sync_single_event($page_id, $project_id)
+    {
+        
+    }
     
     private static function load_textdomain() {
         
@@ -153,7 +184,11 @@ class Tilda
         }
 
         if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
-            $page = self::get_local_page($data["page_id"],$data["project_id"]);
+            if(isset($data['current_page'])) {
+                $page = $data['current_page']; 
+            } else {
+                $page = self::get_local_page($data["page_id"],$data["project_id"]);
+            }
             return $page->html;
         }
         return $content;

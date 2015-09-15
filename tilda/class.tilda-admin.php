@@ -32,7 +32,6 @@ class Tilda_Admin
         add_action('admin_enqueue_scripts', array('Tilda_Admin', 'admin_enqueue_scripts'));
         add_action('save_post', array('Tilda_Admin', 'save_tilda_data'), 10);
 
-
         add_action('edit_form_after_title', function () {
             global $post, $wp_meta_boxes;
             do_meta_boxes(get_current_screen(), 'advanced', $post);
@@ -154,7 +153,8 @@ class Tilda_Admin
                 */
                 update_post_meta($post->ID, '_tilda', $data);
             } else {
-                $data["current_page"] = self::get_page($data["page_id"],$data["project_id"]);
+                
+                //$data["current_page"] = self::get_page($data["page_id"],$data["project_id"]);
             }
 
         }
