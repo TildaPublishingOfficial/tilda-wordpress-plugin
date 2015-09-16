@@ -617,8 +617,10 @@ class Tilda_Admin
             
             if (time() - self::$ts_start_plugin > 20) {
                 $arTmp[] = $file;
-            } elseif (! file_exists($file['to_dir'])) {
-                file_put_contents($file['to_dir'], file_get_contents($file['from_url']));
+            } else {
+                if (! file_exists($file['to_dir'])) {
+                    file_put_contents($file['to_dir'], file_get_contents($file['from_url']));
+                }
                 $downloaded++;
             }
         }
