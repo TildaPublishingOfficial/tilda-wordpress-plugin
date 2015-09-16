@@ -611,31 +611,30 @@ class Tilda_Admin
         }
         
         $arDownload = $_SESSION['tildaexport']['arDownload'];
-        
-        foreach ($arDownload as $downloaded => $file) {
-            if (! file_exists($file['to_dir'])) {
-                file_put_contents($file['to_dir'], file_get_contents($file['from_url']));
-            }
+        $arTmp = array();
+        $downloaded=0;
+        foreach ($arDownload as $file) {
             
             if (time() - self::$ts_start_plugin > 20) {
-                $arResult['message'] = "Синхронизация заняла больше 30 секунд и все файлы не успелись синхронизироваться. Нажмите еще раз кнопку Синхронизировать для продолжения синхронизации.";
-                break;
+                $arTmp[] = $file;
+            } elseif (! file_exists($file['to_dir'])) {
+                file_put_contents($file['to_dir'], file_get_contents($file['from_url']));
+                $downloaded++;
             }
         }
         
-        $arTmp = array();
-        foreach ($arDownload as $file) {
-            $arTmp[] = $file;
-        }
         $arDownload = $arTmp;
         
         $_SESSION['tildaexport']['arDownload'] = $arDownload;
         $_SESSION['tildaexport']['downloaded'] += $downloaded;
 
         $arResult['total_download'] = $_SESSION['tildaexport']['total'];
-        $arResult['need_download'] = $arResult['total_download'] - $_SESSION['tildaexport']['downloaded'];
+        $arResult['need_download'] = sizeof($arDownload); //$arResult['total_download'] - $_SESSION['tildaexport']['downloaded'];
         $arResult['count_downloaded'] = $_SESSION['tildaexport']['downloaded'];
 
+        if ($arResult['need_download'] > 0 ) {
+            $arResult['message'] = "Синхронизация заняла больше 30 секунд и все файлы не успелись синхронизироваться. Нажмите еще раз кнопку Синхронизировать для продолжения синхронизации.";
+        }
         echo json_encode($arResult);
         wp_die();
     }
