@@ -142,7 +142,6 @@ class Tilda_Admin
             self::initialize();
             unset($data['update_data']);
             update_post_meta($post->ID, '_tilda', $data);
-            self::log('update_post_meta '.$post->ID.' ['. json_encode($data).']', __FILE__, __LINE__);
         }
 
         $projects_list = Tilda::get_local_projects();
@@ -179,7 +178,6 @@ class Tilda_Admin
             $data[$key] = $val;
         }
 
-        self::log('update_post_meta '.$postID.' ['. json_encode($data).']', __FILE__, __LINE__);
         update_post_meta($postID, '_tilda', $data);
 
     }
@@ -548,7 +546,8 @@ class Tilda_Admin
         $meta['current_page'] = $tildapage;
         //unset($meta['current_page']->html);
         update_post_meta($post_id, '_tilda', $meta);
-        self::log('update_post_meta '.$post_id.' ['. json_encode($meta).']', __FILE__, __LINE__);
+        
+
 
         $upload_dir = Tilda::get_upload_dir() . $project->id . '/pages/'.$tildapage->id.'/';
         if(! is_dir($upload_dir)) {
@@ -652,7 +651,8 @@ class Tilda_Admin
         $meta = get_post_meta($post_id, '_tilda', true);
         $meta['status'] = $_REQUEST['tilda_status'];
         update_post_meta($post_id, "_tilda", $meta);
-        self::log('update_post_meta '.$post_id.' ['. json_encode($meta).']', __FILE__, __LINE__);
+        
+
         echo json_encode(array('result' => 'ok'));
         wp_die();
     }
