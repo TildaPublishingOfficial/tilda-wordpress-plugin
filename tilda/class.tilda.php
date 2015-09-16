@@ -145,7 +145,7 @@ class Tilda
         
         
         if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
-            $page = self::get_local_page($data["page_id"],$data["project_id"]);
+            $page = self::get_local_page($data["page_id"],$data["project_id"], $post->ID);
 
             $css_links = $page->css;
             $js_links = $page->js;
@@ -187,10 +187,15 @@ class Tilda
             if(isset($data['current_page'])) {
                 $page = $data['current_page']; 
             } else {
-                $page = self::get_local_page($data["page_id"],$data["project_id"]);
+                $page = self::get_local_page($data["page_id"],$data["project_id"], $post->ID);
             }
-            return $page->html;
+            
+            if (! empty($page->html)) {
+                return $page->html;
+            }
         }
+
+
         return $content;
     }
 
@@ -226,7 +231,9 @@ class Tilda
                 break;
             case 'project':
                 $suffix = 'projectid=' . $id;
-                $type .= 'export';
+                break;
+            case 'projectexport':
+                $suffix = 'projectid=' . $id;
                 break;
             case 'pageslist':
                 $suffix = 'projectid=' . $id;
@@ -266,11 +273,11 @@ class Tilda
 
     }
 
-    public static function get_project($id)
+    public static function get_projectexport($id)
     {
         
 
-        return self::get_from_api('project', $id);
+        return self::get_from_api('projectexport', $id);
 
     }
 
@@ -298,20 +305,34 @@ class Tilda
 
     public static function get_local_projects()
     {
-        
-
         $projects = get_option('tilda_projects');
-
         return $projects;
     }
 
-    public static function get_local_page($page_id, $project_id)
+    public static function get_local_project($project_id)
     {
-        
+        $projects = get_option('tilda_projects');
+        return isset($projects[$project_id]) ? $projects[$project_id] : null;
+    }
 
+    public static function get_local_page($page_id, $project_id, $post_id=0)
+    {
         $projects = self::get_local_projects();
 
-        $page = $projects[$project_id]->pages[$page_id];
+        if ($post_id == 0) {
+            $page = $projects[$project_id]->pages[$page_id];
+            if( isset($page->post_id)) {
+                $post_id = $page->post_id;
+            }
+        }
+
+        if ($post_id > 0) {
+            $data = get_post_meta($post_id, '_tilda', true);
+            if (! empty($data['current_page'])) {
+                $page = $data['current_page'];
+            }
+        }
+
         $upload_path = Tilda::get_upload_path() . $project_id . '/';
 
         $ar = array();

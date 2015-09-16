@@ -15,10 +15,14 @@ if (!Tilda::verify_access()) {
     $toggle_class = 'disabled';
 }
 $is_new_post = empty($post->post_title);
+if (empty($data['post_id'])) {
+    global $post;
+    $data['post_id'] = $post->ID;
+}
+
 wp_nonce_field('tilda_switcher', 'tilda_nonce');
 ?>
 <div class="tilda wrap">
-
     <input type="hidden" name="tilda[status]" value="<?= esc_attr($status) ?>"/>
 
     <?php Tilda::show_errors(); ?>

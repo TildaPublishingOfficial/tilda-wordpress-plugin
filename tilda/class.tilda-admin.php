@@ -38,6 +38,11 @@ class Tilda_Admin
             unset($wp_meta_boxes[get_post_type($post)]['advanced']);
         });
 
+        add_action("wp_ajax_tilda_admin_sync", array("Tilda_Admin", "ajax_sync"));
+        add_action("wp_ajax_tilda_admin_export_file", array("Tilda_Admin", "ajax_export_file"));
+        add_action("wp_ajax_tilda_admin_switcher_status", array("Tilda_Admin", "ajax_switcher_status"));
+        
+        
     }
 
     public static function admin_init()
@@ -100,8 +105,9 @@ class Tilda_Admin
         $data = get_post_meta($post->ID, '_tilda', true);
         $screens = array('post', 'page');
 
+        
         foreach ($screens as $screen) {
-
+            
             if (!isset($data["status"]) || $data["status"] != 'on') {
                 add_meta_box(
                     'tilda_switcher',
@@ -136,30 +142,10 @@ class Tilda_Admin
             self::initialize();
             unset($data['update_data']);
             update_post_meta($post->ID, '_tilda', $data);
-        }
-        
-        if ($page_id && $project_id) {
-            /* если известна текущая страница */
-            
-            if (isset($data['update_page']) && $data['update_page'] == 'update_page') {
-                $data["current_page"] = self::update_page($page_id, $project_id);
-                unset($data['update_page']);
-                
-                /**
-                 * раскомментировать, если нужно сохранять данные с Тильды в содержимое поста
-                 *
-                $post->post_content = $tilda_page->html;
-                wp_update_post( $post );
-                */
-                update_post_meta($post->ID, '_tilda', $data);
-            } else {
-                
-                //$data["current_page"] = self::get_page($data["page_id"],$data["project_id"]);
-            }
-
+            self::log('update_post_meta '.$post->ID.' ['. json_encode($data).']', __FILE__, __LINE__);
         }
 
-        $projects_list = self::get_projects();
+        $projects_list = Tilda::get_local_projects();
         if (!$projects_list){
             Tilda::$errors->add( 'refresh',__('Refresh pages list','tilda'));
         }
@@ -170,7 +156,6 @@ class Tilda_Admin
         );
 
     }
-
     public static function save_tilda_data($postID)
     {
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
@@ -189,8 +174,12 @@ class Tilda_Admin
 
         check_admin_referer("tilda_switcher", "tilda_nonce");
 
-        $data = $_POST['tilda'];
+        $data = get_post_meta($postID, '_tilda', true);
+        foreach($_POST['tilda'] as $key => $val) {
+            $data[$key] = $val;
+        }
 
+        self::log('update_post_meta '.$postID.' ['. json_encode($data).']', __FILE__, __LINE__);
         update_post_meta($postID, '_tilda', $data);
 
     }
@@ -215,7 +204,6 @@ class Tilda_Admin
 
         $projects = Tilda::get_projects();
         $projects_list = array();
-
         if (is_wp_error($projects)){
             return;
         }
@@ -226,7 +214,7 @@ class Tilda_Admin
         }
 
         foreach ($projects as $project) {
-            $project = Tilda::get_project($project->id);
+            $project = Tilda::get_projectexport($project->id);
 
             if ($project) {
                 $id = $project->id;
@@ -246,162 +234,28 @@ class Tilda_Admin
         }
 
         update_option('tilda_projects', $projects_list);
-
-//        self::download_assets($projects_list);
-    }
-
-    public static function update_page($page_id, $project_id)
-    {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
-        $project = Tilda::get_project($project_id);
-        if (is_wp_error($project)){
-            return;
-        }
-
-        if (
-            isset($project)
-            || !isset($project->css)
-            || !isset($project->css[0])
-            || !isset($project->css[0]->to)
-        ) {
-            self::initialize();
-        }
-
-        $new_page = Tilda::get_pageexport($page_id);
-
-        if (is_wp_error($new_page)){
-            return;
-        }
-
-        if($new_page){
-            self::download_project_assets($project);
-            $old_page = self::create_page($new_page, $project, true);
-        }else{
-            $old_page = self::get_page($page_id, $project_id);
-            $old_page->removed = true;
-        }
-
-        self::set_page($old_page, $project_id);
-        return $old_page;
-    }
-
-
-    public static function create_page($page, $project, $sync=false)
-    {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-        
-        set_time_limit(0);
-        $page->html = htmlspecialchars_decode($page->html);
-        $page_id =  $page->id;
-        $project_id = $project->id;
-
-        if ($sync) {
-            $page->sync_time = current_time('mysql');
-    
-            $upload_path = Tilda::get_upload_path() . $project->id . '/';
-    
-            $css_links = $project->css;
-            $js_links = $project->js;
-    
-            foreach ($css_links as $file) {
-                $page->css[] = $upload_path . 'css/' . $file->to;
-            }
-    
-            foreach ($js_links as $file) {
-                $page->js[] = $upload_path . 'js/' . $file->to;
-            }
-    
-            $upload_path = Tilda::get_upload_path() . $project_id . '/pages/'.$page_id.'/';
-            $upload_dir = Tilda::get_upload_dir() . $project_id . '/pages/'.$page_id.'/';
-
-            $localimages = array();
-            $images = array();
-            $i=0;
-            foreach ($page->images as $file) {
-                if (time() - self::$ts_start_plugin > 20) {
-                    self::$global_message = "Синхронизация заняла больше 30 секунд и все файлы не успелись синхронизироваться. Нажмите еще раз кнопку Синхронизировать для продолжения синхронизации.";
-                    break;
-                }
-                $i++;
-                if ($project->export_imgpath > '') {
-                    $exportimages[] = '|'.$project->export_imgpath.'/'.$file->to.'|i';
-                } else {
-                    $exportimages[] = '|'.$file->to.'|i';
-                }
-                $to = Tilda_Admin::download_export_image($file, $page_id, $project_id);
-                $replaceimages[] = $to;
-            }
-            
-            $html = preg_replace($exportimages, $replaceimages, $page->html);
-
-            if ($html ) {
-                $page->html = $html;
-            }
-        }
-        return $page;
-    }
-
-    public static function download_export_image($file, $page_id, $project_id) {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
-        if (empty($file->from) || empty($file->to)) {
-            echo "Error: cannot export image file";
-            return false;
-        }
-        
-        $upload_dir = Tilda::get_upload_dir() . $project_id . '/pages/'.$page_id.'/';
-        $upload_path = Tilda::get_upload_path() . $project_id . '/pages/'.$page_id.'/';
-
-        if (file_exists($upload_dir . $file->to)) {
-            return $upload_path . $file->to;
-        }
-
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755);
-            $error = error_get_last();
-            echo $error['message'];
-        }
-        
-        $contents = file_get_contents($file->from);
-        if ($contents) file_put_contents($upload_dir . $file->to, $contents);
-
-        return $upload_path . $file->to;
-    }
-
-    public static function download_image($src,$page_id, $project_id){
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
-        $upload_dir = Tilda::get_upload_dir() . $project_id . '/pages/'.$page_id.'/';
-        $upload_path = Tilda::get_upload_path() . $project_id . '/pages/'.$page_id.'/';
-
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755);
-            $error = error_get_last();
-            echo $error['message'];
-        }
-
-        $name = basename($src);
-        $contents = file_get_contents($src);
-        if ($contents) file_put_contents($upload_dir . $name, $contents);
-
-        return $upload_path . $name;
     }
 
     public static function get_page($page_id, $project_id)
     {
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
 
-        $projects = self::get_projects();
+        $projects = Tilda::get_local_projects();
         $page = $projects[$project_id]->pages[$page_id];
 
         return $page;
     }
 
-    public static function set_page($page, $project_id){
+    public static function set_page($page, $project_id, $post_id=0){
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
 
-        $projects = self::get_projects();
+        $projects = Tilda::get_local_projects();
+        if (isset($page['html'])) {
+            unset($page['html']);
+        }
+        if ($post_id > 0) {
+            $page['post_id'] = $post_id;
+        }
         $projects[$project_id]->pages[$page->id] = $page;
         update_option('tilda_projects', $projects);
     }
@@ -430,80 +284,6 @@ class Tilda_Admin
                 }
             }
         }
-    }
-
-    public static function download_assets($projects_list)
-    {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
-        foreach ($projects_list as $project) {
-            self::download_project_assets($project["id"]);
-        }
-    }
-
-    public static function is_exist_assets($project_id)
-    {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
-        $upload_dir = Tilda::get_upload_dir() . $project_id . '/';
-
-        return is_dir($upload_dir);
-    }
-
-    public static function download_project_assets($project)
-    {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
-        if (empty($project)) {
-            return;
-        }
-
-        $upload_dir = Tilda::get_upload_dir() . $project->id . '/';
-
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755);
-        }
-
-        // self::clear_dir($upload_dir);
-
-        $css_path = $upload_dir . 'css/';
-        $js_path = $upload_dir . 'js/';
-        $pages_path = $upload_dir . 'pages/';
-
-        if (!is_dir($css_path)) {
-            mkdir($css_path, 0755);
-        }
-        if (!is_dir($js_path)) {
-            mkdir($js_path, 0755);
-        }
-        if (!is_dir($pages_path)) {
-            mkdir($pages_path, 0755);
-        }
-
-        $css_links = $project->css;
-        $js_links = $project->js;
-
-        foreach ($css_links as $file) {
-            if (! file_exists($css_path . $file->to)) {
-                file_put_contents($css_path . $file->to, file_get_contents($file->from));
-            }
-        }
-
-        foreach ($js_links as $file) {
-            if (! file_exists($js_path . $file->to)) {
-                file_put_contents($js_path . $file->to, file_get_contents($file->from));
-            }
-        }
-
-    }
-
-    public static function get_projects()
-    {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
-        $projects = get_option('tilda_projects');
-
-        return $projects;
     }
 
     public static function public_key_field()
@@ -592,5 +372,287 @@ class Tilda_Admin
         fwrite($f, "[".self::$log_time." - $sec s] ".$message." in [file: $file, line: $line]\n");
         fclose($f);
     }
+   
+    /**
+     * Метод запрашивает данные указанного проекта с Тильды, включая страницы проекта, и сохраняет эти данные в опции tilda_projects
+     * @param int $project_id - код проекта в Тильде
+     * @return stdClass $project обновленные данные по проекту
+     */
+    public static function update_project($project_id)
+    {
+        $project = Tilda::get_projectexport($project_id);
+        $projects = Tilda::get_local_projects();
+        
+        $pages = Tilda::get_pageslist($project_id);
+        if ($pages && count($pages) > 0) {
+            $project->pages = array();
+            foreach ($pages as $page) {
+                $project->pages[$page->id] = $page;
+            }
+        }
 
+        $projects[$project_id] = $project;
+ 
+        $upload_dir = Tilda::get_upload_dir() . $project->id . '/';
+
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755);
+        }
+
+        // self::clear_dir($upload_dir);
+
+        $css_path = $upload_dir . 'css/';
+        $js_path = $upload_dir . 'js/';
+        $pages_path = $upload_dir . 'pages/';
+
+        if (!is_dir($css_path)) {
+            mkdir($css_path, 0755);
+        }
+        if (!is_dir($js_path)) {
+            mkdir($js_path, 0755);
+        }
+        if (!is_dir($pages_path)) {
+            mkdir($pages_path, 0755);
+        }
+
+        update_option('tilda_projects', $projects);
+        return $project;
+    }
+     
+    public static function replace_outer_image_to_local($tildapage, $export_imgpath='')
+    {
+        $exportimages = array();
+        $replaceimages = array();
+        $upload_path = Tilda::get_upload_path() . $tildapage->projectid . '/pages/'.$tildapage->id.'/';
+        
+        $uniq = array();
+        
+        foreach($tildapage->images as $image) {
+            if( isset($uniq[$image->from]) ){ continue; }
+            $uniq[$image->from] = 1;
+            
+            if ($export_imgpath > '') {
+                $exportimages[] = '|'.$export_imgpath.'/'.$image->to.'|i';
+            } else {
+                $exportimages[] = '|'.$image->to.'|i';
+            }
+            $replaceimages[] = $upload_path.$image->to;
+        }
+        $html = preg_replace($exportimages, $replaceimages, $tildapage->html);
+        if ($html) {
+            $tildapage->html = $html;
+        }
+        return $tildapage;
+    }
+    
+    
+    /**
+     * метод вызывается ajax-запросом из админки
+     *  http://example.com/wp-admin/admin-ajax.php?action=tilda_admin_sync
+     *
+     */
+    public static function ajax_sync()
+    {
+        $arResult = array();
+        if(empty($_REQUEST['page_id']) || empty($_REQUEST['project_id']) || empty($_REQUEST['post_id'])) {
+            $arResult['error'] = __('Bad request line. Missing parameter: projectid','tilda');
+            echo json_encode($arResult);
+            wp_die();
+        }
+        
+        $project_id = intval($_REQUEST['project_id']);
+        $page_id = intval($_REQUEST['page_id']);
+        $post_id = intval($_REQUEST['post_id']);
+        
+        $project = Tilda::get_local_project($project_id);
+
+        /* если проекта нет, или у него устаревший формат, то запросим его с Тильды */
+        if (
+            ! $project
+            || !isset($project->css)
+            || !isset($project->css[0])
+            || !isset($project->css[0]->to)
+        ) {
+            $project = self::update_project();
+        }
+        
+        if (is_wp_error($project)) {
+            $arResult['error'] = __("Error. Can't find project with this 'projectid' parameter");
+            echo json_encode($arResult);
+            wp_die();
+        }
+
+        $tildapage = Tilda::get_pageexport($page_id);
+        $tilda->html = htmlspecialchars_decode($tildapage->html);
+
+        if (is_wp_error($tildapage)) {
+            $arResult['error'] = __("Error. Can't find page with this 'pageid' parameter");
+            echo json_encode($arResult);
+            wp_die();
+        }
+
+        $tildapage = Tilda_Admin::replace_outer_image_to_local($tildapage, $project->export_imgpath);
+
+        $meta = get_post_meta($post_id, '_tilda', true);
+        
+        $meta['export_imgpath'] = $project->export_imgpath;
+        $meta['export_csspath'] = $project->export_csspath;
+        $meta['export_jspath'] = $project->export_jspath;
+        
+        
+        $meta['page_id'] = $tildapage->id;
+        $meta['project_id'] = $tildapage->projectid;
+        $meta['post_id'] = $post_id;
+        
+        $arDownload = array();
+        
+        $tildapage->css = array();
+        $upload_path = Tilda::get_upload_path() . $project->id . '/';
+        $upload_dir = Tilda::get_upload_dir() . $project->id . '/';
+        if(! is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755);
+        }
+        if(! is_dir($upload_dir.'pages/')) {
+            mkdir($upload_dir.'pages/', 0755);
+        }
+        if(! is_dir($upload_dir.'css/')) {
+            mkdir($upload_dir.'css/', 0755);
+        }
+        if(! is_dir($upload_dir.'js/')) {
+            mkdir($upload_dir.'js/', 0755);
+        }
+        
+        foreach($project->css as $file) {
+            $tildapage->css[] = $upload_path.'css/'.$file->to;
+            $arDownload[] = array(
+                'from_url' => $file->from,
+                'to_dir' => $upload_dir.'css/'.$file->to
+            );
+        }
+        
+        $tildapage->js = array();
+        foreach($project->js as $file) {
+            $tildapage->js[] = $upload_path.'js/'.$file->to;
+
+            $arDownload[] = array(
+                'from_url' => $file->from,
+                'to_dir' => $upload_dir.'js/'.$file->to
+            );
+        }
+
+        $post = get_post($post_id);
+        $post->post_content = 'Страница синхронизирована с Tilda.cc и вносить правки нужно там'; //$tildapage->html;
+        wp_update_post( $post );
+
+        $tildapage->sync_time = current_time('mysql');
+        $meta['current_page'] = $tildapage;
+        //unset($meta['current_page']->html);
+        update_post_meta($post_id, '_tilda', $meta);
+        self::log('update_post_meta '.$post_id.' ['. json_encode($meta).']', __FILE__, __LINE__);
+
+        $upload_dir = Tilda::get_upload_dir() . $project->id . '/pages/'.$tildapage->id.'/';
+        if(! is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755);
+        }
+        foreach($tildapage->images as $file) {
+            $arDownload[] = array(
+                'from_url' => $file->from,
+                'to_dir' => $upload_dir.$file->to
+            );
+        }
+
+        if (!session_id()) {
+            session_start();
+        }
+
+        $_SESSION['tildaexport'] = array(
+            'arDownload' => $arDownload,
+            'downloaded' => 0,
+            'total' => sizeof($arDownload)
+        );
+        
+        $arResult['total_download'] = $_SESSION['tildaexport']['total'];
+        $arResult['need_download'] = $arResult['total_download'];
+        $arResult['count_downloaded'] = 0;
+        
+        $arResult['page_id'] = $page_id;
+        $arResult['project_id'] = $project_id;
+        $arResult['post_id'] = $post_id;
+        
+        //$arResult['dump'] = $arDownload;
+ 
+        echo json_encode($arResult);
+        wp_die();
+   }
+
+     /**
+     * метод вызывается ajax-запросом из админки
+     *  http://example.com/wp-admin/admin-ajax.php?action=tilda_admin_export_file
+     *  закачивает файлы порциями
+     *
+     */
+   public static function ajax_export_file()
+    {
+        if (empty(self::$ts_start_plugin)) {
+            self::$ts_start_plugin = time();
+        }
+
+        if (!session_id()) {
+            session_start();
+        }
+
+        $arResult = array();
+
+        if (empty($_SESSION['tildaexport']['arDownload'])) {
+            $arResult['error'] = 'Error! All downloads';
+            $arResult['dump'] = $_SESSION['tildaexport'];
+            echo json_encode($arResult);
+            die(0);
+        }
+        
+        $arDownload = $_SESSION['tildaexport']['arDownload'];
+        
+        foreach ($arDownload as $downloaded => $file) {
+            if (! file_exists($file['to_dir'])) {
+                file_put_contents($file['to_dir'], file_get_contents($file['from_url']));
+            }
+            
+            if (time() - self::$ts_start_plugin > 20) {
+                $arResult['message'] = "Синхронизация заняла больше 30 секунд и все файлы не успелись синхронизироваться. Нажмите еще раз кнопку Синхронизировать для продолжения синхронизации.";
+                break;
+            }
+        }
+        
+        $arTmp = array();
+        foreach ($arDownload as $file) {
+            $arTmp[] = $file;
+        }
+        $arDownload = $arTmp;
+        
+        $_SESSION['tildaexport']['arDownload'] = $arDownload;
+        $_SESSION['tildaexport']['downloaded'] += $downloaded;
+
+        $arResult['total_download'] = $_SESSION['tildaexport']['total'];
+        $arResult['need_download'] = $arResult['total_download'] - $_SESSION['tildaexport']['downloaded'];
+        $arResult['count_downloaded'] = $_SESSION['tildaexport']['downloaded'];
+
+        echo json_encode($arResult);
+        wp_die();
+    }
+    
+    public static function ajax_switcher_status()
+    {
+        if (empty($_REQUEST['post_id']) || empty($_REQUEST['tilda_status']) || !in_array($_REQUEST['tilda_status'], array('on', 'off'))) {
+            echo json_encode(array('error' => __("Error. Can't find post with this 'post_id' parameter")));
+            wp_die();
+        }
+        
+        $post_id = intval($_REQUEST['post_id']);
+        $meta = get_post_meta($post_id, '_tilda', true);
+        $meta['status'] = $_REQUEST['tilda_status'];
+        update_post_meta($post_id, "_tilda", $meta);
+        self::log('update_post_meta '.$post_id.' ['. json_encode($meta).']', __FILE__, __LINE__);
+        echo json_encode(array('result' => 'ok'));
+        wp_die();
+    }
 }
