@@ -61,6 +61,7 @@ if ($has_current) {
     <span class="tilda_sync_label">Идет синхронизация</span>
     <div id="tilda_progress_bar">
     </div>
+    <div class="clear"></div>
 </div>
 <div class="tilda_pages_list <?php if ($has_current) {echo 'close';}?>">
     <?php if ($projects_list) {?>
