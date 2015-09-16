@@ -165,3 +165,34 @@
     background: #FFFFFF;
     padding: 10px;
 }
+
+#tilda_block_sync_progress {
+    font-size: 12px;
+    line-height: 14px;
+    margin-top: 20px;
+    text-align: left;
+}
+#tilda_progress_bar {
+    /*float: right;
+    margin-left: 200px;*/
+    margin-top: 3px;
+}
+#tilda_progress_bar .tilda_block {
+    width: 15px;
+    height: 15px;
+    margin-right: 2px;
+    margin-bottom: 2px;
+    display: block;
+    position: relative;
+    float: left;
+}
+
+#tilda_progress_bar .tilda_file_notloaded {
+    background: #EEEEEE;
+    border: 1px solid #666666;
+}
+
+#tilda_progress_bar .tilda_file_loaded {
+    background: #55AA55;
+    border: 1px solid #666666;
+}
