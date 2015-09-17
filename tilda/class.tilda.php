@@ -112,17 +112,43 @@ class Tilda
         // presumably in response to something the user does
         // otherwise it will schedule a new event on every page visit
         if(empty($_REQUEST['page_id']) || empty($_REQUEST['project_id'])) {
-            echo "ERROR";
-            die();
+            echo "ERROR unknown page_id or project_id";
+            wp_die();
         }
+
+        $maps = self::get_map_pages();
+        if (empty($maps[$page_id])) {
+            echo "ERROR unknown link between post_id and page_id";
+            wp_die();
+        }
+
         wp_schedule_single_event( time() + 10, 'tilda_sync_single_event', array($_REQUEST['page_id'], $_REQUEST['project_id']) );
         echo "OK";
-        die();
+        wp_die();
     }
     
     public static function sync_single_event($page_id, $project_id)
     {
+        $maps = self::get_map_pages();
+        if (empty($maps[$page_id])) {
+            wp_die();
+        }
         
+        $post_id = $maps[$page_id];
+        
+        if (! class_exists('Tilda_Admin', false)) {
+            require_once( TILDA_PLUGIN_DIR . 'class.tilda-admin.php' );
+        }
+        
+        if(empty($_REQUEST)) {
+            $_REQUEST = array();
+        }
+        
+        $_REQUEST['post_id'] = $post_id;
+        $_REQUEST['project_id'] = $project_id;
+        $_REQUEST['page_id'] = $page_id;
+        
+        Tilda_Admin::ajax_sync();
     }
     
     private static function load_textdomain() {
@@ -301,6 +327,15 @@ class Tilda
         
 
         return self::get_from_api('pageexport', $id);
+    }
+
+    /**
+     * возвращает массив связи tildapage_id => post_id
+     */
+    public static function get_map_pages()
+    {
+        $maps = get_option('tilda_map_pages');
+        return $maps;
     }
 
     public static function get_local_projects()

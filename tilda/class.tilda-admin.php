@@ -390,7 +390,7 @@ class Tilda_Admin
         }
 
         $projects[$project_id] = $project;
- 
+
         $upload_dir = Tilda::get_upload_dir() . $project->id . '/';
 
         if (!is_dir($upload_dir)) {
@@ -416,7 +416,27 @@ class Tilda_Admin
         update_option('tilda_projects', $projects);
         return $project;
     }
-     
+    
+    /**
+     * Обновляем информацию о соответствии page_id в post_id
+     * Нужно для реализации механизма обновления по расписанию
+     * 
+     * @param $page_id код страницы в Тильде
+     * @param $post_id код страницы или поста в вордпрессе
+     * @return array массив связи
+     */
+    public static function update_maps($page_id, $post_id)
+    {
+        $maps = Tilda::get_map_pages();
+        if(! $maps) {
+            $maps = array();
+        }
+        $maps[$page_id] = $post_id;
+        
+        update_option('tilda_map_pages', $maps);
+        return $maps;
+    }
+    
     public static function replace_outer_image_to_local($tildapage, $export_imgpath='')
     {
         $exportimages = array();
@@ -471,7 +491,7 @@ class Tilda_Admin
             || !isset($project->css[0])
             || !isset($project->css[0]->to)
         ) {
-            $project = self::update_project();
+            $project = self::update_project($project_id);
         }
         
         if (is_wp_error($project)) {
@@ -481,7 +501,7 @@ class Tilda_Admin
         }
 
         $tildapage = Tilda::get_pageexport($page_id);
-        $tilda->html = htmlspecialchars_decode($tildapage->html);
+        $tildapage->html = htmlspecialchars_decode($tildapage->html);
 
         if (is_wp_error($tildapage)) {
             $arResult['error'] = __("Error. Can't find page with this 'pageid' parameter");
@@ -489,6 +509,7 @@ class Tilda_Admin
             wp_die();
         }
 
+        self::update_maps($page_id, $post_id);
         $tildapage = Tilda_Admin::replace_outer_image_to_local($tildapage, $project->export_imgpath);
 
         $meta = get_post_meta($post_id, '_tilda', true);
@@ -649,9 +670,11 @@ class Tilda_Admin
         
         $post_id = intval($_REQUEST['post_id']);
         $meta = get_post_meta($post_id, '_tilda', true);
+        if (empty($meta)) {
+            $meta = array();
+        }
         $meta['status'] = $_REQUEST['tilda_status'];
         update_post_meta($post_id, "_tilda", $meta);
-        
 
         echo json_encode(array('result' => 'ok'));
         wp_die();
