@@ -11,7 +11,7 @@ http://help-ru.tilda.ws/wordpress
 ## Краткая инструкция
 
 * Скачать плагин https://github.com/tilda-publishing-llc/tilda-wordpress-plugin
-* Загрузите в папку /wp-content/plugins папку с плагином (tilda)
+* Загрузите в папку /wp-content/plugins папку с плагином (tilda-wordpress-plugin)
 * Зайдите в панель администрирования сайтом
 * Перейдите в раздел управления плагинами (Плагины/Установленные)
 * Найдите плагин Tilda Publishing API и нажмите «Активировать»
