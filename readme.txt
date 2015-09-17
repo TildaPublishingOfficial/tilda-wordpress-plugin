@@ -4,7 +4,7 @@ Donate link: https://github.com/tilda-publishing-llc/tilda-wordpress-plugin
 Tags: publishing, tilda, export
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 0.2
+Stable tag: master
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,6 +48,9 @@ If you change the page to Tilda you need to click on your site from the page cli
 
 Something is broken, or I have a great idea.
 Please create an issue on the [GitHub page](https://github.com/tilda-publishing-llc/tilda-wordpress-plugin). Creating a pull request with a fix is an even better option.
+
+Q: How automate update page on worpress after publish page on Tilda?
+A: Set on Tilda.cc next url for callback http://example.com/wp-admin/admin-ajax.php?action=nopriv_tilda_sync_event
 
 == Screenshots ==
 
