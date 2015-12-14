@@ -72,7 +72,7 @@
                 'post_id': $('#post_ID').val()
             };
             
-            $.post('/wp-admin/admin-ajax.php', data, function(json) {
+            $.post('admin-ajax.php', data, function(json) {
                 if(!json || json.error > '') {
                     $('#tilda_switcher').show().find('.errors').append('<li>' + json.error + '</li>');
                 } else {
@@ -113,7 +113,7 @@
                 action: 'tilda_admin_export_file',
             };
             
-            $.post('/wp-admin/admin-ajax.php', data, function(json) {
+            $.post('admin-ajax.php', data, function(json) {
                 if(!json || json.error > '') {
                     $('#tilda_block_sync_progress').find('.tilda_sync_label').html(json.error);
                 } else if(json.total_download > 0 ){
@@ -157,7 +157,7 @@
             $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Идет синхронизация файлов с Tilda.cc');
             $('#tilda_progress_bar').html('');
             
-            $.post('/wp-admin/admin-ajax.php', data, function(json) {
+            $.post('admin-ajax.php', data, function(json) {
                 if(!json || json.error > '') {
                     $('#tilda_block_sync_progress').find('.tilda_sync_label').html(json.error);
                 } else if(json.total_download > 0 ){

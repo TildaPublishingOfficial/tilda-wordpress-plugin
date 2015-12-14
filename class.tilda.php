@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: ALEX
- * Date: 09.04.15
- * Time: 19:21
- */
 class Tilda
 {
     private static $initiated = false;
@@ -44,6 +38,16 @@ class Tilda
             echo '<li class="error silver" style="color:#9F9F9F;"><span class="red" style="color:#C60000">Ошибка:</span> ' . $error . '</li>';
         }
         echo '</ul>';
+    }
+
+    public static function json_errors()
+    {
+        $errors = self::$errors->get_error_messages();
+        $arErr = array();
+        foreach ($errors as $error) {
+            $arErr[] = $error;
+        }
+        return json_encode( array('error' => implode(' | ', $arErr) ) );
     }
 
     public static function get_upload_path()
@@ -99,12 +103,13 @@ class Tilda
         add_action("wp_ajax_nopriv_tilda_sync_event", array("Tilda", "add_sync_event"));
 
         // когда наступит время начнет выполнять задание
-        add_action( 'tilda_sync_single_event', array('Tilda','sync_single_event'));
+        add_action( 'tilda_sync_single_event', array('Tilda','sync_single_event'),10,3);
+        add_action( 'tilda_sync_single_export_file', array('Tilda','sync_single_export_file'));
 
     }
 
     /**
-     * Добавляем разовое задание на закачку обновленных страниц с тильды
+     * Добавляем разовое задание на закачку обновленной страницы с тильды
      */
     public static function add_sync_event()
     {
@@ -117,38 +122,64 @@ class Tilda
         }
 
         $maps = self::get_map_pages();
-        if (empty($maps[$page_id])) {
+        if (empty($maps[$_REQUEST['page_id']])) {
             echo "ERROR unknown link between post_id and page_id";
             wp_die();
         }
 
-        wp_schedule_single_event( time() + 10, 'tilda_sync_single_event', array($_REQUEST['page_id'], $_REQUEST['project_id']) );
+        $meta = get_post_meta($maps[$_REQUEST['page_id']], '_tilda', true);
+        if (!$meta || empty($meta['status']) || $meta['status']!='on') {
+            echo "ERROR for page_id not fount Post or tilda - off";
+            wp_die();
+        }
+        
+        wp_schedule_single_event( time() + 1, 'tilda_sync_single_event', array($_REQUEST['page_id'], $_REQUEST['project_id'], $maps[$_REQUEST['page_id']]) );
         echo "OK";
         wp_die();
     }
     
-    public static function sync_single_event($page_id, $project_id)
+    public static function sync_single_event($page_id, $project_id, $post_id)
     {
-        $maps = self::get_map_pages();
-        if (empty($maps[$page_id])) {
-            wp_die();
-        }
-        
-        $post_id = $maps[$page_id];
-        
         if (! class_exists('Tilda_Admin', false)) {
             require_once( TILDA_PLUGIN_DIR . 'class.tilda-admin.php' );
         }
+
+        $meta = get_post_meta($post_id, '_tilda', true);
+        if (!$meta || empty($meta['status']) || $meta['status']!='on') {
+            echo "ERROR for page_id not fount Post or tilda - off";
+            wp_die();
+        }
+
+        $arDownload = Tilda_Admin::export_tilda_page($page_id, $project_id, $post_id);
         
-        if(empty($_REQUEST)) {
-            $_REQUEST = array();
+        wp_schedule_single_event( time() + 1, 'tilda_sync_single_export_file', array($arDownload) );
+    }
+    
+    public static function sync_single_export_file($arDownload)
+    {
+        if (! class_exists('Tilda_Admin', false)) {
+            require_once( TILDA_PLUGIN_DIR . 'class.tilda-admin.php' );
+        }
+        Tilda_Admin::$ts_start_plugin = time();
+        
+        $arTmp = array();
+        $downloaded=0;
+        foreach ($arDownload as $file) {
+            if (time() - Tilda_Admin::$ts_start_plugin > 5) {
+                $arTmp[] = $file;
+            } else {
+                if (! file_exists($file['to_dir'])) {
+                    file_put_contents($file['to_dir'], file_get_contents($file['from_url']));
+                }
+                $downloaded++;
+            }
         }
         
-        $_REQUEST['post_id'] = $post_id;
-        $_REQUEST['project_id'] = $project_id;
-        $_REQUEST['page_id'] = $page_id;
-        
-        Tilda_Admin::ajax_sync();
+        $arDownload = $arTmp;
+
+        if (! empty($arDownload) && sizeof($arDownload)>0) {
+            wp_schedule_single_event( time() + 1, 'tilda_sync_single_export_file', array($arDownload) );
+        }
     }
     
     private static function load_textdomain() {

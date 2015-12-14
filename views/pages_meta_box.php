@@ -54,7 +54,7 @@ if ($has_current) {
         </div>
         <div class="clear"></div>
     </div>
-<?
+<?php
 }?>
 
 <div id="tilda_block_sync_progress" style="display: none;">
@@ -74,7 +74,7 @@ if ($has_current) {
                     <?php endforeach; ?>
                 </ul>
                 <?php foreach ($projects_list as $project): ?>
-                    <div id="project-<?= $project->id ?>" data-project-id="<?= $project->id; ?>">
+                    <div id="project-<?= $project->id ?>" data-project-id="<?= $project->id; ?>" style="overflow: auto;">
                         <?php foreach ($project->pages as $page): ?>
                             <div class="row">
                                 <div class="widget">

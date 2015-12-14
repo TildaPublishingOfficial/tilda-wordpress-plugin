@@ -1,10 +1,10 @@
 === Plugin Name ===
 Contributors: (this should be a list of wordpress.org userid's)
-Donate link: https://github.com/tilda-publishing-llc/tilda-wordpress-plugin
+Donate link: https://wordpress.org/plugins/tilda-publishing/
 Tags: publishing, tilda, export
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 0.2
+Stable tag: 0.2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ then upload it to the site.
 
 == Installation ==
 
-* Download plugin from https://github.com/tilda-publishing-llc/tilda-wordpress-plugin
+* Download plugin from https://wordpress.org/plugins/tilda-publishing/
 * Load the folder /wp-content/plugins folder to the plugin (tilda-wordpress-plugin)
 * Go to the administration panel site
 * Go to control plug-ins (Plugins/Installed)
@@ -49,6 +49,9 @@ If you change the page to Tilda you need to click on your site from the page cli
 Something is broken, or I have a great idea.
 Please create an issue on the [GitHub page](https://github.com/tilda-publishing-llc/tilda-wordpress-plugin). Creating a pull request with a fix is an even better option.
 
+Q: How automate update page on worpress after publish page on Tilda?
+A: Set on Tilda.cc next url for callback http://example.com/wp-admin/admin-ajax.php?action=nopriv_tilda_sync_event
+
 == Screenshots ==
 
 1. Agter create page: http://images.tildacdn.info/61517a4c-5abd-4f01-bb2a-9049506e9367/3.jpg
@@ -64,3 +67,15 @@ Please create an issue on the [GitHub page](https://github.com/tilda-publishing-
 * Rename plugin
 * Order in folder with plugin
 * remake to ajax query
+
+= 0.2.2 =
+* bugfix ajax query for non-standart wordpress directory
+
+= 0.2.3 =
+* add support PHP version 5.0-5.3 (bugfix: fatal error on activation plugin)
+
+= 0.2.4
+* add scroll if many pages in project of Tilda (fix css bug in list pages)
+
+= 0.2.5
+* for any sync page load data from project (fix js or css error: unknow tXXX_init ... )

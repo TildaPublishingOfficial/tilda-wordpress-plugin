@@ -6,7 +6,7 @@ class Tilda_Admin
     private static $initiated = false;
     private static $libs = array('curl_init','timezonedb');
     private static $log_time = null;
-    private static $ts_start_plugin = null;
+    public static $ts_start_plugin = null;
     public static $global_message='';
     
     public static function init()
@@ -32,11 +32,7 @@ class Tilda_Admin
         add_action('admin_enqueue_scripts', array('Tilda_Admin', 'admin_enqueue_scripts'));
         add_action('save_post', array('Tilda_Admin', 'save_tilda_data'), 10);
 
-        add_action('edit_form_after_title', function () {
-            global $post, $wp_meta_boxes;
-            do_meta_boxes(get_current_screen(), 'advanced', $post);
-            unset($wp_meta_boxes[get_post_type($post)]['advanced']);
-        });
+        add_action('edit_form_after_title', array("Tilda_Admin",'edit_form_after_title'));
 
         add_action("wp_ajax_tilda_admin_sync", array("Tilda_Admin", "ajax_sync"));
         add_action("wp_ajax_tilda_admin_export_file", array("Tilda_Admin", "ajax_export_file"));
@@ -45,6 +41,12 @@ class Tilda_Admin
         
     }
 
+    public static function edit_form_after_title()
+    {
+        global $post, $wp_meta_boxes;
+        do_meta_boxes(get_current_screen(), 'advanced', $post);
+        unset($wp_meta_boxes[get_post_type($post)]['advanced']);
+    }
     public static function admin_init()
     {
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
@@ -463,51 +465,48 @@ class Tilda_Admin
         return $tildapage;
     }
     
-    
     /**
-     * метод вызывается ajax-запросом из админки
-     *  http://example.com/wp-admin/admin-ajax.php?action=tilda_admin_sync
+     * экспортирует HTML и список используемых файлов (картинок, стилей и скриптов) из Тильды
+     * @param integer $page_id код страницы в Тильде
+     * @param integer $project_id код проекта в Тильде
+     * @param integer $post_id код страницы или поста на Вордпрессе
      *
+     * @return array $arDownload - список файлов для закачки (откуда и куда сохранить, в случае ошибки возвращает WP_Error)
      */
-    public static function ajax_sync()
+    public static function export_tilda_page($page_id, $project_id, $post_id)
     {
-        $arResult = array();
-        if(empty($_REQUEST['page_id']) || empty($_REQUEST['project_id']) || empty($_REQUEST['post_id'])) {
-            $arResult['error'] = __('Bad request line. Missing parameter: projectid','tilda');
-            echo json_encode($arResult);
-            wp_die();
-        }
-        
-        $project_id = intval($_REQUEST['project_id']);
-        $page_id = intval($_REQUEST['page_id']);
-        $post_id = intval($_REQUEST['post_id']);
-        
+        /*
         $project = Tilda::get_local_project($project_id);
 
-        /* если проекта нет, или у него устаревший формат, то запросим его с Тильды */
+        / * если проекта нет, или у него устаревший формат, то запросим его с Тильды * /
         if (
             ! $project
             || !isset($project->css)
             || !isset($project->css[0])
             || !isset($project->css[0]->to)
         ) {
+        */
+            // так как при изменении страницы мог изменится css или js, поэтому всегда запрашиваем данные проекта с Тильды
             $project = self::update_project($project_id);
-        }
+        //}
         
         if (is_wp_error($project)) {
-            $arResult['error'] = __("Error. Can't find project with this 'projectid' parameter");
-            echo json_encode($arResult);
-            wp_die();
+            return $project;
+            //$arResult['error'] = __("Error. Can't find project with this 'projectid' parameter");
+            //echo json_encode($arResult);
+            //wp_die();
         }
 
         $tildapage = Tilda::get_pageexport($page_id);
-        $tildapage->html = htmlspecialchars_decode($tildapage->html);
 
         if (is_wp_error($tildapage)) {
-            $arResult['error'] = __("Error. Can't find page with this 'pageid' parameter");
-            echo json_encode($arResult);
-            wp_die();
+            return $tildapage;
+            //$arResult['error'] = __("Error. Can't find page with this 'pageid' parameter");
+            //echo json_encode($arResult);
+            //wp_die();
         }
+
+        $tildapage->html = htmlspecialchars_decode($tildapage->html);
 
         self::update_maps($page_id, $post_id);
         $tildapage = Tilda_Admin::replace_outer_image_to_local($tildapage, $project->export_imgpath);
@@ -517,7 +516,6 @@ class Tilda_Admin
         $meta['export_imgpath'] = $project->export_imgpath;
         $meta['export_csspath'] = $project->export_csspath;
         $meta['export_jspath'] = $project->export_jspath;
-        
         
         $meta['page_id'] = $tildapage->id;
         $meta['project_id'] = $tildapage->projectid;
@@ -579,6 +577,35 @@ class Tilda_Admin
                 'from_url' => $file->from,
                 'to_dir' => $upload_dir.$file->to
             );
+        }
+
+        return $arDownload;
+    }
+    
+    /**
+     * метод вызывается ajax-запросом из админки (hook)
+     *  http://example.com/wp-admin/admin-ajax.php?action=tilda_admin_sync
+     *
+     */
+    public static function ajax_sync()
+    {
+        $arResult = array();
+        if(empty($_REQUEST['page_id']) || empty($_REQUEST['project_id']) || empty($_REQUEST['post_id'])) {
+            $arResult['error'] = __('Bad request line. Missing parameter: projectid','tilda');
+            echo json_encode($arResult);
+            wp_die();
+        }
+        
+        $project_id = intval($_REQUEST['project_id']);
+        $page_id = intval($_REQUEST['page_id']);
+        $post_id = intval($_REQUEST['post_id']);
+        
+        // запускаем экспорт
+        $arDownload = self::export_tilda_page($page_id, $project_id, $post_id);
+
+        if (is_wp_error($arDownload)){
+            echo Tilda::json_errors($arDownload);
+            wp_die();
         }
 
         if (!session_id()) {
