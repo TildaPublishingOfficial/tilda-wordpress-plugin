@@ -475,20 +475,8 @@ class Tilda_Admin
      */
     public static function export_tilda_page($page_id, $project_id, $post_id)
     {
-        /*
-        $project = Tilda::get_local_project($project_id);
-
-        / * если проекта нет, или у него устаревший формат, то запросим его с Тильды * /
-        if (
-            ! $project
-            || !isset($project->css)
-            || !isset($project->css[0])
-            || !isset($project->css[0]->to)
-        ) {
-        */
-            // так как при изменении страницы мог изменится css или js, поэтому всегда запрашиваем данные проекта с Тильды
-            $project = self::update_project($project_id);
-        //}
+        // так как при изменении страницы мог изменится css или js, поэтому всегда запрашиваем данные проекта с Тильды
+        $project = self::update_project($project_id);
         
         if (is_wp_error($project)) {
             return $project;
