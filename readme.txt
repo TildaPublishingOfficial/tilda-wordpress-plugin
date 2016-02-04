@@ -4,7 +4,7 @@ Donate link: https://wordpress.org/plugins/tilda-publishing/
 Tags: publishing, tilda, export
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 0.2.5
+Stable tag: 0.2.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,8 +74,17 @@ A: Set on Tilda.cc next url for callback http://example.com/wp-admin/admin-ajax.
 = 0.2.3 =
 * add support PHP version 5.0-5.3 (bugfix: fatal error on activation plugin)
 
-= 0.2.4
+= 0.2.4 =
 * add scroll if many pages in project of Tilda (fix css bug in list pages)
 
-= 0.2.5
+= 0.2.5 =
 * for any sync page load data from project (fix js or css error: unknow tXXX_init ... )
+
+= 0.2.6 =
+* sync updated css and js from project from webhook (fix js or css error: unknow tXXX_init ... )
+
+= 0.2.7 =
+* sync updated css and js from project from manual sync (fix js or css error: unknow tXXX_init ... )
+
+= 0.2.8 =
+* add option in plugin settings for save text in post for other plugin (rss, ... etc)

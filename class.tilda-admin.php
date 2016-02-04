@@ -78,6 +78,16 @@ class Tilda_Admin
             'tilda-config',
             'tilda_keys'
         );
+        
+        add_settings_field(
+            'tilda_type_stored',
+            'Type storage',
+            array('Tilda_Admin', 'type_stored_key_field'),
+            'tilda-config',
+            'tilda_keys'
+        );
+
+        
     }
 
     public static function admin_menu()
@@ -306,6 +316,19 @@ class Tilda_Admin
                value="<?= esc_attr($key); ?>"/>
 <?php
     }
+
+    public static function type_stored_key_field()
+    {
+        $options = get_option('tilda_options');
+        $key = (isset($options['type_stored'])) ? $options['type_stored'] : '';
+        ?>
+        <select id="type_stored" name="tilda_options[type_stored]"/>
+            <option value="post" <?= esc_attr($key)=='post' ? 'selected="selected"' : ''; ?>>Сохранять дополнительно текст для сторонних плагинов (rss,yml,...)</option>
+            <option value="meta" <?= esc_attr($key)=='meta' || esc_attr($key)=="" ? 'selected="selected"' : ''; ?>>Сохранять только весь HTML</option>
+        </select>
+<?php
+    }
+
 
     public static function options_validate($input)
     {
@@ -545,8 +568,18 @@ class Tilda_Admin
             );
         }
 
+        
         $post = get_post($post_id);
-        $post->post_content = 'Страница синхронизирована с Tilda.cc и вносить правки нужно там'; //$tildapage->html;
+
+        $tildaoptions = get_option('tilda_options');
+        if (!empty($tildaoptions['type_stored']) && $tildaoptions['type_stored']=='post') {
+            $post->post_content = strip_tags($tildapage->html,'<p><br><span><img><b><i><strike><strong><em><u><h1><h2><a><ul><li>');
+            $tmp = str_replace("\n\n","\n",$post->post_content);
+            if($tmp > ''){ $post->post_content = nl2br($tmp); }
+            else { $post->post_content = nl2br($post->post_content); }
+        } else {
+            $post->post_content = 'Страница синхронизирована с Tilda.cc и вносить правки нужно там'; //$tildapage->html;
+        }
         wp_update_post( $post );
 
         $tildapage->sync_time = current_time('mysql');
@@ -653,7 +686,7 @@ class Tilda_Admin
             if (time() - self::$ts_start_plugin > 20) {
                 $arTmp[] = $file;
             } else {
-                if (! file_exists($file['to_dir'])) {
+                if (! file_exists($file['to_dir']) || strpos($file['to_dir'], '/pages/') === false) {
                     file_put_contents($file['to_dir'], file_get_contents($file['from_url']));
                 }
                 $downloaded++;

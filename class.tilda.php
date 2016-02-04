@@ -168,7 +168,7 @@ class Tilda
             if (time() - Tilda_Admin::$ts_start_plugin > 5) {
                 $arTmp[] = $file;
             } else {
-                if (! file_exists($file['to_dir'])) {
+                if (! file_exists($file['to_dir']) || strpos($file['to_dir'],'/pages/')===false) {
                     file_put_contents($file['to_dir'], file_get_contents($file['from_url']));
                 }
                 $downloaded++;
@@ -233,20 +233,24 @@ class Tilda
         global $post;
 
         $data = get_post_meta($post->ID, '_tilda', true);
+        $tildaoptions = get_option('tilda_options');
 
         if(isset($data['status']) && $data['status'] == 'on') { 
             Tilda::$active_on_page = true;
         } else {
             Tilda::$active_on_page = false;
         }
-
         if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
-            if(isset($data['current_page'])) {
-                $page = $data['current_page']; 
-            } else {
-                $page = self::get_local_page($data["page_id"],$data["project_id"], $post->ID);
-            }
-            
+//            if (!empty($tildaoptions['type_stored']) && $tildaoptions['type_stored']=='post') {
+//                return $content;//$post->post_content;
+//            } else {
+                if(isset($data['current_page'])) {
+                    $page = $data['current_page']; 
+                } else {
+                    $page = self::get_local_page($data["page_id"],$data["project_id"], $post->ID);
+                }
+//            }
+
             if (! empty($page->html)) {
                 return $page->html;
             }
@@ -398,7 +402,7 @@ class Tilda
                 $page = $data['current_page'];
             }
         }
-
+        
         $upload_path = Tilda::get_upload_path() . $project_id . '/';
 
         $ar = array();
