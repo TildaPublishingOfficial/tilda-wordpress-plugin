@@ -1,9 +1,11 @@
 <?php
 /**
- * Created by PhpStorm.
  * User: ALEX
  * Date: 18.04.15
  * Time: 10:36
+ *
+ * User: Michael Akimov
+ * Date: 2016-02-05
  */
 
 global $post;
@@ -29,17 +31,17 @@ wp_nonce_field('tilda_switcher', 'tilda_nonce');
 
     <p>
         <?php if ($is_new_post) { ?>
-            <small>Для того, чтобы включить Тильду, необходимо указать заголовок страницы и нажать кнопку «Сохранить».
+            <small><?=__("Input title and click Save for activate Tilda for this page",'tilda')?>
             </small>
         <?php } else { ?>
             <input type="submit"
                    id="tilda_toggle"
                    class="button <?= $toggle_class ?>"
-                   value="Включить Тильду для этой страницы">
+                   value="<?=__("Activate Tilda for this page?",'tilda')?>">
             &nbsp;&nbsp;&nbsp;
             <?php if (!Tilda::verify_access()): ?>
                 <a href="options-general.php?page=tilda-config">
-                    Привязать аккаунт Тильды
+                    <?=__("Tilda accounts assign",'tilda')?>
                 </a>
             <?php endif; ?>
         <?php } ?>

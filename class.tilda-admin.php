@@ -1,4 +1,8 @@
 <?php
+/*
+ * User: Michael Akimov <michael@island-future.ru>
+ * Date: 2016-02-05
+ */
 
 class Tilda_Admin
 {
@@ -323,8 +327,8 @@ class Tilda_Admin
         $key = (isset($options['type_stored'])) ? $options['type_stored'] : '';
         ?>
         <select id="type_stored" name="tilda_options[type_stored]"/>
-            <option value="post" <?= esc_attr($key)=='post' ? 'selected="selected"' : ''; ?>>Сохранять дополнительно текст для сторонних плагинов (rss,yml,...)</option>
-            <option value="meta" <?= esc_attr($key)=='meta' || esc_attr($key)=="" ? 'selected="selected"' : ''; ?>>Сохранять только весь HTML</option>
+            <option value="post" <?= esc_attr($key)=='post' ? 'selected="selected"' : ''; ?>><?=__("Save text for another plugins",'tilda')?> (rss,yml,...)</option>
+            <option value="meta" <?= esc_attr($key)=='meta' || esc_attr($key)=="" ? 'selected="selected"' : ''; ?>><?=__("Save only HTML",'tilda')?></option>
         </select>
 <?php
     }
@@ -573,7 +577,17 @@ class Tilda_Admin
 
         $tildaoptions = get_option('tilda_options');
         if (!empty($tildaoptions['type_stored']) && $tildaoptions['type_stored']=='post') {
-            $post->post_content = strip_tags($tildapage->html,'<p><br><span><img><b><i><strike><strong><em><u><h1><h2><a><ul><li>');
+            $post->post_content = strip_tags($tildapage->html,'<script><p><br><span><img><b><i><strike><strong><em><u><h1><h2><a><ul><li>');
+            $tmp = explode("<script",$post->post_content);
+            if (sizeof($tmp)>1) {
+                for($i=1;$i<sizeof($tmp);$i++) {
+                    $pos = mb_strpos($tmp[$i],'</script',0,'utf8');
+                    if ($pos > 0) {
+                        $tmp[$i] = mb_substr($tmp[$i],$pos+9);
+                    }
+                }
+            }
+            $post->post_content = implode('', $tmp);
             $tmp = str_replace("\n\n","\n",$post->post_content);
             if($tmp > ''){ $post->post_content = nl2br($tmp); }
             else { $post->post_content = nl2br($post->post_content); }
@@ -703,7 +717,7 @@ class Tilda_Admin
         $arResult['count_downloaded'] = $_SESSION['tildaexport']['downloaded'];
 
         if ($arResult['need_download'] > 0 ) {
-            $arResult['message'] = "Синхронизация заняла больше 30 секунд и все файлы не успелись синхронизироваться. Нажмите еще раз кнопку Синхронизировать для продолжения синхронизации.";
+            $arResult['message'] = __("Sync worked more 30 sec and not all files download. Please, click button Synchronization for continue download files from Tilda.cc",'tilda');
         }
         echo json_encode($arResult);
         wp_die();
@@ -712,7 +726,7 @@ class Tilda_Admin
     public static function ajax_switcher_status()
     {
         if (empty($_REQUEST['post_id']) || empty($_REQUEST['tilda_status']) || !in_array($_REQUEST['tilda_status'], array('on', 'off'))) {
-            echo json_encode(array('error' => __("Error. Can't find post with this 'post_id' parameter")));
+            echo json_encode(array('error' => __("Error. Can't find post with this 'post_id' parameter",'tilda')));
             wp_die();
         }
         

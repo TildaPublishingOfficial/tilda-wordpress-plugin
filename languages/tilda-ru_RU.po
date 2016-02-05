@@ -3,19 +3,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Tilda\n"
-"Report-Msgid-Bugs-To: admin@inkthemes.comPOT-Creation-Date: 2012-01-11 "
-"12:47:23+00:00\n"
+"Report-Msgid-Bugs-To: admin@inkthemes.comPOT-Creation-Date: 2012-01-11 12:47:23+00:00\n"
 "POT-Creation-Date: 2013-02-14 13:20+0200\n"
-"PO-Revision-Date: 2015-05-05 16:22+0300\n"
+"PO-Revision-Date: 2016-02-05 12:44+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.7.6\n"
+"X-Generator: Poedit 1.8.7\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: _e\n"
-"X-Poedit-Basepath: ./\n"
+"X-Poedit-Basepath: .\n"
 "Language: ru_RU\n"
 "X-Poedit-SearchPath-0: ..\n"
 
@@ -58,3 +57,53 @@ msgstr "Не найдена библиотека "
 msgid "Error. Can't find post with this 'post_id' parameter"
 msgstr "Подключать Тильду можно только на странице или посте"
 
+msgid "Input title and click Save for activate Tilda for this page"
+msgstr "Для того, чтобы включить Тильду, необходимо указать заголовок страницы и нажать кнопку «Сохранить»"
+
+msgid "Activate Tilda for this page?"
+msgstr "Включить Тильду для этой страницы"
+
+msgid "Tilda accounts assign"
+msgstr "Привязать аккаунт Тильды"
+
+msgid "Show page"
+msgstr "Выводится страница"
+
+msgid "Sync in progress"
+msgstr "Синхронизация"
+
+msgid "Edit"
+msgstr "Редактировать"
+
+msgid "Synchronization"
+msgstr "Синхронизировать"
+
+msgid "Get another page"
+msgstr "Подключить другую"
+
+msgid "Please, select page from list"
+msgstr "Пожалуйста выберите страницу из списка"
+
+msgid "Cancel connect"
+msgstr "Отменить привязку"
+
+msgid "Refresh list"
+msgstr "Обновить список"
+
+msgid "Settings"
+msgstr "Настройка"
+
+msgid "Save"
+msgstr "Сохранить"
+
+msgid "Save text for another plugins"
+msgstr "Сохранять дополнительно текст для сторонних плагинов"
+
+msgid "Save only HTML"
+msgstr "Сохранить только HTML"
+
+msgid "Sync worked more 30 sec and not all files download. Please, click button Synchronization for continue download files from Tilda.cc"
+msgstr "Синхронизация заняла больше 30 секунд и все файлы не успелись синхронизироваться. Нажмите еще раз кнопку Синхронизировать для продолжения синхронизации."
+
+msgid "Selected page will be copied to your site. Further if you change something on the page on Tilda, you will need to update the page manually by clicking “Synchronization”"
+msgstr "Выбранная страница будет полностью скопирована на ваш сайт. В дальнейшем, если будут внесены какие-то изменения в страницу на Тильде, то необходимо будет обновить страницу вручную, нажав кнопку “Синхронизировать”"

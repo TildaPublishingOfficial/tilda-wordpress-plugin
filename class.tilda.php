@@ -1,4 +1,8 @@
 <?php
+/*
+ * User: Michael Akimov <michael@island-future.ru>
+ * Date: 2016-02-05
+ */
 
 class Tilda
 {

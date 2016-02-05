@@ -7,7 +7,7 @@ Author: Tilda Publishing
 License: GPLv2 or later
 Text Domain: api tilda
 
-Update 0.2.8 - add option in setting plugin for save text in post for other plugin (rss, ... etc)
+Update 0.2.9 - add english language
 */
 
 
@@ -35,7 +35,7 @@ if ( !function_exists( 'add_action' ) ) {
     exit;
 }
 
-define( 'TILDA_VERSION', '0.2.8' );
+define( 'TILDA_VERSION', '0.2.9' );
 define( 'TILDA_MINIMUM_WP_VERSION', '3.1' );
 define( 'TILDA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'TILDA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );

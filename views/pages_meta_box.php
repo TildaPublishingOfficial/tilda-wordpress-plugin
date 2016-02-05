@@ -4,6 +4,9 @@
  * User: Alex
  * Date: 14.04.15
  * Time: 13:16
+ * 
+ * User: Michael Akimov
+ * Date: 2016-02-05
  */
 
 $status = isset($data["status"]) && !empty($data["status"]) ? $data["status"] : 'off';
@@ -18,12 +21,12 @@ if ($has_current) {
         <img src="<?= plugins_url('../images/icon_tilda.png', __FILE__) ?>" class="alignleft"/>
 
         <div class="info">
-            <div class="title">Выводится страница:</div>
+            <div class="title"><?=__("Show page",'tilda')?>:</div>
             <div class="name"><?= $data["current_page"]->title ?></div>
             <?php if (isset($data["current_page"]->sync_time)):?>
                 <div>
                     <small>
-                        <?php printf('Синхронизация: %1$s %2$s', mysql2date(get_option('date_format'), $data["current_page"]->sync_time), mysql2date(get_option('time_format'), $data["current_page"]->sync_time)); ?>
+                        <?php printf(__("Sync in progress",'tilda').': %1$s %2$s', mysql2date(get_option('date_format'), $data["current_page"]->sync_time), mysql2date(get_option('time_format'), $data["current_page"]->sync_time)); ?>
                         <?=(!empty(self::$global_message) ? "<br>\n".self::$global_message : '')?>
                     </small>
                 </div>
@@ -34,7 +37,7 @@ if ($has_current) {
 
         <div class="alignright">
             <a href=" https://tilda.cc/page/?pageid=<?= $data["page_id"] ?>" target="_blank" class="button">
-                Редактировать
+                <?=__("Edit",'tilda')?>
             </a>
 
             <!-- a href="#" class="button sync">
@@ -42,13 +45,13 @@ if ($has_current) {
             </a -->
 
             <a href="#" class="button" id="ajaxsync" data-pageid="<?=$data['page_id']?>" data-projectid="<?=$data['project_id']?>" data-postid="<?=$data['post_id']?>">
-                Синхронизировать
+                <?=__("Synchronization",'tilda')?>
             </a>
 
             <!-- input type="hidden" name="tilda[update_page]" id="update_page" value=""/ -->
 
             <a href="#" class="button tilda_edit_page">
-                Подключить другую
+                <?=__("Get another page",'tilda')?>
             </a>
             
         </div>
@@ -58,14 +61,14 @@ if ($has_current) {
 }?>
 
 <div id="tilda_block_sync_progress" style="display: none;">
-    <span class="tilda_sync_label">Идет синхронизация</span>
+    <span class="tilda_sync_label"><?=__("Sync in progress",'tilda')?></span>
     <div id="tilda_progress_bar">
     </div>
     <div class="clear"></div>
 </div>
 <div class="tilda_pages_list <?php if ($has_current) {echo 'close';}?>">
     <?php if ($projects_list) {?>
-        <p>Пожалуйста выберите страницу из списка</p>
+        <p><?=__("Please, select page from list",'tilda')?></p>
         <div class="tilda_projects_tabs" id="js_tilda_projects_tabs">
             <div class="form clearfix">
                 <ul>
@@ -97,23 +100,21 @@ if ($has_current) {
         <div class="clear"></div>
 
         <p class="desc silver">
-            Выбранная страница будет полностью скопирована на ваш сайт. В дальнейшем, если будут внесены какие-то
-            изменения в страницу на Тильде, то необходимо будет обновить страницу вручную, нажав кнопку “Обновить
-            страницу”.
+            <?=__("Selected page will be copied to your site. Further if you change something on the page on Tilda, you will need to update the page manually by clicking “Synchronization”",'tilda')?>
         </p>
     <?php } ?>
     <?php Tilda::show_errors(); ?>
     <div class="clear">
 
         <a href="javascript:void(0)" id="tilda_toggle" class="alignleft remove_tilda">
-            Отменить привязку
+            <?=__("Cancel connect",'tilda')?>
         </a>
 
         <p class="submit text-align-right">
-            <input type="submit" class="button" value="Сохранить" id="tilda_save_page" data-postid="<?=$data['post_id']?>">
+            <input type="submit" class="button" value="<?=__('Save','tilda')?>" id="tilda_save_page" data-postid="<?=$data['post_id']?>">
 
             <button type="submit" class="button" name="tilda[update_data]" value="update_data">
-                Обновить список
+                <?=__("Refresh list",'tilda')?>
             </button>
         </p>
 
