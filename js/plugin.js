@@ -131,12 +131,12 @@
                     if (json.need_download > 0 ){
                         tilda_export_files();
                     } else {
-                        $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Файлы синхронизированы. <a href="'+window.location.href+'">Обновите страницу</a>');
+                        $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="'+window.location.href+'">Refresh page</a>');
                         $('#ajaxsync').removeAttr('disabled').removeClass('disabled');
                         window.location.reload();
                     }
                 } else {
-                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Файлы синхронизированы. <a href="'+window.location.href+'">Обновите страницу</a>');
+                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="'+window.location.href+'">Refresh page</a>');
                     $('#ajaxsync').removeAttr('disabled').removeClass('disabled');
                     window.location.reload();
                 }
@@ -154,7 +154,7 @@
             
             $('#tilda_progress_bar').hide();
             $('#tilda_block_sync_progress').show();
-            $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Идет синхронизация файлов с Tilda.cc');
+            $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Sync in progress with Tilda.cc');
             $('#tilda_progress_bar').html('');
             
             $.post('admin-ajax.php', data, function(json) {
@@ -169,7 +169,7 @@
                     
                     tilda_export_files();
                 } else {
-                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Файлы синхронизированы. <a href="'+window.location.href+'">Обновите страницу</a>');
+                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="'+window.location.href+'">Refresh page</a>');
                 }
             },'json');
         }
