@@ -313,12 +313,23 @@ class Tilda
         $type = 'get' . $type;
         $suffix = empty($suffix) ? $suffix : '&' . $suffix;
 
-        if ($curl = curl_init()) {
-            $url = TILDA_API_URL . '/' . $type . '/?publickey=' . TILDA_PUBLIC_KEY . '&secretkey=' . TILDA_SECRET_KEY . $suffix;
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            $out = curl_exec($curl);
-            curl_close($curl);
+        $url = TILDA_API_URL . '/' . $type . '/?publickey=' . TILDA_PUBLIC_KEY . '&secretkey=' . TILDA_SECRET_KEY . $suffix;
+
+        if (function_exists('curl_init')) {
+            if ($curl = curl_init()) {
+                curl_setopt($curl, CURLOPT_URL, $url);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                $out = curl_exec($curl);
+                curl_close($curl);
+            } else {
+               self::$errors->add( $code, 'Cannot run query: '.$suffix );
+               return self::$errors;
+            }
+        } else {
+            $out = file_get_contents($url);
+            if ($out && substr($out,0,1) == '{') {
+                $out = json_decode($out);
+            }
         }
 
         $out = json_decode($out);
