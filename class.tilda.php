@@ -27,7 +27,9 @@ class Tilda
         $upload_dir = $upload['basedir'];
         $upload_dir = $upload_dir . '/tilda/';
         if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755);
+            if (! mkdir($upload_dir, 0755)) {
+                die( "Cannot create writable directory [$upload_dir]");
+            }
         }
         return $upload_dir;
     }
@@ -196,29 +198,31 @@ class Tilda
     {
         global $post;
 
-        $data = get_post_meta($post->ID, '_tilda', true);
-
-        if(isset($data['status']) && $data['status'] == 'on') { 
-            Tilda::$active_on_page = true;
-        } else {
-            Tilda::$active_on_page = false;
-        }
-        
-        
-        if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
-            $page = self::get_local_page($data["page_id"],$data["project_id"], $post->ID);
-
-            $css_links = $page->css;
-            $js_links = $page->js;
-
-            foreach ($css_links as $file) {
-                $name = basename($file);
-                wp_enqueue_style($name, $file);
+        if ($post) {
+            $data = get_post_meta($post->ID, '_tilda', true);
+    
+            if(isset($data['status']) && $data['status'] == 'on') { 
+                Tilda::$active_on_page = true;
+            } else {
+                Tilda::$active_on_page = false;
             }
-
-            foreach ($js_links as $file) {
-                $name = basename($file);
-                wp_enqueue_script($name, $file);
+            
+            
+            if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
+                $page = self::get_local_page($data["page_id"],$data["project_id"], $post->ID);
+    
+                $css_links = $page->css;
+                $js_links = $page->js;
+    
+                foreach ($css_links as $file) {
+                    $name = basename($file);
+                    wp_enqueue_style($name, $file);
+                }
+    
+                foreach ($js_links as $file) {
+                    $name = basename($file);
+                    wp_enqueue_script($name, $file);
+                }
             }
         }
 
@@ -322,23 +326,28 @@ class Tilda
                 $out = curl_exec($curl);
                 curl_close($curl);
             } else {
-               self::$errors->add( $code, 'Cannot run query: '.$suffix );
+               self::$errors->add( $code, 'Cannot run query: '.$type );
                return self::$errors;
             }
         } else {
             $out = file_get_contents($url);
-            if ($out && substr($out,0,1) == '{') {
-                $out = json_decode($out);
-            }
         }
 
-        $out = json_decode($out);
-        if ($out->status == 'FOUND'){
-            return $out->result;
-        }else{
-           self::$errors->add( $code, __($out->message, 'tilda').' query: '.$suffix );
-           return self::$errors;
+        if ($out && substr($out,0,1) == '{') {
+            $out = json_decode($out);
+            
+            if ($out && $out->status == 'FOUND'){
+                return $out->result;
+            } else {
+               self::$errors->add( $code, __($out->message, 'tilda').' query: '.$type );
+               return self::$errors;
+            }
+        } else {
+            self::$errors->add( $code, __($out, 'tilda').' in query: '.$type );
+            return self::$errors;
         }
+
+
     }
 
     public static function get_projects()
