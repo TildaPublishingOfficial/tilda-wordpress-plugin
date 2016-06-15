@@ -175,7 +175,18 @@ class Tilda
                 $arTmp[] = $file;
             } else {
                 if (! file_exists($file['to_dir']) || strpos($file['to_dir'],'/pages/')===false) {
-                    file_put_contents($file['to_dir'], file_get_contents($file['from_url']));
+
+                    $content = self::getRemoteFile($file['from_url']);
+                    if (is_wp_error($content)) {
+                        echo self::json_errors();
+                        wp_die();
+                    }
+                    
+                    if(file_put_contents($file['to_dir'], $content) === false) {
+                        self::$errors->add( 'error_download', 'Cannot save file to ['.$file['to_dir'].'].');
+                        echo self::json_errors();
+                        wp_die();
+                    }
                 }
                 $downloaded++;
             }
@@ -443,4 +454,20 @@ class Tilda
         return $page;
     }
 
+    public static function getRemoteFile($url) {
+        if (function_exists('curl_init')) {
+            if ($curl = curl_init()) {
+                curl_setopt($curl, CURLOPT_URL, $url);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                $out = curl_exec($curl);
+                curl_close($curl);
+            } else {
+               self::$errors->add( 'download_error', 'Cannot get file: '.$url );
+               return self::$errors;
+            }
+        } else {
+            $out = file_get_contents($url);
+        }
+        return $out;
+    }
 }

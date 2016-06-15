@@ -538,23 +538,32 @@ class Tilda_Admin
         
         $arDownload = array();
         
-        $tildapage->css = array();
         $upload_path = Tilda::get_upload_path() . $project->id . '/';
         $upload_dir = Tilda::get_upload_dir() . $project->id . '/';
-        if(! is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755);
+        if(! is_dir($upload_dir) && ! mkdir($upload_dir, 0755)) {
+            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir );
+            return Tilda::$errors;
         }
-        if(! is_dir($upload_dir.'pages/')) {
-            mkdir($upload_dir.'pages/', 0755);
+        if(! is_dir($upload_dir.'pages/') && ! mkdir($upload_dir.'pages/', 0755)) {
+            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'pages/' );
+            return Tilda::$errors;
         }
-        if(! is_dir($upload_dir.'css/')) {
-            mkdir($upload_dir.'css/', 0755);
+        if(! is_dir($upload_dir.'css/') && ! mkdir($upload_dir.'css/', 0755)) {
+            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'css/' );
+            return Tilda::$errors;
         }
-        if(! is_dir($upload_dir.'js/')) {
-            mkdir($upload_dir.'js/', 0755);
+        if(! is_dir($upload_dir.'js/') && ! mkdir($upload_dir.'js/', 0755)) {
+            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'js/' );
+            return Tilda::$errors;
         }
         
-        foreach($project->css as $file) {
+        if (isset($tildapage->css) && is_array($tildapage->css)) {
+            $arCSS = $tildapage->css;
+        } else {
+            $arCSS = $project->css;
+        }
+        $tildapage->css = array();
+        foreach($arCSS as $file) {
             $tildapage->css[] = $upload_path.'css/'.$file->to;
             $arDownload[] = array(
                 'from_url' => $file->from,
@@ -562,8 +571,13 @@ class Tilda_Admin
             );
         }
         
+        if (isset($tildapage->js) && is_array($tildapage->js)) {
+            $arJS = $tildapage->js;
+        } else {
+            $arJS = $project->js;
+        }
         $tildapage->js = array();
-        foreach($project->js as $file) {
+        foreach($arJS as $file) {
             $tildapage->js[] = $upload_path.'js/'.$file->to;
 
             $arDownload[] = array(
@@ -592,7 +606,7 @@ class Tilda_Admin
             if($tmp > ''){ $post->post_content = nl2br($tmp); }
             else { $post->post_content = nl2br($post->post_content); }
         } else {
-            $post->post_content = 'Страница синхронизирована с Tilda.cc и вносить правки нужно там'; //$tildapage->html;
+            $post->post_content = 'Page synchronized. Edit page only on site Tilda.cc'; //$tildapage->html;
         }
         wp_update_post( $post );
 
@@ -604,8 +618,9 @@ class Tilda_Admin
 
 
         $upload_dir = Tilda::get_upload_dir() . $project->id . '/pages/'.$tildapage->id.'/';
-        if(! is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755);
+        if(! is_dir($upload_dir) && ! mkdir($upload_dir, 0755)) {
+            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir );
+            return Tilda::$errors;
         }
         foreach($tildapage->images as $file) {
             $arDownload[] = array(
@@ -614,6 +629,45 @@ class Tilda_Admin
             );
         }
 
+        /* скачиваем спец картинки */
+        if (isset($tildapage->img) && substr($tildapage->img,0,4) == 'http') {
+            $path = parse_url($tildapage->img, PHP_URL_PATH);
+            $path = explode('/', $path);
+            $fname = array_pop($path);
+            if ($fname && ($pos=strrpos($fname,'.'))>0) {
+                $ext = substr($fname, $pos);
+                $arDownload[] = array(
+                    'from_url' => $tildapage->img,
+                    'to_dir' => $upload_dir.'cover'.$ext
+                );
+            }
+        }
+
+        if (isset($tildapage->featureimg) && substr($tildapage->featureimg,0,4) == 'http') {
+            $path = parse_url($tildapage->featureimg, PHP_URL_PATH);
+            $path = explode('/', $path);
+            $fname = array_pop($path);
+            if ($fname && ($pos=strrpos($fname,'.'))>0) {
+                $ext = substr($fname, $pos);
+                $arDownload[] = array(
+                    'from_url' => $tildapage->featureimg,
+                    'to_dir' => $upload_dir.'feature'.$ext
+                );
+            }
+        }
+
+        if (isset($tildapage->fb_img) && substr($tildapage->fb_img,0,4) == 'http') {
+            $path = parse_url($tildapage->fb_img, PHP_URL_PATH);
+            $path = explode('/', $path);
+            $fname = array_pop($path);
+            if ($fname && ($pos=strrpos($fname,'.'))>0) {
+                $ext = substr($fname, $pos);
+                $arDownload[] = array(
+                    'from_url' => $tildapage->fb_img,
+                    'to_dir' => $upload_dir.'socnet'.$ext
+                );
+            }
+        }
         return $arDownload;
     }
     
@@ -645,6 +699,11 @@ class Tilda_Admin
 
         if (!session_id()) {
             session_start();
+            /*if (session_status() != PHP_SESSION_ACTIVE) {
+                Tilda::$errors->add( 'no_start_session', 'Cannoyt start session.');
+                echo Tilda::json_errors();
+                wp_die();
+            }*/
         }
 
         $_SESSION['tildaexport'] = array(
@@ -681,6 +740,11 @@ class Tilda_Admin
 
         if (!session_id()) {
             session_start();
+            /*if (session_status() != PHP_SESSION_ACTIVE) {
+                Tilda::$errors->add( 'no_start_session', 'Cannoyt start session.');
+                echo Tilda::json_errors();
+                wp_die();
+            }*/
         }
 
         $arResult = array();
@@ -701,7 +765,17 @@ class Tilda_Admin
                 $arTmp[] = $file;
             } else {
                 if (! file_exists($file['to_dir']) || strpos($file['to_dir'], '/pages/') === false) {
-                    file_put_contents($file['to_dir'], file_get_contents($file['from_url']));
+                    $content = Tilda::getRemoteFile($file['from_url']);
+                    if (is_wp_error($content)) {
+                        echo Tilda::json_errors();
+                        wp_die();
+                    }
+                    
+                    if(file_put_contents($file['to_dir'], $content) === false) {
+                        Tilda::$errors->add( 'error_download', 'Cannot save file to ['.$file['to_dir'].'].');
+                        echo Tilda::json_errors();
+                        wp_die();
+                    }
                 }
                 $downloaded++;
             }
