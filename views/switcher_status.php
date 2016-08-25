@@ -25,23 +25,23 @@ if (empty($data['post_id'])) {
 wp_nonce_field('tilda_switcher', 'tilda_nonce');
 ?>
 <div class="tilda wrap">
-    <input type="hidden" name="tilda[status]" value="<?= esc_attr($status) ?>"/>
+    <input type="hidden" name="tilda[status]" value="<?php echo  esc_attr($status) ?>"/>
 
     <?php Tilda::show_errors(); ?>
 
     <p>
         <?php if ($is_new_post) { ?>
-            <small><?=__("Input title and click Save for activate Tilda for this page",'tilda')?>
+            <small><?php echo __("Input title and click Save for activate Tilda for this page",'tilda')?>
             </small>
         <?php } else { ?>
             <input type="submit"
                    id="tilda_toggle"
-                   class="button <?= $toggle_class ?>"
-                   value="<?=__("Activate Tilda for this page?",'tilda')?>">
+                   class="button <?php echo  esc_attr($toggle_class) ?>"
+                   value="<?php echo __("Activate Tilda for this page?",'tilda')?>">
             &nbsp;&nbsp;&nbsp;
             <?php if (!Tilda::verify_access()): ?>
                 <a href="options-general.php?page=tilda-config">
-                    <?=__("Tilda accounts assign",'tilda')?>
+                    <?php echo __("Tilda accounts assign",'tilda')?>
                 </a>
             <?php endif; ?>
         <?php } ?>

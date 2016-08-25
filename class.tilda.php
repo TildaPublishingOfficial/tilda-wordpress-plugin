@@ -27,7 +27,7 @@ class Tilda
         $upload_dir = $upload['basedir'];
         $upload_dir = $upload_dir . '/tilda/';
         if (!is_dir($upload_dir)) {
-            if (! mkdir($upload_dir, 0755)) {
+            if (! wp_mkdir_p($upload_dir)) {
                 die( "Cannot create writable directory [$upload_dir]");
             }
         }
@@ -41,7 +41,7 @@ class Tilda
         $errors = self::$errors->get_error_messages();
         echo '<ul class="errors">';
         foreach ($errors as $error) {
-            echo '<li class="error silver" style="color:#9F9F9F;"><span class="red" style="color:#C60000">Ошибка:</span> ' . $error . '</li>';
+            echo '<li class="error silver" style="color:#9F9F9F;"><span class="red" style="color:#C60000">Ошибка:</span> ' . esc_html($error) . '</li>';
         }
         echo '</ul>';
     }
@@ -73,7 +73,7 @@ class Tilda
         $upload_dir = self::get_upload_dir();
 
         if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755);
+            wp_mkdir_p($upload_dir);
         }
     }
 
@@ -128,18 +128,30 @@ class Tilda
         }
 
         $maps = self::get_map_pages();
-        if (empty($maps[$_REQUEST['page_id']])) {
+        if (empty($maps[intval($_REQUEST['page_id'])])) {
             echo "ERROR unknown link between post_id and page_id";
             wp_die();
         }
 
-        $meta = get_post_meta($maps[$_REQUEST['page_id']], '_tilda', true);
+        $meta = get_post_meta($maps[intval($_REQUEST['page_id'])], '_tilda', true);
         if (!$meta || empty($meta['status']) || $meta['status']!='on') {
-            echo "ERROR for page_id not fount Post or tilda - off";
+            echo "ERROR for page_id not found Post or tilda - off";
             wp_die();
         }
         
-        wp_schedule_single_event( time() + 1, 'tilda_sync_single_event', array($_REQUEST['page_id'], $_REQUEST['project_id'], $maps[$_REQUEST['page_id']]) );
+        /* public key generate in Tilda.cc and insert Admin User into wordpress */
+        if (empty($_REQUEST['publickey']) || $_REQUEST['publickey'] != self::get_public_key()) {
+            echo "Access denied";
+            wp_die();
+        }
+
+        /* access allow for tilda.cc and api.tildacdn.com */
+        if ($_SERVER['REMOTE_ADDR']<>"194.177.22.186" && $_SERVER['REMOTE_ADDR']<>"31.186.102.154") {
+            echo "Access denied";
+            wp_die();
+        }
+
+        wp_schedule_single_event( time() + 1, 'tilda_sync_single_event', array(intval($_REQUEST['page_id']), intval($_REQUEST['project_id']), $maps[intval($_REQUEST['page_id'])]) );
         echo "OK";
         wp_die();
     }

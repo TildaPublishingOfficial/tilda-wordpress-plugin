@@ -1,4 +1,4 @@
-<?php
+;_<?php
 /*
  * User: Michael Akimov <michael@island-future.ru>
  * Date: 2016-02-05
@@ -191,7 +191,7 @@ class Tilda_Admin
 
         $data = get_post_meta($postID, '_tilda', true);
         foreach($_POST['tilda'] as $key => $val) {
-            $data[$key] = $val;
+            $data[$key] = esc_html($val);
         }
 
         update_post_meta($postID, '_tilda', $data);
@@ -307,7 +307,7 @@ class Tilda_Admin
         $key = (isset($options['public_key'])) ? $options['public_key'] : '';
         ?>
         <input type="text" id="public_key" name="tilda_options[public_key]" maxlength="100" size="50"
-               value="<?= esc_attr($key); ?>"/>
+               value="<?php echo esc_attr($key); ?>"/>
 <?php
     }
 
@@ -317,7 +317,7 @@ class Tilda_Admin
         $key = (isset($options['secret_key'])) ? $options['secret_key'] : '';
         ?>
         <input type="text" id="secret_key" name="tilda_options[secret_key]" maxlength="100" size="50"
-               value="<?= esc_attr($key); ?>"/>
+               value="<?php echo esc_attr($key); ?>"/>
 <?php
     }
 
@@ -327,8 +327,8 @@ class Tilda_Admin
         $key = (isset($options['type_stored'])) ? $options['type_stored'] : '';
         ?>
         <select id="type_stored" name="tilda_options[type_stored]"/>
-            <option value="post" <?= esc_attr($key)=='post' ? 'selected="selected"' : ''; ?>><?=__("Save text for another plugins",'tilda')?> (rss,yml,...)</option>
-            <option value="meta" <?= esc_attr($key)=='meta' || esc_attr($key)=="" ? 'selected="selected"' : ''; ?>><?=__("Save only HTML",'tilda')?></option>
+            <option value="post" <?php echo esc_attr($key)=='post' ? 'selected="selected"' : ''; ?>><?php echo __("Save text for another plugins",'tilda')?> (rss,yml,...)</option>
+            <option value="meta" <?php echo esc_attr($key)=='meta' || esc_attr($key)=="" ? 'selected="selected"' : ''; ?>><?php echo __("Save only HTML",'tilda')?></option>
         </select>
 <?php
     }
@@ -423,7 +423,8 @@ class Tilda_Admin
         $upload_dir = Tilda::get_upload_dir() . $project->id . '/';
 
         if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755);
+            wp_mkdir_p($upload_dir);
+            // mkdir($upload_dir, 0755);
         }
 
         // self::clear_dir($upload_dir);
@@ -433,13 +434,16 @@ class Tilda_Admin
         $pages_path = $upload_dir . 'pages/';
 
         if (!is_dir($css_path)) {
-            mkdir($css_path, 0755);
+            wp_mkdir_p($css_path);
+            //mkdir($css_path, 0755);
         }
         if (!is_dir($js_path)) {
-            mkdir($js_path, 0755);
+            //mkdir($js_path, 0755);
+            wp_mkdir_p($js_path);
         }
         if (!is_dir($pages_path)) {
-            mkdir($pages_path, 0755);
+            //mkdir($pages_path, 0755);
+            wp_mkdir_p($pages_path);
         }
 
         update_option('tilda_projects', $projects);
@@ -540,19 +544,19 @@ class Tilda_Admin
         
         $upload_path = Tilda::get_upload_path() . $project->id . '/';
         $upload_dir = Tilda::get_upload_dir() . $project->id . '/';
-        if(! is_dir($upload_dir) && ! mkdir($upload_dir, 0755)) {
+        if(! is_dir($upload_dir) && ! wp_mkdir_p($upload_dir, 0755)) {
             Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir );
             return Tilda::$errors;
         }
-        if(! is_dir($upload_dir.'pages/') && ! mkdir($upload_dir.'pages/', 0755)) {
+        if(! is_dir($upload_dir.'pages/') && ! wp_mkdir_p($upload_dir.'pages/', 0755)) {
             Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'pages/' );
             return Tilda::$errors;
         }
-        if(! is_dir($upload_dir.'css/') && ! mkdir($upload_dir.'css/', 0755)) {
+        if(! is_dir($upload_dir.'css/') && ! wp_mkdir_p($upload_dir.'css/', 0755)) {
             Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'css/' );
             return Tilda::$errors;
         }
-        if(! is_dir($upload_dir.'js/') && ! mkdir($upload_dir.'js/', 0755)) {
+        if(! is_dir($upload_dir.'js/') && ! wp_mkdir_p($upload_dir.'js/', 0755)) {
             Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'js/' );
             return Tilda::$errors;
         }

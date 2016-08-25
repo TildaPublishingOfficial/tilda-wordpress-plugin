@@ -89,6 +89,19 @@
                 $('#publish').click();
             });
 
+        $('#tilda_refresh_list').click(function(e){
+            e.preventDefault();
+            
+            if ($('#tilda_update_data').length == 0) {
+                $(this).parent().append('<input type="hidden" name="tilda[update_data]" value="update_data" id="tilda_update_data">')
+            } else {
+                $('#tilda_update_data').val('update_data');
+            }
+            
+            $('#publish').click();
+            return false;
+        });
+
         $('#tilda_save_page').click(function(e){
             e.preventDefault();
             
@@ -131,12 +144,12 @@
                     if (json.need_download > 0 ){
                         tilda_export_files();
                     } else {
-                        $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="'+window.location.href+'">Refresh page</a>');
+                        $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="javascript:window.location.reload()">Refresh page</a>');
                         $('#ajaxsync').removeAttr('disabled').removeClass('disabled');
                         window.location.reload();
                     }
                 } else {
-                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="'+window.location.href+'">Refresh page</a>');
+                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="javascript:window.location.reload()">Refresh page</a>');
                     $('#ajaxsync').removeAttr('disabled').removeClass('disabled');
                     window.location.reload();
                 }
@@ -169,7 +182,7 @@
                     
                     tilda_export_files();
                 } else {
-                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="'+window.location.href+'">Refresh page</a>');
+                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="javascript:window.location.reload()">Refresh page</a>');
                 }
             },'json');
         }
