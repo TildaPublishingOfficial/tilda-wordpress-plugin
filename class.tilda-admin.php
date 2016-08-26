@@ -191,7 +191,7 @@ class Tilda_Admin
 
         $data = get_post_meta($postID, '_tilda', true);
         foreach($_POST['tilda'] as $key => $val) {
-            $data[$key] = esc_html($val);
+            $data[sanitize_key($key)] = esc_html($val);
         }
 
         update_post_meta($postID, '_tilda', $data);

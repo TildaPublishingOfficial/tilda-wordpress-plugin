@@ -149,7 +149,7 @@ class Tilda
         if ($_SERVER['REMOTE_ADDR']<>"194.177.22.186" && $_SERVER['REMOTE_ADDR']<>"31.186.102.154") {
             echo "Access denied";
             wp_die();
-        }
+        };
 
         wp_schedule_single_event( time() + 1, 'tilda_sync_single_event', array(intval($_REQUEST['page_id']), intval($_REQUEST['project_id']), $maps[intval($_REQUEST['page_id'])]) );
         echo "OK";
