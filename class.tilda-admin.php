@@ -590,6 +590,8 @@ class Tilda_Admin
             );
         }
 
+        $tildapage->html = str_replace('$(','jQuery(', $tildapage->html);
+        $tildapage->html = str_replace('$.','jQuery.', $tildapage->html);
         
         $post = get_post($post_id);
 
@@ -606,7 +608,16 @@ class Tilda_Admin
                 }
             }
             $post->post_content = implode('', $tmp);
-            $tmp = str_replace("\n\n","\n",$post->post_content);
+            $tmp = str_replace("\n\n\n\n","\n",$post->post_content);
+            if ($tmp > '') {
+                $tmp = str_replace("\n\n\n","\n",$tmp);
+                if ($tmp > '') {
+                    $tmp = str_replace("\n\n","\n",$tmp);
+                    if ($tmp > '') {
+                        $tmp = str_replace("\n\n","\n",$tmp);
+                    }
+                }
+            }
             if($tmp > ''){ $post->post_content = nl2br($tmp); }
             else { $post->post_content = nl2br($post->post_content); }
         } else {
@@ -773,6 +784,12 @@ class Tilda_Admin
                     if (is_wp_error($content)) {
                         echo Tilda::json_errors();
                         wp_die();
+                    }
+                    
+                    /* replace  short jQuery function $(...) to jQuery(...) */
+                    if (strpos($file['to_dir'],'tilda-blocks-') > 0 && strpos($file['to_dir'],'.js') > 0) {
+                        $content = str_replace('$(','jQuery(', $content);
+                        $content = str_replace('$.','jQuery.', $content);
                     }
                     
                     if(file_put_contents($file['to_dir'], $content) === false) {

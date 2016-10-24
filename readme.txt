@@ -1,14 +1,14 @@
 === Plugin Name ===
-Contributors: (this should be a list of wordpress.org userid's)
+Contributors: tildapublishing
 Donate link: https://wordpress.org/plugins/tilda-publishing/
-Tags: publishing, tilda, export
+Tags: blog, bulk, convert, crawl, data, import, importer, migrate, move, posts, publishing, tilda, export
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 0.2.15
+Stable tag: 0.2.17
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Export html page from Tilda.cc to your wordpress site into post or page.
+Export html page from Tilda.cc for import to your wordpress site into post or page.
 
 == Description ==
 
@@ -54,8 +54,8 @@ A: Set on Tilda.cc next url for callback http://example.com/wp-admin/admin-ajax.
 
 == Screenshots ==
 
-1. Agter create page: http://images.tildacdn.info/61517a4c-5abd-4f01-bb2a-9049506e9367/3.jpg
-2. Page where plugin on: http://images.tildacdn.info/85a010fe-a741-4cad-adfc-b38a0204aa5c/2.jpg
+1. After create page: screenshort3.jpg
+2. Page where plugin on: screenshort2.jpg
 3. Page with list project and pages from tilda.cc http://images.tildacdn.info/4af42b78-3494-4a85-ba10-15c2315af6f6/1.jpg
 
 == Changelog ==
@@ -101,12 +101,21 @@ A: Set on Tilda.cc next url for callback http://example.com/wp-admin/admin-ajax.
 = 0.2.12 =
 * modify sync (updated Tilda API)
 
-= 0.2.13
+= 0.2.13 =
 * add check error
 * add download image for socnet
 
-= 0.2.14
+= 0.2.14 =
 * bugfix refresh list (bug viewed in WP4.5.2)
 
-= 0.2.15
+= 0.2.15 =
 * bugfix vulnerability 
+
+= 0.2.15.1 =
+* add new secure version
+
+= 0.2.16 =
+* add password protected on pages/posts
+
+= 0.2.17 =
+* fix jQuery conflict with other js-framework
