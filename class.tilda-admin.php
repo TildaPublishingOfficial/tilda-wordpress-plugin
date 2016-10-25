@@ -597,17 +597,29 @@ class Tilda_Admin
 
         $tildaoptions = get_option('tilda_options');
         if (!empty($tildaoptions['type_stored']) && $tildaoptions['type_stored']=='post') {
-            $post->post_content = strip_tags($tildapage->html,'<script><p><br><span><img><b><i><strike><strong><em><u><h1><h2><a><ul><li>');
-            $tmp = explode("<script",$post->post_content);
-            if (sizeof($tmp)>1) {
-                for($i=1;$i<sizeof($tmp);$i++) {
-                    $pos = mb_strpos($tmp[$i],'</script',0,'utf8');
-                    if ($pos > 0) {
-                        $tmp[$i] = mb_substr($tmp[$i],$pos+9);
-                    }
+            $post->post_content = strip_tags($tildapage->html,'<style><script><p><br><span><img><b><i><strike><strong><em><u><h1><h2><h3><a><ul><li>');
+
+            
+            while (($pos = mb_strpos($post->post_content,"<style",0,'UTF-8')) !== false) {
+                $substring = mb_substr($post->post_content, $pos, mb_strpos($post->post_content,"</style>", 0, 'UTF-8')-$pos+8, 'UTF-8');
+                if ($substring > '') {
+                    $post->post_content = str_replace($substring, "", $post->post_content);
+                } else {
+                    break;
                 }
             }
-            $post->post_content = implode('', $tmp);
+            
+            while (($pos = mb_strpos($post->post_content,"<script", 0, 'UTF-8')) !== false) {
+                $substring = mb_substr($post->post_content, $pos, mb_strpos($post->post_content,"</script>", 0, 'UTF-8')-$pos+9, 'UTF-8');
+                if ($substring > '') {
+                    $post->post_content = str_replace($substring, "", $post->post_content);
+                } else {
+                    break;
+                }
+            }
+
+            $post->post_content = str_replace("\r\n","\n",$post->post_content);
+
             $tmp = str_replace("\n\n\n\n","\n",$post->post_content);
             if ($tmp > '') {
                 $tmp = str_replace("\n\n\n","\n",$tmp);
