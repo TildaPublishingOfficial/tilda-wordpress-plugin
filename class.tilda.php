@@ -100,6 +100,7 @@ class Tilda
         self::load_textdomain();
         add_action('wp_enqueue_scripts', array('Tilda', 'enqueue_scripts'));
         add_filter('the_content', array('Tilda', 'the_content') );
+        add_filter('body_class', array('Tilda', 'body_class') );
         //add_filter('sidebars_widgets', array('Tilda', 'sidebar_widgets'));
 
         // !Важно не забыть повесить эти 2 хука. Дабы wp не отправил 0 или пустой ответ
@@ -261,6 +262,20 @@ class Tilda
         var_dump($sidebars_widgets);
         return '';
     }
+
+    public static function body_class($classes)
+    {
+        global $post;
+        $data = get_post_meta($post->ID, '_tilda', true);
+        $tildaoptions = get_option('tilda_options');
+
+        if(isset($data['status']) && $data['status'] == 'on') {
+            $classes[] = 'tilda-publishing';
+        }
+        
+        return $classes;
+    }
+    
     
     public static function the_content($content)
     {
