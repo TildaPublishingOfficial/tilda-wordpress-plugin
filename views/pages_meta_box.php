@@ -104,7 +104,8 @@ if ($has_current) {
         </p>
     <?php } ?>
     <?php Tilda::show_errors(); ?>
-    <div class="clear">
+    <div class="clear"></div>
+    <div class="">
 
         <a href="javascript:void(0)" id="tilda_toggle" class="alignleft remove_tilda">
             <?php echo __("Cancel connect",'tilda')?>
