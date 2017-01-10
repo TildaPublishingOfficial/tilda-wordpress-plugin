@@ -86,7 +86,7 @@
             .click(function(e){
                 e.preventDefault();
                 $tilda_update_page.val('update_page');
-                $('#publish').click();
+                savePost();
             });
 
         $('#tilda_refresh_list').click(function(e){
@@ -98,6 +98,12 @@
                 $('#tilda_update_data').val('update_data');
             }
 
+            savePost();
+
+            return false;
+        });
+
+        var savePost = function() {
             var $btn = $('#save-post');
 
             if (!$btn.length) {
@@ -105,8 +111,7 @@
             }
 
             $btn.click();
-            return false;
-        });
+        };
 
         $('#tilda_save_page').click(function(e){
             e.preventDefault();
