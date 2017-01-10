@@ -97,8 +97,14 @@
             } else {
                 $('#tilda_update_data').val('update_data');
             }
-            
-            $('#publish').click();
+
+            var $btn = $('#save-post');
+
+            if (!$btn.length) {
+                $btn = $('#publish');
+            }
+
+            $btn.click();
             return false;
         });
 
