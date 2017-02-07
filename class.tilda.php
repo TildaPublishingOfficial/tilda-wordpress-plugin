@@ -298,9 +298,9 @@ class Tilda
 //                return $content;//$post->post_content;
 //            } else {
                 if(isset($data['current_page'])) {
-                    $page = $data['current_page']; 
-                } else {
-                    $page = self::get_local_page($data["page_id"],$data["project_id"], $post->ID);
+                    $page = $data['current_page'];
+                } else if (!empty($data["page_id"]) && !empty($data["project_id"])) {
+                    $page = self::get_local_page($data["page_id"], $data["project_id"], $post->ID);
                 }
 //            }
 
