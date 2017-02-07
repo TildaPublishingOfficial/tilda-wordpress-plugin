@@ -751,7 +751,7 @@ class Tilda_Admin
  
         echo json_encode($arResult);
         wp_die();
-   }
+    }
 
      /**
      * метод вызывается ajax-запросом из админки
@@ -759,7 +759,7 @@ class Tilda_Admin
      *  закачивает файлы порциями
      *
      */
-   public static function ajax_export_file()
+    public static function ajax_export_file()
     {
         if (empty(self::$ts_start_plugin)) {
             self::$ts_start_plugin = time();
@@ -804,7 +804,10 @@ class Tilda_Admin
                         $content = str_replace('$.','jQuery.', $content);
                     }
                     
-                    if(file_put_contents($file['to_dir'], $content) === false) {
+                    $ext = strtolower(substr($file['from_url'],-4));
+                    if (in_array($ext, array('.jpg','.png','.gif','jpeg')) && strpos($content,'The resource could not be found.')!==false) {
+                        
+                    } elseif(file_put_contents($file['to_dir'], $content) === false) {
                         Tilda::$errors->add( 'error_download', 'Cannot save file to ['.$file['to_dir'].'].');
                         echo Tilda::json_errors();
                         wp_die();
