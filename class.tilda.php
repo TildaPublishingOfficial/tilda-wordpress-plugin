@@ -475,16 +475,20 @@ class Tilda
         $upload_path = Tilda::get_upload_path() . $project_id . '/';
 
         $ar = array();
-        foreach($projects[$project_id]->css as $css) {
-            $ar[] = $upload_path . 'css/'.$css->to;
+        if (sizeof($page->css) == 0) {
+            foreach($projects[$project_id]->css as $css) {
+                $ar[] = $upload_path . 'css/'.$css->to;
+            }
+            $page->css = $ar;
         }
-        $page->css = $ar;
 
-        $ar = array();
-        foreach($projects[$project_id]->js as $js) {
-            $ar[] = $upload_path . 'js/' . $js->to;
+        if (sizeof($page->js) == 0) {
+            $ar = array();
+            foreach($projects[$project_id]->js as $js) {
+                $ar[] = $upload_path . 'js/' . $js->to;
+            }
+            $page->js = $ar;
         }
-        $page->js = $ar;
         return $page;
     }
 
