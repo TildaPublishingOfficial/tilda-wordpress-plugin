@@ -100,7 +100,7 @@ class Tilda
         self::load_textdomain();
         add_action('wp_enqueue_scripts', array('Tilda', 'enqueue_scripts'));
         remove_filter( 'the_content', 'wpautop' );
-        
+
         add_filter('the_content', array('Tilda', 'the_content') );
         add_filter('body_class', array('Tilda', 'body_class') );
         //add_filter('sidebars_widgets', array('Tilda', 'sidebar_widgets'));
@@ -268,6 +268,9 @@ class Tilda
     public static function body_class($classes)
     {
         global $post;
+        if (! $post || !is_object($post)) {
+            return $classes;
+        }
         $data = get_post_meta($post->ID, '_tilda', true);
         $tildaoptions = get_option('tilda_options');
 
@@ -282,6 +285,11 @@ class Tilda
     public static function the_content($content)
     {
         global $post;
+
+        if (! $post || !is_object($post)) {
+            return $content;
+        }
+
         /* если на странице установлен пароль, то проверим, может нужно вывести форму ввода пароля.*/
         if ($post->post_password > '' && strpos($content,'action=postpass') > 0) {
             return $content;
