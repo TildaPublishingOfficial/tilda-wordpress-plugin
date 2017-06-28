@@ -13,7 +13,7 @@ class Tilda
     public static function init()
     {
         if (!self::$initiated) {
-            
+
             self::init_consts();
             self::init_hooks();
         }
@@ -21,7 +21,7 @@ class Tilda
 
     public static function get_upload_dir()
     {
-        
+
 
         $upload = wp_upload_dir();
         $upload_dir = $upload['basedir'];
@@ -36,7 +36,7 @@ class Tilda
 
     public static function show_errors()
     {
-        
+
 
         $errors = self::$errors->get_error_messages();
         echo '<ul class="errors">';
@@ -58,7 +58,7 @@ class Tilda
 
     public static function get_upload_path()
     {
-        
+
 
         $upload = wp_upload_dir();
         $upload_dir = $upload['baseurl'];
@@ -68,7 +68,7 @@ class Tilda
 
     public static function plugin_activation()
     {
-        
+
 
         $upload_dir = self::get_upload_dir();
 
@@ -79,7 +79,7 @@ class Tilda
 
     private static function init_consts()
     {
-        
+
 
         self::$initiated = true;
         self::$errors = new WP_Error();
@@ -94,11 +94,13 @@ class Tilda
 
     private static function init_hooks()
     {
-        
+
 
         self::$initiated = true;
         self::load_textdomain();
         add_action('wp_enqueue_scripts', array('Tilda', 'enqueue_scripts'));
+        remove_filter( 'the_content', 'wpautop' );
+        
         add_filter('the_content', array('Tilda', 'the_content') );
         add_filter('body_class', array('Tilda', 'body_class') );
         //add_filter('sidebars_widgets', array('Tilda', 'sidebar_widgets'));
@@ -120,7 +122,7 @@ class Tilda
      */
     public static function add_sync_event()
     {
-        // put this line inside a function, 
+        // put this line inside a function,
         // presumably in response to something the user does
         // otherwise it will schedule a new event on every page visit
         if(empty($_REQUEST['page_id']) || empty($_REQUEST['project_id'])) {
@@ -139,7 +141,7 @@ class Tilda
             echo "ERROR for page_id not found Post or tilda - off";
             wp_die();
         }
-        
+
         /* public key generate in Tilda.cc and insert Admin User into wordpress */
         if (empty($_REQUEST['publickey']) || $_REQUEST['publickey'] != self::get_public_key()) {
             echo "Access denied";
@@ -161,7 +163,7 @@ class Tilda
         echo "OK";
         wp_die();
     }
-    
+
     public static function sync_single_event($page_id, $project_id, $post_id)
     {
         if (! class_exists('Tilda_Admin', false)) {
@@ -175,17 +177,17 @@ class Tilda
         }
 
         $arDownload = Tilda_Admin::export_tilda_page($page_id, $project_id, $post_id);
-        
+
         wp_schedule_single_event( time() + 1, 'tilda_sync_single_export_file', array($arDownload) );
     }
-    
+
     public static function sync_single_export_file($arDownload)
     {
         if (! class_exists('Tilda_Admin', false)) {
             require_once( TILDA_PLUGIN_DIR . 'class.tilda-admin.php' );
         }
         Tilda_Admin::$ts_start_plugin = time();
-        
+
         $arTmp = array();
         $downloaded=0;
         foreach ($arDownload as $file) {
@@ -199,7 +201,7 @@ class Tilda
                         echo self::json_errors();
                         wp_die();
                     }
-                    
+
                     if(file_put_contents($file['to_dir'], $content) === false) {
                         self::$errors->add( 'error_download', 'Cannot save file to ['.$file['to_dir'].'].');
                         echo self::json_errors();
@@ -209,16 +211,16 @@ class Tilda
                 $downloaded++;
             }
         }
-        
+
         $arDownload = $arTmp;
 
         if (! empty($arDownload) && sizeof($arDownload)>0) {
             wp_schedule_single_event( time() + 1, 'tilda_sync_single_export_file', array($arDownload) );
         }
     }
-    
+
     private static function load_textdomain() {
-        
+
 
         load_plugin_textdomain('tilda', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
     }
@@ -229,25 +231,25 @@ class Tilda
 
         if ($post) {
             $data = get_post_meta($post->ID, '_tilda', true);
-    
-            if(isset($data['status']) && $data['status'] == 'on') { 
+
+            if(isset($data['status']) && $data['status'] == 'on') {
                 Tilda::$active_on_page = true;
             } else {
                 Tilda::$active_on_page = false;
             }
-            
-            
+
+
             if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
                 $page = self::get_local_page($data["page_id"],$data["project_id"], $post->ID);
-    
+
                 $css_links = $page->css;
                 $js_links = $page->js;
-    
+
                 foreach ($css_links as $file) {
                     $name = basename($file);
                     wp_enqueue_style($name, $file);
                 }
-    
+
                 foreach ($js_links as $file) {
                     $name = basename($file);
                     wp_enqueue_script($name, $file);
@@ -272,11 +274,11 @@ class Tilda
         if(isset($data['status']) && $data['status'] == 'on') {
             $classes[] = 'tilda-publishing';
         }
-        
+
         return $classes;
     }
-    
-    
+
+
     public static function the_content($content)
     {
         global $post;
@@ -288,7 +290,7 @@ class Tilda
         $data = get_post_meta($post->ID, '_tilda', true);
         $tildaoptions = get_option('tilda_options');
 
-        if(isset($data['status']) && $data['status'] == 'on') { 
+        if(isset($data['status']) && $data['status'] == 'on') {
             Tilda::$active_on_page = true;
         } else {
             Tilda::$active_on_page = false;
@@ -336,7 +338,7 @@ class Tilda
 
     public static function get_from_api($type, $id = false)
     {
-        
+
 
         $suffix = '';
         $code = $type;
@@ -380,7 +382,7 @@ class Tilda
 
         if ($out && substr($out,0,1) == '{') {
             $out = json_decode($out);
-            
+
             if ($out && $out->status == 'FOUND'){
                 return $out->result;
             } else {
@@ -397,7 +399,7 @@ class Tilda
 
     public static function get_projects()
     {
-        
+
 
         return self::get_from_api('projectslist');
 
@@ -405,7 +407,7 @@ class Tilda
 
     public static function get_projectexport($id)
     {
-        
+
 
         return self::get_from_api('projectexport', $id);
 
@@ -413,7 +415,7 @@ class Tilda
 
     public static function get_pageslist($id)
     {
-        
+
 
         return self::get_from_api('pageslist', $id);
 
@@ -421,14 +423,14 @@ class Tilda
 
     public static function get_page($id)
     {
-        
+
 
         return self::get_from_api('page', $id);
     }
 
     public static function get_pageexport($id)
     {
-        
+
 
         return self::get_from_api('pageexport', $id);
     }
@@ -471,7 +473,7 @@ class Tilda
                 $page = $data['current_page'];
             }
         }
-        
+
         $upload_path = Tilda::get_upload_path() . $project_id . '/';
 
         $ar = array();

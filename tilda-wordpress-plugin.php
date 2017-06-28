@@ -2,10 +2,12 @@
 /*
 Plugin Name: Tilda Publishing
 Description: Tilda позволяет делать яркую подачу материала, качественную верстку и эффектную типографику, близкую к журнальной. Каким бы ни был ваш контент — Tilda знает, как его показать. С чего начать: 1) Нажмите ссылку «Активировать» слева от этого описания; 2) <a href="http://www.tilda.cc/" target="_blank">Зарегистрируйтесь</a>, чтобы получить API-ключ; 3) Перейдите на страницу настройки Tilda Publishing и введите свой API-ключ. Читайте подробную инструкцию по подключению.
-Version: 0.2.21
+Version: 0.2.22
 Author: Tilda Publishing
 License: GPLv2 or later
 Text Domain: api tilda
+
+Update 0.2.22 - remove_filter wpautop
 
 Update 0.2.21 - after sync not change status (draft->publish), thanks Anton Syuvaev; fix conflict with css from other version css and js
 
@@ -21,7 +23,7 @@ Update 0.2.16 - add password protected on pages/posts
 
 Update 0.2.15.1 - Add new secure server
 
-Update 0.2.15 - Bugfix vulnerability 
+Update 0.2.15 - Bugfix vulnerability
 
 Update 0.2.14 - Bugfix refresh list (bug viewed in WP4.5.2)
 
@@ -55,13 +57,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Turn off all error reporting
 //error_reporting(0);
- 
+
 if ( !function_exists( 'add_action' ) ) {
     echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
     exit;
 }
 
-define( 'TILDA_VERSION', '0.2.21' );
+define( 'TILDA_VERSION', '0.2.22' );
 define( 'TILDA_MINIMUM_WP_VERSION', '3.1' );
 define( 'TILDA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'TILDA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
