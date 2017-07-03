@@ -99,7 +99,6 @@ class Tilda
         self::$initiated = true;
         self::load_textdomain();
         add_action('wp_enqueue_scripts', array('Tilda', 'enqueue_scripts'));
-        remove_filter( 'the_content', 'wpautop' );
 
         add_filter('the_content', array('Tilda', 'the_content') );
         add_filter('body_class', array('Tilda', 'body_class') );
@@ -315,6 +314,7 @@ class Tilda
 //            }
 
             if (! empty($page->html)) {
+                remove_filter( 'the_content', 'wpautop' );
                 return $page->html;
             }
         }
@@ -467,6 +467,7 @@ class Tilda
     public static function get_local_page($page_id, $project_id, $post_id=0)
     {
         $projects = self::get_local_projects();
+        $page = null;
 
         if ($post_id == 0) {
             $page = $projects[$project_id]->pages[$page_id];
@@ -482,6 +483,9 @@ class Tilda
             }
         }
 
+        if (! $page || ! is_object($page)) {
+            return (object) array('css'=>null,'js'=>null,'html'=>null);
+        }
         $upload_path = Tilda::get_upload_path() . $project_id . '/';
 
         $ar = array();
