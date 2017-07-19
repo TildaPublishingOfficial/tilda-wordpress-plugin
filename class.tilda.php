@@ -226,10 +226,15 @@ class Tilda
 
     public static function enqueue_scripts()
     {
-        global $post;
 
-        if ($post) {
-            $data = get_post_meta($post->ID, '_tilda', true);
+        if (!is_singular()) {
+            return false;
+        }
+
+        $the_post = get_post();
+
+        if ($the_post) {
+            $data = get_post_meta($the_post->ID, '_tilda', true);
 
             if(isset($data['status']) && $data['status'] == 'on') {
                 Tilda::$active_on_page = true;
@@ -239,7 +244,7 @@ class Tilda
 
 
             if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
-                $page = self::get_local_page($data["page_id"],$data["project_id"], $post->ID);
+                $page = self::get_local_page($data["page_id"],$data["project_id"], $the_post->ID);
 
                 $css_links = $page->css;
                 $js_links = $page->js;
