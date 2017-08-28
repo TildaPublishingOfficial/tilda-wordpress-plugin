@@ -12,7 +12,7 @@ class Tilda_Admin
     private static $log_time = null;
     public static $ts_start_plugin = null;
     public static $global_message='';
-    
+
     public static function init()
     {
         if (!self::$initiated) {
@@ -41,8 +41,8 @@ class Tilda_Admin
         add_action("wp_ajax_tilda_admin_sync", array("Tilda_Admin", "ajax_sync"));
         add_action("wp_ajax_tilda_admin_export_file", array("Tilda_Admin", "ajax_export_file"));
         add_action("wp_ajax_tilda_admin_switcher_status", array("Tilda_Admin", "ajax_switcher_status"));
-        
-        
+
+
     }
 
     public static function edit_form_after_title()
@@ -82,7 +82,7 @@ class Tilda_Admin
             'tilda-config',
             'tilda_keys'
         );
-        
+
         add_settings_field(
             'tilda_type_stored',
             'Type storage',
@@ -91,7 +91,7 @@ class Tilda_Admin
             'tilda_keys'
         );
 
-        
+
     }
 
     public static function admin_menu()
@@ -121,9 +121,9 @@ class Tilda_Admin
         $data = get_post_meta($post->ID, '_tilda', true);
         $screens = array('post', 'page');
 
-        
+
         foreach ($screens as $screen) {
-            
+
             if (!isset($data["status"]) || $data["status"] != 'on') {
                 add_meta_box(
                     'tilda_switcher',
@@ -164,7 +164,7 @@ class Tilda_Admin
         if (!$projects_list){
             Tilda::$errors->add( 'refresh',__('Refresh pages list','tilda'));
         }
-        
+
         self::view(
             'pages_meta_box',
             array('projects_list' => $projects_list, 'data' => $data)
@@ -190,6 +190,9 @@ class Tilda_Admin
         check_admin_referer("tilda_switcher", "tilda_nonce");
 
         $data = get_post_meta($postID, '_tilda', true);
+        if (! is_array($data)) {
+            $data = array();
+        }
         foreach($_POST['tilda'] as $key => $val) {
             $data[sanitize_key($key)] = esc_html($val);
         }
@@ -385,7 +388,7 @@ class Tilda_Admin
         $file = TILDA_PLUGIN_DIR . 'views/' . $name . '.php';
         include($file);
     }
-    
+
     static public function log($message, $file=__FILE__, $line=__LINE__)
     {
         if (self::$log_time === null) {
@@ -399,7 +402,7 @@ class Tilda_Admin
         fwrite($f, "[".self::$log_time." - $sec s] ".$message." in [file: $file, line: $line]\n");
         fclose($f);
     }
-   
+
     /**
      * Метод запрашивает данные указанного проекта с Тильды, включая страницы проекта, и сохраняет эти данные в опции tilda_projects
      * @param int $project_id - код проекта в Тильде
@@ -409,7 +412,7 @@ class Tilda_Admin
     {
         $project = Tilda::get_projectexport($project_id);
         $projects = Tilda::get_local_projects();
-        
+
         $pages = Tilda::get_pageslist($project_id);
         if ($pages && count($pages) > 0) {
             $project->pages = array();
@@ -449,11 +452,11 @@ class Tilda_Admin
         update_option('tilda_projects', $projects);
         return $project;
     }
-    
+
     /**
      * Обновляем информацию о соответствии page_id в post_id
      * Нужно для реализации механизма обновления по расписанию
-     * 
+     *
      * @param $page_id код страницы в Тильде
      * @param $post_id код страницы или поста в вордпрессе
      * @return array массив связи
@@ -465,23 +468,23 @@ class Tilda_Admin
             $maps = array();
         }
         $maps[$page_id] = $post_id;
-        
+
         update_option('tilda_map_pages', $maps);
         return $maps;
     }
-    
+
     public static function replace_outer_image_to_local($tildapage, $export_imgpath='')
     {
         $exportimages = array();
         $replaceimages = array();
         $upload_path = Tilda::get_upload_path() . $tildapage->projectid . '/pages/'.$tildapage->id.'/';
-        
+
         $uniq = array();
-        
+
         foreach($tildapage->images as $image) {
             if( isset($uniq[$image->from]) ){ continue; }
             $uniq[$image->from] = 1;
-            
+
             if ($export_imgpath > '') {
                 $exportimages[] = '|'.$export_imgpath.'/'.$image->to.'|i';
             } else {
@@ -495,7 +498,7 @@ class Tilda_Admin
         }
         return $tildapage;
     }
-    
+
     /**
      * экспортирует HTML и список используемых файлов (картинок, стилей и скриптов) из Тильды
      * @param integer $page_id код страницы в Тильде
@@ -508,7 +511,7 @@ class Tilda_Admin
     {
         // так как при изменении страницы мог изменится css или js, поэтому всегда запрашиваем данные проекта с Тильды
         $project = self::update_project($project_id);
-        
+
         if (is_wp_error($project)) {
             return $project;
             //$arResult['error'] = __("Error. Can't find project with this 'projectid' parameter");
@@ -531,17 +534,20 @@ class Tilda_Admin
         $tildapage = Tilda_Admin::replace_outer_image_to_local($tildapage, $project->export_imgpath);
 
         $meta = get_post_meta($post_id, '_tilda', true);
-        
+        if (! is_array($meta)) {
+            $meta = array();
+        }
+
         $meta['export_imgpath'] = $project->export_imgpath;
         $meta['export_csspath'] = $project->export_csspath;
         $meta['export_jspath'] = $project->export_jspath;
-        
+
         $meta['page_id'] = $tildapage->id;
         $meta['project_id'] = $tildapage->projectid;
         $meta['post_id'] = $post_id;
-        
+
         $arDownload = array();
-        
+
         $upload_path = Tilda::get_upload_path() . $project->id . '/';
         $upload_dir = Tilda::get_upload_dir() . $project->id . '/';
         if(! is_dir($upload_dir) && ! wp_mkdir_p($upload_dir, 0755)) {
@@ -560,7 +566,7 @@ class Tilda_Admin
             Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'js/' );
             return Tilda::$errors;
         }
-        
+
         if (isset($tildapage->css) && is_array($tildapage->css)) {
             $arCSS = $tildapage->css;
         } else {
@@ -574,7 +580,7 @@ class Tilda_Admin
                 'to_dir' => $upload_dir.'css/'.$file->to
             );
         }
-        
+
         if (isset($tildapage->js) && is_array($tildapage->js)) {
             $arJS = $tildapage->js;
         } else {
@@ -592,14 +598,14 @@ class Tilda_Admin
 
         $tildapage->html = str_replace('$(','jQuery(', $tildapage->html);
         $tildapage->html = str_replace('$.','jQuery.', $tildapage->html);
-        
+
         $post = get_post($post_id);
 
         $tildaoptions = get_option('tilda_options');
         if (!empty($tildaoptions['type_stored']) && $tildaoptions['type_stored']=='post') {
             $post->post_content = strip_tags($tildapage->html,'<style><script><p><br><span><img><b><i><strike><strong><em><u><h1><h2><h3><a><ul><li>');
 
-            
+
             while (($pos = mb_strpos($post->post_content,"<style",0,'UTF-8')) !== false) {
                 $substring = mb_substr($post->post_content, $pos, mb_strpos($post->post_content,"</style>", 0, 'UTF-8')-$pos+8, 'UTF-8');
                 if ($substring > '') {
@@ -608,7 +614,7 @@ class Tilda_Admin
                     break;
                 }
             }
-            
+
             while (($pos = mb_strpos($post->post_content,"<script", 0, 'UTF-8')) !== false) {
                 $substring = mb_substr($post->post_content, $pos, mb_strpos($post->post_content,"</script>", 0, 'UTF-8')-$pos+9, 'UTF-8');
                 if ($substring > '') {
@@ -641,7 +647,7 @@ class Tilda_Admin
         $meta['current_page'] = $tildapage;
         //unset($meta['current_page']->html);
         update_post_meta($post_id, '_tilda', $meta);
-        
+
 
 
         $upload_dir = Tilda::get_upload_dir() . $project->id . '/pages/'.$tildapage->id.'/';
@@ -697,7 +703,7 @@ class Tilda_Admin
         }
         return $arDownload;
     }
-    
+
     /**
      * метод вызывается ajax-запросом из админки (hook)
      *  http://example.com/wp-admin/admin-ajax.php?action=tilda_admin_sync
@@ -711,11 +717,11 @@ class Tilda_Admin
             echo json_encode($arResult);
             wp_die();
         }
-        
+
         $project_id = intval($_REQUEST['project_id']);
         $page_id = intval($_REQUEST['page_id']);
         $post_id = intval($_REQUEST['post_id']);
-        
+
         // запускаем экспорт
         $arDownload = self::export_tilda_page($page_id, $project_id, $post_id);
 
@@ -738,17 +744,17 @@ class Tilda_Admin
             'downloaded' => 0,
             'total' => sizeof($arDownload)
         );
-        
+
         $arResult['total_download'] = $_SESSION['tildaexport']['total'];
         $arResult['need_download'] = $arResult['total_download'];
         $arResult['count_downloaded'] = 0;
-        
+
         $arResult['page_id'] = $page_id;
         $arResult['project_id'] = $project_id;
         $arResult['post_id'] = $post_id;
-        
+
         //$arResult['dump'] = $arDownload;
- 
+
         echo json_encode($arResult);
         wp_die();
     }
@@ -782,12 +788,12 @@ class Tilda_Admin
             echo json_encode($arResult);
             die(0);
         }
-        
+
         $arDownload = $_SESSION['tildaexport']['arDownload'];
         $arTmp = array();
         $downloaded=0;
         foreach ($arDownload as $file) {
-            
+
             if (time() - self::$ts_start_plugin > 20) {
                 $arTmp[] = $file;
             } else {
@@ -797,16 +803,16 @@ class Tilda_Admin
                         echo Tilda::json_errors();
                         wp_die();
                     }
-                    
+
                     /* replace  short jQuery function $(...) to jQuery(...) */
                     if (strpos($file['to_dir'],'tilda-blocks-') > 0 && strpos($file['to_dir'],'.js') > 0) {
                         $content = str_replace('$(','jQuery(', $content);
                         $content = str_replace('$.','jQuery.', $content);
                     }
-                    
+
                     $ext = strtolower(substr($file['from_url'],-4));
                     if (in_array($ext, array('.jpg','.png','.gif','jpeg')) && strpos($content,'The resource could not be found.')!==false) {
-                        
+
                     } elseif(file_put_contents($file['to_dir'], $content) === false) {
                         Tilda::$errors->add( 'error_download', 'Cannot save file to ['.$file['to_dir'].'].');
                         echo Tilda::json_errors();
@@ -816,9 +822,9 @@ class Tilda_Admin
                 $downloaded++;
             }
         }
-        
+
         $arDownload = $arTmp;
-        
+
         $_SESSION['tildaexport']['arDownload'] = $arDownload;
         $_SESSION['tildaexport']['downloaded'] += $downloaded;
 
@@ -832,14 +838,14 @@ class Tilda_Admin
         echo json_encode($arResult);
         wp_die();
     }
-    
+
     public static function ajax_switcher_status()
     {
         if (empty($_REQUEST['post_id']) || empty($_REQUEST['tilda_status']) || !in_array($_REQUEST['tilda_status'], array('on', 'off'))) {
             echo json_encode(array('error' => __("Error. Can't find post with this 'post_id' parameter",'tilda')));
             wp_die();
         }
-        
+
         $post_id = intval($_REQUEST['post_id']);
         $meta = get_post_meta($post_id, '_tilda', true);
         if (empty($meta)) {
