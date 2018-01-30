@@ -4,7 +4,7 @@ Donate link: https://wordpress.org/plugins/tilda-publishing/
 Tags: blog, bulk, convert, crawl, data, import, importer, migrate, move, posts, publishing, tilda, export
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 0.2.24
+Stable tag: 0.2.25
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,7 +64,7 @@ A: Please create an issue on the [GitHub page](https://github.com/greensun7/tild
 
 == Changelog ==
 
-= 0.2.24 =
+= 0.2.25 =
 * fix: bug in WP4.9
 
 = 0.2.22 =
