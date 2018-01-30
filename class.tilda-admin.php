@@ -533,7 +533,9 @@ class Tilda_Admin
         $tildapage = Tilda_Admin::replace_outer_image_to_local($tildapage, $project->export_imgpath);
 
         $meta = get_post_meta($post_id, '_tilda', true);
-
+        if (! is_array($meta)) {
+            $meta = array();
+        }
         $meta['export_imgpath'] = $project->export_imgpath;
         $meta['export_csspath'] = $project->export_csspath;
         $meta['export_jspath'] = $project->export_jspath;
