@@ -65,10 +65,7 @@ A: Please create an issue on the [GitHub page](https://github.com/greensun7/tild
 == Changelog ==
 
 = 0.2.24 =
-* fix: add check rule if meta data not found (fix error: undefined index)
-
-= 0.2.23 =
-* fix: wpautop and add check rule
+* fix: bug in WP4.9
 
 = 0.2.22 =
 * remove_filter wpautop (crash svg and other html blocks)

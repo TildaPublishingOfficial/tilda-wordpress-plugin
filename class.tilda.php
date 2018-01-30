@@ -66,6 +66,10 @@ class Tilda
         return $upload_dir;
     }
 
+    public static function plugin_deactivation()
+    {
+    }
+
     public static function plugin_activation()
     {
 
@@ -150,9 +154,7 @@ class Tilda
         /* access allow for tilda.cc and api.tildacdn.com */
         if (
             $_SERVER['REMOTE_ADDR']<>"194.177.22.186"
-            && $_SERVER['REMOTE_ADDR']<>"31.186.102.154"
-            && $_SERVER['REMOTE_ADDR']<>"31.186.102.155"
-            && $_SERVER['REMOTE_ADDR']<>"31.186.102.156"
+            && $_SERVER['REMOTE_ADDR']<>'95.213.201.187'
         ) {
             echo "Access denied";
             wp_die();
@@ -237,21 +239,24 @@ class Tilda
                 Tilda::$active_on_page = false;
             }
 
-
             if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
                 $page = self::get_local_page($data["page_id"],$data["project_id"], $post->ID);
 
                 $css_links = $page->css;
                 $js_links = $page->js;
 
-                foreach ($css_links as $file) {
-                    $name = basename($file);
-                    wp_enqueue_style($name, $file);
+                if (is_array($css_links)) {
+                    foreach ($css_links as $file) {
+                        $name = basename($file);
+                        wp_enqueue_style($name, $file);
+                    }
                 }
 
-                foreach ($js_links as $file) {
-                    $name = basename($file);
-                    wp_enqueue_script($name, $file);
+                if (is_array($js_links)) {
+                    foreach ($js_links as $file) {
+                        $name = basename($file);
+                        wp_enqueue_script($name, $file);
+                    }
                 }
             }
         }
@@ -315,6 +320,7 @@ class Tilda
 
             if (! empty($page->html)) {
                 remove_filter( 'the_content', 'wpautop' );
+                remove_filter( 'the_excerpt', 'wpautop' );
                 return $page->html;
             }
         }
@@ -490,16 +496,20 @@ class Tilda
 
         $ar = array();
         if (sizeof($page->css) == 0) {
-            foreach($projects[$project_id]->css as $css) {
-                $ar[] = $upload_path . 'css/'.$css->to;
+            if (is_array($projects[$project_id]->css)) {
+                foreach($projects[$project_id]->css as $css) {
+                    $ar[] = $upload_path . 'css/'.$css->to;
+                }
             }
             $page->css = $ar;
         }
 
         if (sizeof($page->js) == 0) {
             $ar = array();
-            foreach($projects[$project_id]->js as $js) {
-                $ar[] = $upload_path . 'js/' . $js->to;
+            if (is_array($projects[$project_id]->js)) {
+                foreach($projects[$project_id]->js as $js) {
+                    $ar[] = $upload_path . 'js/' . $js->to;
+                }
             }
             $page->js = $ar;
         }

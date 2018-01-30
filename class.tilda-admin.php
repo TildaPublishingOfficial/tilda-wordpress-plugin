@@ -190,9 +190,6 @@ class Tilda_Admin
         check_admin_referer("tilda_switcher", "tilda_nonce");
 
         $data = get_post_meta($postID, '_tilda', true);
-        if (! is_array($data)) {
-            $data = array();
-        }
         foreach($_POST['tilda'] as $key => $val) {
             $data[sanitize_key($key)] = esc_html($val);
         }
@@ -481,16 +478,18 @@ class Tilda_Admin
 
         $uniq = array();
 
-        foreach($tildapage->images as $image) {
-            if( isset($uniq[$image->from]) ){ continue; }
-            $uniq[$image->from] = 1;
+        if (is_array($tildapage->images)) {
+            foreach($tildapage->images as $image) {
+                if( isset($uniq[$image->from]) ){ continue; }
+                $uniq[$image->from] = 1;
 
-            if ($export_imgpath > '') {
-                $exportimages[] = '|'.$export_imgpath.'/'.$image->to.'|i';
-            } else {
-                $exportimages[] = '|'.$image->to.'|i';
+                if ($export_imgpath > '') {
+                    $exportimages[] = '|'.$export_imgpath.'/'.$image->to.'|i';
+                } else {
+                    $exportimages[] = '|'.$image->to.'|i';
+                }
+                $replaceimages[] = $upload_path.$image->to;
             }
-            $replaceimages[] = $upload_path.$image->to;
         }
         $html = preg_replace($exportimages, $replaceimages, $tildapage->html);
         if ($html) {
@@ -534,9 +533,6 @@ class Tilda_Admin
         $tildapage = Tilda_Admin::replace_outer_image_to_local($tildapage, $project->export_imgpath);
 
         $meta = get_post_meta($post_id, '_tilda', true);
-        if (! is_array($meta)) {
-            $meta = array();
-        }
 
         $meta['export_imgpath'] = $project->export_imgpath;
         $meta['export_csspath'] = $project->export_csspath;

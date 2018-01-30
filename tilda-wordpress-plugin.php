@@ -7,7 +7,7 @@ Author: Tilda Publishing
 License: GPLv2 or later
 Text Domain: api tilda
 
-Update 0.2.24 - fix: add check rule if meta data not found (fix error: undefined index)
+Update 0.2.24 - fix: bug in WP4.9
 
 Update 0.2.23 - fix: wpautop and add check rule
 
