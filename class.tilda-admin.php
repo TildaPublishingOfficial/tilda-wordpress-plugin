@@ -190,6 +190,9 @@ class Tilda_Admin
         check_admin_referer("tilda_switcher", "tilda_nonce");
 
         $data = get_post_meta($postID, '_tilda', true);
+		if (! is_array($data)) {
+			$data = array();
+		}
         foreach($_POST['tilda'] as $key => $val) {
             $data[sanitize_key($key)] = esc_html($val);
         }
@@ -364,7 +367,9 @@ class Tilda_Admin
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
 
         $data = get_post_meta($post->ID, '_tilda', true);
-
+		if (! is_array($data)) {
+			$data = array();
+		}
         if (!Tilda::verify_access()){
             Tilda::$errors->add( 'empty_keys',__('The security keys is not set','tilda'));
         }
@@ -809,7 +814,7 @@ class Tilda_Admin
                     }
 
                     $ext = strtolower(substr($file['from_url'],-4));
-                    if (in_array($ext, array('.jpg','.png','.gif','jpeg')) && strpos($content,'The resource could not be found.')!==false) {
+                    if (in_array($ext, array('.jpg','.png','.gif','jpeg')) && (strpos($content,'The resource could not be found.')!==false || strpos(strtolower($content),'not found.')!==false)) {
 
                     } elseif(file_put_contents($file['to_dir'], $content) === false) {
                         Tilda::$errors->add( 'error_download', 'Cannot save file to ['.$file['to_dir'].'].');
@@ -846,11 +851,13 @@ class Tilda_Admin
 
         $post_id = intval($_REQUEST['post_id']);
         $meta = get_post_meta($post_id, '_tilda', true);
-        if (empty($meta)) {
+        if (empty($meta) || ! is_array($meta)) {
             $meta = array();
         }
         $meta['status'] = $_REQUEST['tilda_status'];
-        update_post_meta($post_id, "_tilda", $meta);
+        if (! update_post_meta($post_id, "_tilda", $meta)) {
+			wp_die('Cannot save info for Tilda plugin.');
+		}
 
         echo json_encode(array('result' => 'ok'));
         wp_die();
