@@ -85,12 +85,35 @@ class Tilda_Admin
 
         add_settings_field(
             'tilda_type_stored',
-            'Type storage',
+            __('Type storage','tilda'),
             array('Tilda_Admin', 'type_stored_key_field'),
             'tilda-config',
             'tilda_keys'
         );
 
+        add_settings_field(
+            'tilda_acceptcssinlist',
+            __('Tilda CSS in List of posts','tilda'),
+            array('Tilda_Admin', 'acceptcssinlist_field'),
+            'tilda-config',
+            'tilda_keys'
+        );
+
+        add_settings_field(
+            'tilda_enabledposttypes',
+            __('Types of post where show Tilda button','tilda'),
+            array('Tilda_Admin', 'enabledposttypes_field'),
+            'tilda-config',
+            'tilda_keys'
+        );
+
+        add_settings_field(
+            'tilda_storageforfiles',
+            __('Storage for images','tilda'),
+            array('Tilda_Admin', 'storageforfiles_field'),
+            'tilda-config',
+            'tilda_keys'
+        );
 
     }
 
@@ -117,9 +140,13 @@ class Tilda_Admin
     {
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
 
-        global $post;
+        $post = get_post();
         $data = get_post_meta($post->ID, '_tilda', true);
-        $screens = array('post', 'page');
+
+        $options = get_option('tilda_options');
+        $screens = (isset($options['enabledposttypes'])) ? $options['enabledposttypes'] : array('post','page');
+
+        //$screens = array('post', 'page');
 
 
         foreach ($screens as $screen) {
@@ -129,7 +156,9 @@ class Tilda_Admin
                     'tilda_switcher',
                     'Tilda Publishing',
                     array('Tilda_Admin', 'switcher_callback'),
-                    $screen
+                    $screen,
+                    'advanced',
+                    'high'
                 );
             };
             if (isset($data["status"]) && $data["status"] == 'on') {
@@ -190,9 +219,9 @@ class Tilda_Admin
         check_admin_referer("tilda_switcher", "tilda_nonce");
 
         $data = get_post_meta($postID, '_tilda', true);
-		if (! is_array($data)) {
-			$data = array();
-		}
+        if (! is_array($data)) {
+            $data = array();
+        }
         foreach($_POST['tilda'] as $key => $val) {
             $data[sanitize_key($key)] = esc_html($val);
         }
@@ -336,9 +365,89 @@ class Tilda_Admin
 <?php
     }
 
+    public static function acceptcssinlist_field()
+    {
+        $options = get_option('tilda_options');
+        $key = (isset($options['acceptcssinlist'])) ? $options['acceptcssinlist'] : '';
+        ?>
+        <select id="acceptcssinlist" name="tilda_options[acceptcssinlist]"/>
+            <option value="no" <?php echo esc_attr($key)=='no' ? 'selected="selected"' : ''; ?>><?php echo __("Switch off tilda style in posts list",'tilda')?></option>
+            <option value="yes" <?php echo esc_attr($key)=='yes' || esc_attr($key)=="" ? 'selected="selected"' : ''; ?>><?php echo __("Accept tilda style in posts list",'tilda')?></option>
+        </select>
+<?php
+    }
+
+    public static function enabledposttypes_field()
+    {
+        $options = get_option('tilda_options');
+        $keys = (isset($options['enabledposttypes'])) ? $options['enabledposttypes'] : array('post','page');
+        $arPostTypes = get_post_types('','objects');
+        foreach($arPostTypes as $id => $oType) {
+            if ($oType->public) {
+        ?>
+        <input type="checkbox" <?php if (in_array($id, $keys)) {?>checked="checked"<?php }?> id="enabledposttypes" name="tilda_options[enabledposttypes][]" value="<?php echo $id; ?>"/> <?php echo $oType->label > '' ?  $oType->label : $oType->name; ?><br>
+<?php
+            }
+        }
+    }
+
+    public static function storageforfiles_field()
+    {
+        $options = get_option('tilda_options');
+        $key = (isset($options['storageforfiles'])) ? $options['storageforfiles'] : 'local';
+        if ($key !== 'local') {
+            $key = 'cdn';
+        }
+
+        ?>
+        <select id="storageforfiles" name="tilda_options[storageforfiles]"/>
+            <option value="cdn" <?php echo esc_attr($key)=='cdn' ? 'selected="selected"' : ''; ?>><?php echo __("Leave images on CDN",'tilda')?></option>
+            <option value="local" <?php echo esc_attr($key)=='local' || esc_attr($key)=="" ? 'selected="selected"' : ''; ?>><?php echo __("Download images locally",'tilda')?></option>
+        </select>
+<?php
+
+    }
+
 
     public static function options_validate($input)
     {
+        if (empty($input['storageforfiles']) || $input['storageforfiles'] != 'cdn') {
+            $input['storageforfiles'] = 'local';
+        } else {
+            $input['storageforfiles'] = 'cdn';
+        }
+
+        if (empty($input['enabledposttypes']) || ! is_array($input['enabledposttypes'])) {
+            $input['enabledposttypes'] = array('post','page');
+        }
+
+        foreach ($input['enabledposttypes'] as $key => $type) {
+            $input['enabledposttypes'][$key] = preg_replace('/[^a-zA-Z0-9]/iu','', $type);
+            if (empty($input['enabledposttypes'][$key])) {
+                unset($input['enabledposttypes'][$key]);
+            }
+        }
+
+        if (empty($input['acceptcssinlist']) || $input['acceptcssinlist'] != 'no') {
+            $input['acceptcssinlist'] = 'yes';
+        } else {
+            $input['acceptcssinlist'] = 'no';
+        }
+
+        if (empty($input['type_stored']) || $input['type_stored'] != 'html') {
+            $input['type_stored'] = 'meta';
+        } else {
+            $input['type_stored'] = 'html';
+        }
+
+        if (isset($input['secret_key'])) {
+            $input['secret_key'] = preg_replace('/[^a-zA-Z0-9]/iu','', $input['secret_key']);
+        }
+
+        if (isset($input['public_key'])) {
+            $input['public_key'] = preg_replace('/[^a-zA-Z0-9]/iu','', $input['public_key']);
+        }
+
         return $input;
     }
 
@@ -367,9 +476,9 @@ class Tilda_Admin
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
 
         $data = get_post_meta($post->ID, '_tilda', true);
-		if (! is_array($data)) {
-			$data = array();
-		}
+        if (! is_array($data)) {
+            $data = array();
+        }
         if (!Tilda::verify_access()){
             Tilda::$errors->add( 'empty_keys',__('The security keys is not set','tilda'));
         }
@@ -477,6 +586,8 @@ class Tilda_Admin
 
     public static function replace_outer_image_to_local($tildapage, $export_imgpath='')
     {
+        $options = get_option('tilda_options');
+
         $exportimages = array();
         $replaceimages = array();
         $upload_path = Tilda::get_upload_path() . $tildapage->projectid . '/pages/'.$tildapage->id.'/';
@@ -484,6 +595,7 @@ class Tilda_Admin
         $uniq = array();
 
         if (is_array($tildapage->images)) {
+
             foreach($tildapage->images as $image) {
                 if( isset($uniq[$image->from]) ){ continue; }
                 $uniq[$image->from] = 1;
@@ -493,7 +605,11 @@ class Tilda_Admin
                 } else {
                     $exportimages[] = '|'.$image->to.'|i';
                 }
-                $replaceimages[] = $upload_path.$image->to;
+                if (isset($options['storageforfiles']) && $options['storageforfiles'] == 'cdn') {
+                    $replaceimages[] = $image->from;
+                } else {
+                    $replaceimages[] = $upload_path.$image->to;
+                }
             }
         }
         $html = preg_replace($exportimages, $replaceimages, $tildapage->html);
@@ -522,6 +638,7 @@ class Tilda_Admin
             //echo json_encode($arResult);
             //wp_die();
         }
+        $tildaoptions = get_option('tilda_options');
 
         $tildapage = Tilda::get_pageexport($page_id);
 
@@ -535,6 +652,7 @@ class Tilda_Admin
         $tildapage->html = htmlspecialchars_decode($tildapage->html);
 
         self::update_maps($page_id, $post_id);
+
         $tildapage = Tilda_Admin::replace_outer_image_to_local($tildapage, $project->export_imgpath);
 
         $meta = get_post_meta($post_id, '_tilda', true);
@@ -604,7 +722,6 @@ class Tilda_Admin
 
         $post = get_post($post_id);
 
-        $tildaoptions = get_option('tilda_options');
         if (!empty($tildaoptions['type_stored']) && $tildaoptions['type_stored']=='post') {
             $post->post_content = strip_tags($tildapage->html,'<style><script><p><br><span><img><b><i><strike><strong><em><u><h1><h2><h3><a><ul><li>');
 
@@ -651,57 +768,59 @@ class Tilda_Admin
         //unset($meta['current_page']->html);
         update_post_meta($post_id, '_tilda', $meta);
 
+        if (empty($tildaoptions['storageforfiles']) && $tildaoptions['storageforfiles'] == 'local') {
 
+            $upload_dir = Tilda::get_upload_dir() . $project->id . '/pages/'.$tildapage->id.'/';
+            if(! is_dir($upload_dir) && ! mkdir($upload_dir, 0755)) {
+                Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir );
+                return Tilda::$errors;
+            }
 
-        $upload_dir = Tilda::get_upload_dir() . $project->id . '/pages/'.$tildapage->id.'/';
-        if(! is_dir($upload_dir) && ! mkdir($upload_dir, 0755)) {
-            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir );
-            return Tilda::$errors;
-        }
-        foreach($tildapage->images as $file) {
-            $arDownload[] = array(
-                'from_url' => $file->from,
-                'to_dir' => $upload_dir.$file->to
-            );
-        }
-
-        /* скачиваем спец картинки */
-        if (isset($tildapage->img) && substr($tildapage->img,0,4) == 'http') {
-            $path = parse_url($tildapage->img, PHP_URL_PATH);
-            $path = explode('/', $path);
-            $fname = array_pop($path);
-            if ($fname && ($pos=strrpos($fname,'.'))>0) {
-                $ext = substr($fname, $pos);
+            foreach($tildapage->images as $file) {
                 $arDownload[] = array(
-                    'from_url' => $tildapage->img,
-                    'to_dir' => $upload_dir.'cover'.$ext
+                    'from_url' => $file->from,
+                    'to_dir' => $upload_dir.$file->to
                 );
             }
-        }
 
-        if (isset($tildapage->featureimg) && substr($tildapage->featureimg,0,4) == 'http') {
-            $path = parse_url($tildapage->featureimg, PHP_URL_PATH);
-            $path = explode('/', $path);
-            $fname = array_pop($path);
-            if ($fname && ($pos=strrpos($fname,'.'))>0) {
-                $ext = substr($fname, $pos);
-                $arDownload[] = array(
-                    'from_url' => $tildapage->featureimg,
-                    'to_dir' => $upload_dir.'feature'.$ext
-                );
+            /* скачиваем спец картинки */
+            if (isset($tildapage->img) && substr($tildapage->img,0,4) == 'http') {
+                $path = parse_url($tildapage->img, PHP_URL_PATH);
+                $path = explode('/', $path);
+                $fname = array_pop($path);
+                if ($fname && ($pos=strrpos($fname,'.'))>0) {
+                    $ext = substr($fname, $pos);
+                    $arDownload[] = array(
+                        'from_url' => $tildapage->img,
+                        'to_dir' => $upload_dir.'cover'.$ext
+                    );
+                }
             }
-        }
 
-        if (isset($tildapage->fb_img) && substr($tildapage->fb_img,0,4) == 'http') {
-            $path = parse_url($tildapage->fb_img, PHP_URL_PATH);
-            $path = explode('/', $path);
-            $fname = array_pop($path);
-            if ($fname && ($pos=strrpos($fname,'.'))>0) {
-                $ext = substr($fname, $pos);
-                $arDownload[] = array(
-                    'from_url' => $tildapage->fb_img,
-                    'to_dir' => $upload_dir.'socnet'.$ext
-                );
+            if (isset($tildapage->featureimg) && substr($tildapage->featureimg,0,4) == 'http') {
+                $path = parse_url($tildapage->featureimg, PHP_URL_PATH);
+                $path = explode('/', $path);
+                $fname = array_pop($path);
+                if ($fname && ($pos=strrpos($fname,'.'))>0) {
+                    $ext = substr($fname, $pos);
+                    $arDownload[] = array(
+                        'from_url' => $tildapage->featureimg,
+                        'to_dir' => $upload_dir.'feature'.$ext
+                    );
+                }
+            }
+
+            if (isset($tildapage->fb_img) && substr($tildapage->fb_img,0,4) == 'http') {
+                $path = parse_url($tildapage->fb_img, PHP_URL_PATH);
+                $path = explode('/', $path);
+                $fname = array_pop($path);
+                if ($fname && ($pos=strrpos($fname,'.'))>0) {
+                    $ext = substr($fname, $pos);
+                    $arDownload[] = array(
+                        'from_url' => $tildapage->fb_img,
+                        'to_dir' => $upload_dir.'socnet'.$ext
+                    );
+                }
             }
         }
         return $arDownload;
@@ -856,8 +975,8 @@ class Tilda_Admin
         }
         $meta['status'] = $_REQUEST['tilda_status'];
         if (! update_post_meta($post_id, "_tilda", $meta)) {
-			wp_die('Cannot save info for Tilda plugin.');
-		}
+            wp_die('Cannot save info for Tilda plugin.');
+        }
 
         echo json_encode(array('result' => 'ok'));
         wp_die();

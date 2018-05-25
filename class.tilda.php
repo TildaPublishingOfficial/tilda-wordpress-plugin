@@ -72,13 +72,13 @@ class Tilda
 
     public static function plugin_activation()
     {
-
-
         $upload_dir = self::get_upload_dir();
 
         if (!is_dir($upload_dir)) {
             wp_mkdir_p($upload_dir);
         }
+
+        file_put_contents($upload_dir.DIRECTORY_SEPARATOR.'tilda.txt','tilda');
     }
 
     private static function init_consts()
@@ -228,8 +228,16 @@ class Tilda
 
     public static function enqueue_scripts()
     {
-        global $post;
+        $options = get_option('tilda_options');
+        if (
+            isset($options['acceptcssinlist'])
+            && 'no' == $options['acceptcssinlist']
+            && !is_singular()
+        ) {
+            return false;
+        }
 
+        $post = get_post();
         if ($post) {
             $data = get_post_meta($post->ID, '_tilda', true);
 
@@ -278,6 +286,14 @@ class Tilda
         $data = get_post_meta($post->ID, '_tilda', true);
         $tildaoptions = get_option('tilda_options');
 
+        if (
+            isset($tildaoptions['acceptcssinlist'])
+            && 'no' == $tildaoptions['acceptcssinlist']
+            && !is_singular()
+        ) {
+            return $classes;
+        }
+
         if(isset($data['status']) && $data['status'] == 'on') {
             $classes[] = 'tilda-publishing';
         }
@@ -288,7 +304,7 @@ class Tilda
 
     public static function the_content($content)
     {
-        global $post;
+        $post = get_post();
 
         if (! $post || !is_object($post)) {
             return $content;
