@@ -768,8 +768,7 @@ class Tilda_Admin
         //unset($meta['current_page']->html);
         update_post_meta($post_id, '_tilda', $meta);
 
-        if (empty($tildaoptions['storageforfiles']) && $tildaoptions['storageforfiles'] == 'local') {
-
+        if (empty($tildaoptions['storageforfiles']) || $tildaoptions['storageforfiles'] == 'local') {
             $upload_dir = Tilda::get_upload_dir() . $project->id . '/pages/'.$tildapage->id.'/';
             if(! is_dir($upload_dir) && ! mkdir($upload_dir, 0755)) {
                 Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir );

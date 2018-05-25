@@ -4,7 +4,7 @@ Donate link: https://wordpress.org/plugins/tilda-publishing/
 Tags: blog, bulk, convert, crawl, data, import, importer, migrate, move, posts, publishing, tilda, export
 Requires at least: 3.0.1
 Tested up to: 4.9.6
-Stable tag: 0.2.27
+Stable tag: 0.2.28
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,7 +64,10 @@ A: Please create an issue on the [GitHub page](https://github.com/greensun7/tild
 
 == Changelog ==
 
-= 0.2.27
+= 0.2.28 =
+* fix download images to local folder
+
+= 0.2.27 =
 * added a switch to turn off the styles in the list; added settings for custom types; add checking exist curl library or allow_url_fopen option and add option for save IMG on cdn.
 
 = 0.2.26 =
