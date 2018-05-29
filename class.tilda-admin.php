@@ -275,6 +275,8 @@ class Tilda_Admin
                     foreach ($pages as $page) {
                         $projects_list[$id]->pages[$page->id] = $page;
                     }
+                } else {
+                    $projects_list[$id]->pages = array();
                 }
             }
         }
@@ -287,7 +289,11 @@ class Tilda_Admin
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
 
         $projects = Tilda::get_local_projects();
-        $page = $projects[$project_id]->pages[$page_id];
+        if (isset($projects[$project_id]->pages[$page_id])) {
+            $page = $projects[$project_id]->pages[$page_id];
+        } else {
+            $page = null;
+        }
 
         return $page;
     }
@@ -530,6 +536,8 @@ class Tilda_Admin
             foreach ($pages as $page) {
                 $project->pages[$page->id] = $page;
             }
+        } else {
+            $project->pages = array();
         }
 
         $projects[$project_id] = $project;
