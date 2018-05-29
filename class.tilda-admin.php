@@ -422,7 +422,7 @@ class Tilda_Admin
         }
 
         foreach ($input['enabledposttypes'] as $key => $type) {
-            $input['enabledposttypes'][$key] = preg_replace('/[^a-zA-Z0-9]/iu','', $type);
+            $input['enabledposttypes'][$key] = preg_replace('/[^a-zA-Z0-9\-_]+/iu','', $type);
             if (empty($input['enabledposttypes'][$key])) {
                 unset($input['enabledposttypes'][$key]);
             }
@@ -441,11 +441,11 @@ class Tilda_Admin
         }
 
         if (isset($input['secret_key'])) {
-            $input['secret_key'] = preg_replace('/[^a-zA-Z0-9]/iu','', $input['secret_key']);
+            $input['secret_key'] = preg_replace('/[^a-zA-Z0-9]+/iu','', $input['secret_key']);
         }
 
         if (isset($input['public_key'])) {
-            $input['public_key'] = preg_replace('/[^a-zA-Z0-9]/iu','', $input['public_key']);
+            $input['public_key'] = preg_replace('/[^a-zA-Z0-9]+/iu','', $input['public_key']);
         }
 
         return $input;
