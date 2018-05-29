@@ -656,7 +656,6 @@ class Tilda_Admin
             //echo json_encode($arResult);
             //wp_die();
         }
-
         $tildapage->html = htmlspecialchars_decode($tildapage->html);
 
         self::update_maps($page_id, $post_id);
@@ -772,6 +771,7 @@ class Tilda_Admin
         wp_update_post( $post );
 
         $tildapage->sync_time = current_time('mysql');
+
         $meta['current_page'] = $tildapage;
         //unset($meta['current_page']->html);
         update_post_meta($post_id, '_tilda', $meta);

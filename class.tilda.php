@@ -253,17 +253,27 @@ class Tilda
                 $css_links = $page->css;
                 $js_links = $page->js;
 
+                $upload_dir = Tilda::get_upload_dir() . $data["project_id"] . '/';
+
+                if (isset($page->sync_time) && $page->sync_time > '') {
+                    $ver = strtotime($page->sync_time);
+                } else {
+                    $ver = date('Ymd');
+                }
+
                 if (is_array($css_links)) {
+                    $css_path = $upload_dir . 'css/';
+
                     foreach ($css_links as $file) {
                         $name = basename($file);
-                        wp_enqueue_style($name, $file);
+                        wp_enqueue_style($name, $file, false, $ver);
                     }
                 }
 
                 if (is_array($js_links)) {
                     foreach ($js_links as $file) {
                         $name = basename($file);
-                        wp_enqueue_script($name, $file);
+                        wp_enqueue_script($name, $file, false, $ver);
                     }
                 }
             }
