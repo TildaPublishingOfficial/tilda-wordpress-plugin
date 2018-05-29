@@ -4,7 +4,7 @@
  * User: Alex
  * Date: 14.04.15
  * Time: 13:16
- * 
+ *
  * User: Michael Akimov
  * Date: 2016-02-05
  */
@@ -31,7 +31,7 @@ if ($has_current) {
                     </small>
                 </div>
             <?php endif; ?>
-            
+
             <?php Tilda::show_errors(); ?>
         </div>
 
@@ -53,7 +53,7 @@ if ($has_current) {
             <a href="#" class="button tilda_edit_page">
                 <?php echo __("Get another page",'tilda')?>
             </a>
-            
+
         </div>
         <div class="clear"></div>
     </div>
@@ -67,7 +67,7 @@ if ($has_current) {
     <div class="clear"></div>
 </div>
 <div class="tilda_pages_list <?php if ($has_current) {echo 'close';}?>">
-    <?php if ($projects_list) {?>
+    <?php if ($projects_list && is_array($projects_list)) {?>
         <p><?php echo __("Please, select page from list",'tilda')?></p>
         <div class="tilda_projects_tabs" id="js_tilda_projects_tabs">
             <div class="form clearfix">
@@ -78,6 +78,7 @@ if ($has_current) {
                 </ul>
                 <?php foreach ($projects_list as $project): ?>
                     <div id="project-<?php echo  intval($project->id) ?>" data-project-id="<?php echo  intval($project->id); ?>" style="overflow: auto;">
+                    <?php if (is_array($project->pages) && sizeof($project->pages) > 0): ?>
                         <?php foreach ($project->pages as $page): ?>
                             <div class="row">
                                 <div class="widget">
@@ -93,6 +94,13 @@ if ($has_current) {
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="row">
+                            <div class="widget">
+                                Pages not found
+                            </div>
+                        </div>
+                    <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>
