@@ -656,7 +656,7 @@ class Tilda_Admin
             //echo json_encode($arResult);
             //wp_die();
         }
-        $tildapage->html = htmlspecialchars_decode($tildapage->html);
+        $tildapage->html = htmlspecialchars_decode($tildapage->html, ENT_NOQUOTES);
 
         self::update_maps($page_id, $post_id);
 
