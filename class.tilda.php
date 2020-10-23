@@ -376,9 +376,10 @@ class Tilda
         return isset($options['secret_key']) ? $options['secret_key'] : '';
     }
 
-    public static function get_from_api($type, $id = false)
+    public static function get_from_api($type, $id = false, $public_key = null, $secret_key = null)
     {
-
+	    $public_key = (empty($public_key)) ? TILDA_PUBLIC_KEY : $public_key;
+	    $secret_key = (empty($secret_key)) ? TILDA_SECRET_KEY : $secret_key;
 
         $suffix = '';
         $code = $type;
@@ -404,7 +405,7 @@ class Tilda
         $type = 'get' . $type;
         $suffix = empty($suffix) ? $suffix : '&' . $suffix;
 
-        $url = TILDA_API_URL . '/' . $type . '/?publickey=' . TILDA_PUBLIC_KEY . '&secretkey=' . TILDA_SECRET_KEY . $suffix;
+        $url = TILDA_API_URL . '/' . $type . '/?publickey=' . $public_key . '&secretkey=' . $secret_key . $suffix;
 
         if (function_exists('curl_init')) {
             if ($curl = curl_init()) {
@@ -438,45 +439,65 @@ class Tilda
 
     }
 
-    public static function get_projects()
+    public static function get_projects($public_key = null, $secret_key = null)
     {
-
-
-        return self::get_from_api('projectslist');
+        return self::get_from_api('projectslist', false, $public_key, $secret_key);
 
     }
 
-    public static function get_projectexport($id)
+	public static function get_projectexport( $project_id, $public_key = null, $secret_key = null ) {
+		if ( empty( $public_key ) && empty( $secret_key ) ) {
+			$key_id     = Tilda::get_key_for_project_id( $project_id );
+			$keys       = Tilda::get_local_keys();
+			$key        = $keys[ $key_id ];
+			$public_key = $key['public_key'];
+			$secret_key = $key['secret_key'];
+		}
+
+
+		return self::get_from_api( 'projectexport', $project_id, $public_key, $secret_key );
+	}
+
+	public static function get_pageslist( $project_id, $public_key = null, $secret_key = null ) {
+		if ( empty( $public_key ) && empty( $secret_key ) ) {
+			$key_id     = Tilda::get_key_for_project_id( $project_id );
+			$keys       = Tilda::get_local_keys();
+			$key        = $keys[ $key_id ];
+			$public_key = $key['public_key'];
+			$secret_key = $key['secret_key'];
+		}
+
+		return self::get_from_api( 'pageslist', $project_id, false, $public_key, $secret_key );
+	}
+
+    public static function get_page($page_id, $public_key = null, $secret_key = null)
     {
+	    if ( empty( $public_key ) && empty( $secret_key ) ) {
+		    $key_id     = Tilda::get_key_for_page_id( $page_id );
+		    $keys       = Tilda::get_local_keys();
+		    $key        = $keys[ $key_id ];
+		    $public_key = $key['public_key'];
+		    $secret_key = $key['secret_key'];
+	    }
 
-
-        return self::get_from_api('projectexport', $id);
-
+        return self::get_from_api('page', $page_id, false, $public_key, $secret_key );
     }
 
-    public static function get_pageslist($id)
+    public static function get_pageexport($page_id)
     {
+	    if ( empty( $public_key ) && empty( $secret_key ) ) {
+		    $key_id     = Tilda::get_key_for_page_id( $page_id );
+		    $keys       = Tilda::get_local_keys();
+		    $key        = $keys[ $key_id ];
+		    $public_key = $key['public_key'];
+		    $secret_key = $key['secret_key'];
+	    }
 
-
-        return self::get_from_api('pageslist', $id);
-
-    }
-
-    public static function get_page($id)
-    {
-
-
-        return self::get_from_api('page', $id);
-    }
-
-    public static function get_pageexport($id)
-    {
-
-
-        return self::get_from_api('pageexport', $id);
+        return self::get_from_api('pageexport', $page_id, false, $public_key, $secret_key );
     }
 
     /**
+     * DEPRECATED should be refactored and removed
      * возвращает массив связи tildapage_id => post_id
      */
     public static function get_map_pages()
@@ -485,10 +506,82 @@ class Tilda
         return $maps;
     }
 
+	/**
+	 * Return subarray of tilda_maps option or empty array
+	 * @param $type
+	 * @return array|mixed
+	 */
+	public static function get_local_map( $type ) {
+		$maps = get_option( 'tilda_maps' );
+
+		if ( ! isset( $maps[ $type ] ) ) {
+			return array();
+		}
+
+		return $maps[ $type ];
+	}
+
+	/**
+	 * Return tilda_maps option or empty array
+	 * @return false|mixed|void
+	 */
+	public static function get_local_maps() {
+		$maps = get_option( 'tilda_maps' );
+
+		return $maps;
+	}
+
+	/**
+	 * Search at tilda_map option for key that has mapped project_id
+	 * @param $project_id
+	 *
+	 * @return false|string
+	 */
+	public static function get_key_for_project_id( $project_id ) {
+		$key_map = Tilda::get_local_map( Tilda_Admin::MAP_KEY_PROJECTS );
+		foreach ( $key_map as $key => $project_ids ) {
+			if ( in_array( $project_id, $project_ids ) ) {
+				return $key;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Search at tilda_map option for project_id that has mapped page_id and use it to find key
+	 * @param $page_id
+	 *
+	 * @return false|string
+	 */
+	public static function get_key_for_page_id( $page_id ) {
+		$project_map = Tilda::get_local_map( Tilda_Admin::MAP_PROJECT_PAGES );
+		$id          = false;
+
+		foreach ( $project_map as $project_id => $page_ids ) {
+			if ( in_array( $page_id, $page_ids ) ) {
+				$id = $project_id;
+				break;
+			}
+		}
+
+		return Tilda::get_key_for_project_id( $id );
+	}
+
     public static function get_local_projects()
     {
         $projects = get_option('tilda_projects');
         return $projects;
+    }
+
+	/**
+	 * Return tilda_pages option
+	 * @return false|mixed|void
+	 */
+	public static function get_local_pages()
+    {
+    	$pages = get_option('tilda_pages');
+    	return $pages;
     }
 
     public static function get_local_project($project_id)
@@ -497,8 +590,24 @@ class Tilda
         return isset($projects[$project_id]) ? $projects[$project_id] : null;
     }
 
+	/**
+	 * Get tilda_options_keys from DB and make preparations
+	 * @return array
+	 */
+	public static function get_local_keys() {
+		$keys = get_option( Tilda_Admin::OPTION_KEYS );
+
+		$keys = ( empty( $keys ) ) ? array() : $keys;
+
+		//Make $keys associative. Replace numeric indexes with 'id' value
+		$keys = array_column( $keys, null, 'id' );
+
+		return $keys;
+	}
+
     public static function get_local_page($page_id, $project_id, $post_id=0)
     {
+    	//TODO already have get_page in Tilda_Admin, should be refactored or removed
         $projects = self::get_local_projects();
         $page = null;
 
