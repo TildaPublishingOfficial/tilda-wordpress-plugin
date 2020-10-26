@@ -246,3 +246,6 @@ msgstr "Указан неверный ключ"
 
 msgid "Success, key was refreshed"
 msgstr "Успешно, ключ был обновлен"
+
+msgid "Page synchronized. Edit page only on site Tilda.cc"
+msgstr "Страница синхронизирована. Редактируйте страницу на сайте Tilda.cc"
