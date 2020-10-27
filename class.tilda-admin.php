@@ -352,44 +352,41 @@ class Tilda_Admin
 	    return $localization;
     }
 
-    public static function initialize()
+	/**
+	 * Refetch projects and pages from Tilda (for all available keys)
+	 */
+	public static function initialize()
     {
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
+	    $keys = Tilda::get_local_keys();
 
-        $projects = Tilda::get_projects();
-        $projects_list = array();
-        if (is_wp_error($projects)){
-            return;
-        }
+	    $success_project_ids = array();
 
-        if (!$projects || count($projects) <= 0) {
-            Tilda::$errors->add( 'empty_project_list',__('Projects list is empty','tilda'));
-            return;
-        }
+	    foreach ( $keys as $key_id => $key ) {
+		    $projects = Tilda::get_projects( $key['public_key'], $key['secret_key'] );
 
-        foreach ($projects as $project) {
-            $project = Tilda::get_projectexport($project->id);
+		    if ( is_wp_error( $projects ) ) {
+			    continue;
+		    }
 
-            if ($project) {
-                $id = $project->id;
+		    foreach ( $projects as $project ) {
+			    $updated_project = Tilda_Admin::update_project( $project->id, $key['public_key'], $key['secret_key'] );
 
-                $projects_list[$id] = $project;
+			    if ( is_wp_error( $updated_project ) ) {
+				    continue;
+			    }
 
-                // self::download_project_assets($project);
+			    $updated_pages = Tilda_Admin::update_pages( $project->id, $key['public_key'], $key['secret_key'] );
 
-                $pages = Tilda::get_pageslist($id);
-                if ($pages && count($pages) > 0) {
-                    $projects_list[$id]->pages = array();
-                    foreach ($pages as $page) {
-                        $projects_list[$id]->pages[$page->id] = $page;
-                    }
-                } else {
-                    $projects_list[$id]->pages = array();
-                }
-            }
-        }
+			    $success_project_ids[] = $project->id;
+		    }
+	    }
 
-        update_option('tilda_projects', $projects_list);
+	    if ( count( $success_project_ids ) <= 0 ) {
+		    Tilda::$errors->add( 'empty_project_list', __( 'Projects list is empty', 'tilda' ) );
+		    return;
+	    }
+
     }
 
     private static function scandir($dir)
