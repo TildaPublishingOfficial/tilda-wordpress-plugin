@@ -912,7 +912,7 @@ class Tilda_Admin
         $arResult = array();
 
         if (empty($_SESSION['tildaexport']['arDownload'])) {
-            $arResult['error'] = 'Error! All downloads';
+            $arResult['error'] = 'Error! cannot run session.';
             $arResult['dump'] = $_SESSION['tildaexport'];
             echo json_encode($arResult);
             die(0);
