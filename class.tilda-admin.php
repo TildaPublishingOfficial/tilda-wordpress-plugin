@@ -656,6 +656,8 @@ class Tilda_Admin
             //echo json_encode($arResult);
             //wp_die();
         }
+        // ||n|| is custom escaping symbol for \n to bypass serialization/deserialization process
+        $tildapage->html = str_replace('\n','||n||',$tildapage->html);
         $tildapage->html = htmlspecialchars_decode($tildapage->html);
 
         self::update_maps($page_id, $post_id);

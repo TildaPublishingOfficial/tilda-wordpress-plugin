@@ -347,7 +347,8 @@ class Tilda
             if (! empty($page->html)) {
                 remove_filter( 'the_content', 'wpautop' );
                 remove_filter( 'the_excerpt', 'wpautop' );
-                return $page->html;
+                // ||n|| is custom escaping symbol for \n to bypass serialization/deserialization process
+                return str_replace('||n||','\n',$page->html);
             }
         }
 
