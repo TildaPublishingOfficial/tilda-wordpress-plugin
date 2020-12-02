@@ -347,7 +347,8 @@ class Tilda
             if (! empty($page->html)) {
                 remove_filter( 'the_content', 'wpautop' );
                 remove_filter( 'the_excerpt', 'wpautop' );
-                return $page->html;
+                // ||n|| is custom escaping symbol for \n to bypass serialization/deserialization process
+                return str_replace('||n||','\n',$page->html);
             }
         }
 
@@ -410,6 +411,7 @@ class Tilda
             if ($curl = curl_init()) {
                 curl_setopt($curl, CURLOPT_URL, $url);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($curl, CURLOPT_ENCODING, "");
                 $out = curl_exec($curl);
                 curl_close($curl);
             } else {
