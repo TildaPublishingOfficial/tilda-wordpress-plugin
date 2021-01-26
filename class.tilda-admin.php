@@ -1088,6 +1088,10 @@ class Tilda_Admin
             //echo json_encode($arResult);
             //wp_die();
         }
+        // ||s|| is custom escaping symbol used to bypass '<\/script>' text from wordpress engine processing
+        $tildapage->html = str_replace('<\/script>', '<||s||script>', $tildapage->html);
+        // ||n|| is custom escaping symbol for \n to bypass serialization/deserialization process
+        $tildapage->html = str_replace('\n','||n||',$tildapage->html);
         $tildapage->html = htmlspecialchars_decode($tildapage->html);
 
 	    Tilda_Admin::update_local_map(Tilda_Admin::MAP_PAGE_POSTS, $page_id, $post_id);
@@ -1344,7 +1348,7 @@ class Tilda_Admin
         $arResult = array();
 
         if (empty($_SESSION['tildaexport']['arDownload'])) {
-            $arResult['error'] = 'Error! All downloads';
+            $arResult['error'] = 'Error! cannot run session.';
             $arResult['dump'] = $_SESSION['tildaexport'];
             echo json_encode($arResult);
             die(0);
