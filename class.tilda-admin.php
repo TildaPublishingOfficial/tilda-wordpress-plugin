@@ -656,6 +656,8 @@ class Tilda_Admin
             //echo json_encode($arResult);
             //wp_die();
         }
+        // ||s|| is custom escaping symbol used to bypass '<\/script>' text from wordpress engine processing
+        $tildapage->html = str_replace('<\/script>', '<||s||script>', $tildapage->html);
         // ||n|| is custom escaping symbol for \n to bypass serialization/deserialization process
         $tildapage->html = str_replace('\n','||n||',$tildapage->html);
         $tildapage->html = htmlspecialchars_decode($tildapage->html);
