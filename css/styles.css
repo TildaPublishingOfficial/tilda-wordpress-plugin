@@ -196,3 +196,61 @@
     background: #55AA55;
     border: 1px solid #666666;
 }
+
+.tilda-tooltip:hover {
+    background: #ffffff; /*необходимо для IE6*/
+    text-decoration: none;
+}
+
+.tilda-tooltip span.tilda-tooltip-text {
+    display: none;
+    padding: 2px 3px;
+    margin-left: 8px;
+    width: 230px;
+}
+
+.tilda-tooltip:hover span.tilda-tooltip-text {
+    display: inline;
+    position: absolute;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    color: #6c6c6c;
+}
+
+.tilda-hidden {
+    display: none;
+}
+
+.m-0 {
+    margin: 0 !important;
+}
+
+.mt-40 {
+    margin-top: 40px;
+}
+
+.tilda-disabled td {
+    color: #aba8a8 !important;
+}
+
+.tilda-dashed-underscore {
+    text-decoration-line: underline;
+    text-decoration-style: dashed;
+}
+
+.tilda-cursor-pointer {
+    cursor: pointer;
+}
+
+span.dashicons {
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+#tilda_keys_table {
+    margin-bottom: 20px;
+}
+
+#tilda_add_key {
+    font-size: 1.1rem;
+}

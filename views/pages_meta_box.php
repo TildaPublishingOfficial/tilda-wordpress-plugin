@@ -73,18 +73,21 @@ if ($has_current) {
             <div class="form clearfix">
                 <ul>
                     <?php foreach ($projects_list as $project): ?>
+	                    <?php if($project->enabled === false) continue; ?>
                         <li><a href="#project-<?php echo  intval($project->id) ?>"><?php echo  esc_html($project->title) ?></a></li>
                     <?php endforeach; ?>
                 </ul>
                 <?php foreach ($projects_list as $project): ?>
+                    <?php if($project->enabled === false) continue; ?>
                     <div id="project-<?php echo  intval($project->id) ?>" data-project-id="<?php echo  intval($project->id); ?>" style="overflow: auto;">
-                    <?php if (is_array($project->pages) && sizeof($project->pages) > 0): ?>
-                        <?php foreach ($project->pages as $page): ?>
+                    <?php $pages = Tilda::get_local_pages($project->id); ?>
+                    <?php if (sizeof($pages) > 0 && isset($pages[$project->id])): ?>
+                        <?php foreach ($pages[$project->id] as $page): ?>
                             <div class="row">
                                 <div class="widget">
                                     <input type="radio"
                                            name="tilda[page_id]"
-                                           id="tilda_page_<?php echo  intval($page->id); ?>"
+                                           id="tilda_page_<?php echo intval($page->id); ?>"
                                            value="<?php echo  $page->id; ?>"
                                         <?php if (isset($data["page_id"]) && ($data["page_id"] == $page->id)) {
                                             echo 'checked';

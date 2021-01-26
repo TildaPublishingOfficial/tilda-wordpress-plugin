@@ -13,6 +13,17 @@ class Tilda_Admin
     public static $ts_start_plugin = null;
     public static $global_message='';
 
+	const OPTION_PROJECTS = 'tilda_projects';
+	const OPTION_PAGES = 'tilda_pages';
+	const OPTION_OPTIONS = 'tilda_options';
+	const OPTION_KEYS = 'tilda_options_keys';
+	const OPTION_MAPS = 'tilda_maps';
+	const MAP_KEY_PROJECTS = 'projects';
+	const MAP_PROJECT_PAGES = 'pages';
+	const MAP_PAGE_POSTS = 'posts';
+
+	const MAX_ALLOWED_KEY_PAIRS = 5;
+
     public static function init()
     {
         if (!self::$initiated) {
@@ -42,8 +53,99 @@ class Tilda_Admin
         add_action("wp_ajax_tilda_admin_export_file", array("Tilda_Admin", "ajax_export_file"));
         add_action("wp_ajax_tilda_admin_switcher_status", array("Tilda_Admin", "ajax_switcher_status"));
 
+        /* 0.2.32 */
+	    add_action( "wp_ajax_tilda_admin_update_common_settings", array( "Tilda_Admin", 'ajax_update_common_settings' ) );
+	    add_action( 'wp_ajax_add_new_key', array( 'Tilda_Admin', 'ajax_add_new_key' ) );
+	    add_action( 'wp_ajax_update_key', array( 'Tilda_Admin', 'ajax_update_key' ) );
+	    add_action( 'wp_ajax_delete_key', array( 'Tilda_Admin', 'ajax_delete_key' ) );
+	    add_action( 'wp_ajax_refresh_key', array( 'Tilda_Admin', 'ajax_refresh_key' ) );
+	    add_action( 'wp_ajax_get_keys', array( 'Tilda_Admin', 'ajax_get_keys' ) );
+	    add_action( 'wp_ajax_get_projects', array( 'Tilda_Admin', 'ajax_get_projects' ) );
+	    add_action( 'wp_ajax_update_project', array( 'Tilda_Admin', 'ajax_update_project' ) );
 
     }
+
+	/**
+	 * Run options migration process for updgrading 0.2.31 => 0.2.32
+	 */
+	public static function migrateOptions() {
+		$current_options = get_option(Tilda_Admin::OPTION_OPTIONS);
+		$old_key_id = $current_options['public_key'].$current_options['secret_key'];
+		$keys = Tilda::get_local_keys();
+
+		$store_html_only = true;
+		if ( isset( $current_options['type_stored'] ) ) {
+			if ($current_options['type_stored'] === 'post'){
+				$store_html_only = false;
+			}
+		}
+
+		$apply_css_in_list = true;
+		if ( isset( $current_options['acceptcssinlist'] ) ) {
+			if ($current_options['acceptcssinlist'] === 'no'){
+				$apply_css_in_list = false;
+			}
+		}
+
+		$keys[$old_key_id] = array(
+			'id'                => $old_key_id,
+			'public_key'        => $current_options['public_key'],
+			'secret_key'        => $current_options['secret_key'],
+			'store_html_only'   => $store_html_only,
+			'apply_css_in_list' => $apply_css_in_list
+		);
+		//keys are ready to save
+
+		$projects = Tilda::get_local_projects();
+		$pages = Tilda::get_local_pages();
+		$key_project_map = Tilda::get_local_map(Tilda_Admin::MAP_KEY_PROJECTS);
+		$project_page_map = Tilda::get_local_map(Tilda_Admin::MAP_PROJECT_PAGES);
+		$all_project_ids = array();
+		foreach ($projects as $project_id => $project){
+			$projects[$project_id]->enabled = true;
+			$all_project_ids[] = $project->id;
+			$project_pages = $project->pages;
+			$page_ids = array();
+			foreach ( $project_pages as $page ) {
+				$page_ids[] = $page->id;
+				$pages[$page->id] = $page;
+			}
+			$project_page_map[$project->id] = array_unique($page_ids);
+		}
+		$key_project_map[$old_key_id] = array_unique($all_project_ids);
+		//projects, pages, map_key_project, map_project_page are ready to save
+
+		$page_post_map = Tilda::get_local_map(Tilda_Admin::MAP_PAGE_POSTS);
+		$old_maps = get_option('tilda_maps');
+		if ( ! empty( $old_maps ) ) {
+			foreach ( $old_maps as $map_page_id => $map_post_id ) {
+				$page_post_map[ $map_page_id ] = $map_post_id;
+			}
+		}
+		//map_page_post ready to save
+
+		//If everything goes fine until this, then save new data structure
+		Tilda_Admin::update_keys($keys);
+		Tilda_Admin::update_local_projects($projects);
+		Tilda_Admin::update_local_pages($pages);
+
+		$maps = Tilda::get_local_maps();
+		$maps[Tilda_Admin::MAP_KEY_PROJECTS] = $key_project_map;
+		$maps[Tilda_Admin::MAP_PROJECT_PAGES] = $project_page_map;
+		$maps[Tilda_Admin::MAP_PAGE_POSTS] = $page_post_map;
+		Tilda_Admin::update_local_maps($maps);
+
+		//If everything goes fine until this, then delete old data
+		unset(
+			$current_options['type_stored'],
+			$current_options['acceptcssinlist'],
+			$current_options['public_key'],
+			$current_options['secret_key']
+		);
+		update_option( Tilda_Admin::OPTION_OPTIONS, $current_options );
+		delete_option('tilda_map_pages');
+
+	}
 
     public static function edit_form_after_title()
     {
@@ -51,12 +153,32 @@ class Tilda_Admin
         do_meta_boxes(get_current_screen(), 'advanced', $post);
         unset($wp_meta_boxes[get_post_type($post)]['advanced']);
     }
+
     public static function admin_init()
     {
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-        register_setting(
-            'tilda_options',
-            'tilda_options',
+
+	    register_setting(
+		    static::OPTION_KEYS,
+		    static::OPTION_KEYS,
+		    array('Tilda_Admin', 'keys_sanitize')
+	    );
+
+	    register_setting(
+		    static::OPTION_PAGES,
+		    static::OPTION_PAGES,
+		    array( 'Tilda_Admin', 'pages_validate' )
+	    );
+
+	    register_setting(
+		    static::OPTION_MAPS,
+		    static::OPTION_MAPS,
+		    array( 'Tilda_Admin', 'maps_validate' )
+	    );
+
+	    register_setting(
+            static::OPTION_OPTIONS,
+            static::OPTION_OPTIONS,
             array('Tilda_Admin', 'options_validate')
         );
 
@@ -65,54 +187,6 @@ class Tilda_Admin
             '',
             false,
             'tilda-config'
-        );
-
-        add_settings_field(
-            'tilda_public_key',
-            'Public key',
-            array('Tilda_Admin', 'public_key_field'),
-            'tilda-config',
-            'tilda_keys'
-        );
-
-        add_settings_field(
-            'tilda_secret_key',
-            'Secret key',
-            array('Tilda_Admin', 'secret_key_field'),
-            'tilda-config',
-            'tilda_keys'
-        );
-
-        add_settings_field(
-            'tilda_type_stored',
-            __('Type storage','tilda'),
-            array('Tilda_Admin', 'type_stored_key_field'),
-            'tilda-config',
-            'tilda_keys'
-        );
-
-        add_settings_field(
-            'tilda_acceptcssinlist',
-            __('Tilda CSS in List of posts','tilda'),
-            array('Tilda_Admin', 'acceptcssinlist_field'),
-            'tilda-config',
-            'tilda_keys'
-        );
-
-        add_settings_field(
-            'tilda_enabledposttypes',
-            __('Types of post where show Tilda button','tilda'),
-            array('Tilda_Admin', 'enabledposttypes_field'),
-            'tilda-config',
-            'tilda_keys'
-        );
-
-        add_settings_field(
-            'tilda_storageforfiles',
-            __('Storage for images','tilda'),
-            array('Tilda_Admin', 'storageforfiles_field'),
-            'tilda-config',
-            'tilda_keys'
         );
 
     }
@@ -143,7 +217,7 @@ class Tilda_Admin
         $post = get_post();
         $data = get_post_meta($post->ID, '_tilda', true);
 
-        $options = get_option('tilda_options');
+        $options = get_option(Tilda_Admin::OPTION_OPTIONS);
         $screens = (isset($options['enabledposttypes'])) ? $options['enabledposttypes'] : array('post','page');
 
         //$screens = array('post', 'page');
@@ -234,82 +308,85 @@ class Tilda_Admin
     {
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
 
+	    wp_register_style('tilda_css', TILDA_PLUGIN_URL . 'css/styles.css', array() , '3');
+	    wp_enqueue_style('tilda_css');
+
+        //configuration.php page
+        if ('settings_page_tilda-config' === $hook){
+	        wp_register_script( 'tilda_configuration_js', TILDA_PLUGIN_URL . 'js/configuration.js', array('jquery','jquery-ui-tabs'), '8', true );
+	        wp_localize_script( 'tilda_configuration_js', 'tilda_localize', Tilda_Admin::get_localization_array() );
+	        wp_enqueue_script( 'tilda_configuration_js' );
+        }
+
         if ('post.php' != $hook && 'post-new.php' != $hook) {
             return;
         }
 
-        wp_enqueue_script('tilda_js', TILDA_PLUGIN_URL . 'js/plugin.js', array('jquery','jquery-ui-tabs'));
+	    wp_enqueue_style('jquery-ui-tabs', TILDA_PLUGIN_URL . 'css/jquery-ui-tabs.css');
 
-        wp_enqueue_style('jquery-ui-tabs', TILDA_PLUGIN_URL . 'css/jquery-ui-tabs.css');
-        wp_enqueue_style('tilda_css', TILDA_PLUGIN_URL . 'css/styles.css');
+	    wp_register_script( 'tilda_js', TILDA_PLUGIN_URL . 'js/plugin.js', array('jquery','jquery-ui-tabs'), '', true );
+	    wp_localize_script( 'tilda_js', 'tilda_localize', Tilda_Admin::get_localization_array() );
+	    wp_enqueue_script( 'tilda_js' );
     }
 
-    public static function initialize()
+
+	/**
+	 * Create localization dictionary from .po file
+	 * and put it to wp_localize_script()
+	 * to translate html generated by js script
+     *
+	 * @param null $locale
+	 * @return array
+	 */
+	public static function get_localization_array($locale = null) {
+	    $locale = ( empty( $locale ) ) ? get_locale() : $locale;
+	    $mo     = new MO;
+	    $mofile = dirname( __FILE__ ) . '/languages/tilda-' . $locale . '.mo';
+	    $mo->import_from_file( $mofile );
+
+	    $localization = array();
+	    foreach ( $mo->entries as $entry ) {
+		    $localization[ $entry->singular ] = $entry->translations[0];
+	    }
+
+	    return $localization;
+    }
+
+	/**
+	 * Refetch projects and pages from Tilda (for all available keys)
+	 */
+	public static function initialize()
     {
         // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
+	    $keys = Tilda::get_local_keys();
 
-        $projects = Tilda::get_projects();
-        $projects_list = array();
-        if (is_wp_error($projects)){
-            return;
-        }
+	    $success_project_ids = array();
 
-        if (!$projects || count($projects) <= 0) {
-            Tilda::$errors->add( 'empty_project_list',__('Projects list is empty','tilda'));
-            return;
-        }
+	    foreach ( $keys as $key_id => $key ) {
+		    $projects = Tilda::get_projects( $key['public_key'], $key['secret_key'] );
 
-        foreach ($projects as $project) {
-            $project = Tilda::get_projectexport($project->id);
+		    if ( is_wp_error( $projects ) ) {
+			    continue;
+		    }
 
-            if ($project) {
-                $id = $project->id;
+		    foreach ( $projects as $project ) {
+			    $updated_project = Tilda_Admin::update_project( $project->id, $key['public_key'], $key['secret_key'] );
 
-                $projects_list[$id] = $project;
+			    if ( is_wp_error( $updated_project ) ) {
+				    continue;
+			    }
 
-                // self::download_project_assets($project);
+			    $updated_pages = Tilda_Admin::update_pages( $project->id, $key['public_key'], $key['secret_key'] );
 
-                $pages = Tilda::get_pageslist($id);
-                if ($pages && count($pages) > 0) {
-                    $projects_list[$id]->pages = array();
-                    foreach ($pages as $page) {
-                        $projects_list[$id]->pages[$page->id] = $page;
-                    }
-                } else {
-                    $projects_list[$id]->pages = array();
-                }
-            }
-        }
+			    $success_project_ids[] = $project->id;
+		    }
+	    }
 
-        update_option('tilda_projects', $projects_list);
-    }
+	    if ( count( $success_project_ids ) <= 0 ) {
+		    Tilda::$errors->add( 'empty_project_list', __( 'Projects list is empty', 'tilda' ) );
+		    return;
+	    }
 
-    public static function get_page($page_id, $project_id)
-    {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
-        $projects = Tilda::get_local_projects();
-        if (isset($projects[$project_id]->pages[$page_id])) {
-            $page = $projects[$project_id]->pages[$page_id];
-        } else {
-            $page = null;
-        }
-
-        return $page;
-    }
-
-    public static function set_page($page, $project_id, $post_id=0){
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
-        $projects = Tilda::get_local_projects();
-        if (isset($page['html'])) {
-            unset($page['html']);
-        }
-        if ($post_id > 0) {
-            $page['post_id'] = $post_id;
-        }
-        $projects[$project_id]->pages[$page->id] = $page;
-        update_option('tilda_projects', $projects);
     }
 
     private static function scandir($dir)
@@ -338,82 +415,248 @@ class Tilda_Admin
         }
     }
 
-    public static function public_key_field()
-    {
+	/**
+     * Save tilda keys to the DB
+     * Sanitizing will be made automatically as it applied on hook at register_setting()
+	 * @param $keys
+	 */
+	public static function update_keys( $keys ) {
+		update_option( Tilda_Admin::OPTION_KEYS, $keys );
+	}
 
-        $options = get_option('tilda_options');
-        $key = (isset($options['public_key'])) ? $options['public_key'] : '';
-        ?>
-        <input type="text" id="public_key" name="tilda_options[public_key]" maxlength="100" size="50"
-               value="<?php echo esc_attr($key); ?>"/>
-<?php
-    }
+	/**
+	 * Delete tilda key from DB by id
+     * Search for key=>project=>page relations and delete it also
+	 * @param $key_id
+	 */
+	public static function delete_key( $key_id ) {
+		$keys = Tilda::get_local_keys();
+		unset( $keys[ $key_id ] );
+		Tilda_Admin::update_keys( $keys );
 
-    public static function secret_key_field()
-    {
-        $options = get_option('tilda_options');
-        $key = (isset($options['secret_key'])) ? $options['secret_key'] : '';
-        ?>
-        <input type="text" id="secret_key" name="tilda_options[secret_key]" maxlength="100" size="50"
-               value="<?php echo esc_attr($key); ?>"/>
-<?php
-    }
+		$maps = Tilda::get_local_maps();
 
-    public static function type_stored_key_field()
-    {
-        $options = get_option('tilda_options');
-        $key = (isset($options['type_stored'])) ? $options['type_stored'] : '';
-        ?>
-        <select id="type_stored" name="tilda_options[type_stored]"/>
-            <option value="post" <?php echo esc_attr($key)=='post' ? 'selected="selected"' : ''; ?>><?php echo __("Save text for another plugins",'tilda')?> (rss,yml,...)</option>
-            <option value="meta" <?php echo esc_attr($key)=='meta' || esc_attr($key)=="" ? 'selected="selected"' : ''; ?>><?php echo __("Save only HTML",'tilda')?></option>
-        </select>
-<?php
-    }
+		$project_ids_to_delete = array();
+		if ( isset( $maps[ Tilda_Admin::MAP_KEY_PROJECTS ] ) ) {
+			if ( isset( $maps[ Tilda_Admin::MAP_KEY_PROJECTS ][ $key_id ] ) ) {
+				$project_ids_to_delete = $maps[ Tilda_Admin::MAP_KEY_PROJECTS ][ $key_id ];
+				unset( $maps[ Tilda_Admin::MAP_KEY_PROJECTS ][ $key_id ] );
+			}
+		}
 
-    public static function acceptcssinlist_field()
-    {
-        $options = get_option('tilda_options');
-        $key = (isset($options['acceptcssinlist'])) ? $options['acceptcssinlist'] : '';
-        ?>
-        <select id="acceptcssinlist" name="tilda_options[acceptcssinlist]"/>
-            <option value="no" <?php echo esc_attr($key)=='no' ? 'selected="selected"' : ''; ?>><?php echo __("Switch off tilda style in posts list",'tilda')?></option>
-            <option value="yes" <?php echo esc_attr($key)=='yes' || esc_attr($key)=="" ? 'selected="selected"' : ''; ?>><?php echo __("Accept tilda style in posts list",'tilda')?></option>
-        </select>
-<?php
-    }
+		$page_ids_to_delete = array();
+		if ( isset( $maps[ Tilda_Admin::MAP_PROJECT_PAGES ] ) ) {
+			foreach ( $project_ids_to_delete as $project_id ) {
+				if ( isset( $maps[ Tilda_Admin::MAP_PROJECT_PAGES ][ $project_id ] ) ) {
+					$page_ids_to_delete = array_merge( $page_ids_to_delete,
+					                                   $maps[ Tilda_Admin::MAP_PROJECT_PAGES ][ $project_id ]
+					);
+					unset( $maps[ Tilda_Admin::MAP_PROJECT_PAGES ][ $project_id ] );
+				}
+			}
+		}
 
-    public static function enabledposttypes_field()
-    {
-        $options = get_option('tilda_options');
-        $keys = (isset($options['enabledposttypes'])) ? $options['enabledposttypes'] : array('post','page');
-        $arPostTypes = get_post_types('','objects');
-        foreach($arPostTypes as $id => $oType) {
-            if ($oType->public) {
-        ?>
-        <input type="checkbox" <?php if (in_array($id, $keys)) {?>checked="checked"<?php }?> id="enabledposttypes" name="tilda_options[enabledposttypes][]" value="<?php echo $id; ?>"/> <?php echo $oType->label > '' ?  $oType->label : $oType->name; ?><br>
-<?php
-            }
-        }
-    }
+		$projects = Tilda::get_local_projects();
+		$projects = array_diff_key( $projects, array_flip( $project_ids_to_delete ) );
+		Tilda_Admin::update_local_projects( $projects );
 
-    public static function storageforfiles_field()
-    {
-        $options = get_option('tilda_options');
-        $key = (isset($options['storageforfiles'])) ? $options['storageforfiles'] : 'local';
-        if ($key !== 'local') {
-            $key = 'cdn';
-        }
+		$pages = Tilda::get_local_pages();
+		$pages = array_diff_key( $pages, array_flip( $page_ids_to_delete ) );
+		Tilda_Admin::update_local_pages( $pages );
 
-        ?>
-        <select id="storageforfiles" name="tilda_options[storageforfiles]"/>
-            <option value="cdn" <?php echo esc_attr($key)=='cdn' ? 'selected="selected"' : ''; ?>><?php echo __("Leave images on CDN",'tilda')?></option>
-            <option value="local" <?php echo esc_attr($key)=='local' || esc_attr($key)=="" ? 'selected="selected"' : ''; ?>><?php echo __("Download images locally",'tilda')?></option>
-        </select>
-<?php
+		update_option( Tilda_Admin::OPTION_MAPS, $maps );
+	}
 
-    }
+	/**
+	 * Handle request to wp-ajax.php with action: add_new_key
+	 */
+	public static function ajax_add_new_key() {
+		$request  = Tilda_Admin::options_sanitize( $_POST );
+		$defaults = array(
+			'store_html_only'   => true,
+			'apply_css_in_list' => true
+		);
+		$request  = array_merge( $defaults, $request );
 
+		$keys = Tilda::get_local_keys();
+
+		if ( count( $keys ) >= Tilda_Admin::MAX_ALLOWED_KEY_PAIRS ) {
+			wp_send_json_error( __( 'Maximum number of keys is') . ' ' . Tilda_Admin::MAX_ALLOWED_KEY_PAIRS , 403 );
+		}
+
+		$id = $request['public_key'] . $request['secret_key'];
+
+		if ( empty( $id ) ) {
+			wp_send_json_error( __('Keys could not be empty'), 422 );
+		}
+
+		if ( isset( $keys[ $id ] ) ) {
+			wp_send_json_error( __('Key already exist'), 422 );
+		}
+
+        //Get project list from tilda to check that key is valid
+		$projects = Tilda::get_projects( $request['public_key'], $request['secret_key'] );
+		if ( is_wp_error( $projects ) ) {
+			wp_send_json_error( $projects->get_error_message(), 422 );
+		}
+
+		$project_ids = array();
+		foreach ( $projects as $project ) {
+			Tilda_Admin::update_project( $project->id, $request['public_key'], $request['secret_key']);
+			Tilda_Admin::update_pages( $project->id, $request['public_key'], $request['secret_key'] );
+			$project_ids[] = $project->id;
+		}
+		Tilda_Admin::update_local_map( Tilda_Admin::MAP_KEY_PROJECTS, $id, $project_ids );
+
+		$keys[ $id ] = array(
+			'id'                => $id,
+			'public_key'        => $request['public_key'],
+			'secret_key'        => $request['secret_key'],
+			'store_html_only'   => $request['store_html_only'],
+			'apply_css_in_list' => $request['apply_css_in_list']
+		);
+
+		Tilda_Admin::update_keys( $keys );
+
+		wp_send_json( $keys, 200 );
+	}
+
+	/**
+	 * Handle request to wp-ajax.php with action: delete_key
+     * Delete key and all assigned projects
+	 */
+	public static function ajax_delete_key() {
+		$request = Tilda_Admin::options_sanitize( $_GET );
+
+		if ( ! isset( $request['id'] ) ) {
+		    wp_send_json_error('id not provided', 500);
+		}
+
+		Tilda_Admin::delete_key( $request['id'] );
+
+		$keys = Tilda::get_local_keys();
+
+		wp_send_json( $keys, 200 );
+	}
+
+	/**
+	 * Handle request to wp-ajax.php with action: update_key
+     * Update minor parameters for dedicated key
+	 */
+	public static function ajax_update_key() {
+		$request = Tilda_Admin::options_sanitize( $_GET );
+
+		if ( ! isset( $request['id'] ) ) {
+		    wp_send_json_error('id not provided', 422);
+		}
+
+		$keys = Tilda::get_local_keys();
+
+		//Only these params allowed to be updated
+		foreach ( array( 'store_html_only', 'apply_css_in_list' ) as $param ) {
+			if ( isset( $request[ $param ] ) ) {
+				$keys[ $request['id'] ][ $param ] = $request[ $param ];
+			}
+		}
+
+		Tilda_Admin::update_keys( $keys );
+
+		wp_send_json($keys, 200);
+	}
+
+	/**
+	 * Handle request to wp-ajax.php with action: refresh_key
+     * Refetch projects and pages from API and save it to the DB
+	 */
+	public static function ajax_refresh_key() {
+		$request = Tilda_Admin::options_sanitize( $_GET );
+
+		if ( empty( $request['id'] ) ) {
+			wp_send_json_error( __( 'Id not specified' ), 422 );
+		}
+
+		$keys = Tilda::get_local_keys();
+		if ( ! isset( $keys[ $request['id'] ] ) ) {
+			wp_send_json_error( __( 'Wrong key specified' ), 422 );
+		}
+		$key = $keys[ $request['id'] ];
+
+		//Get project list from tilda to check that key is valid
+		$projects = Tilda::get_projects( $key['public_key'], $key['secret_key'] );
+		if ( is_wp_error( $projects ) ) {
+			wp_send_json_error( $projects->get_error_message(), 422 );
+		}
+
+		$project_ids = array();
+		foreach ( $projects as $project ) {
+			Tilda_Admin::update_project( $project->id, $key['public_key'], $key['secret_key'] );
+			Tilda_Admin::update_pages( $project->id, $key['public_key'], $key['secret_key'] );
+			$project_ids[] = $project->id;
+		}
+		Tilda_Admin::update_local_map( Tilda_Admin::MAP_KEY_PROJECTS, $request['id'], $project_ids );
+
+		wp_send_json( $keys, 200 );
+	}
+
+	/**
+	 * Handle request to wp-ajax.php with action: get_projects
+	 */
+	public static function ajax_get_projects() {
+		$projects = Tilda::get_local_projects();
+		if ( empty( $projects ) ) {
+			$projects = array();
+		}
+		wp_send_json( $projects, 200 );
+	}
+
+	/**
+	 * Handle request to wp-ajax.php with action: update_project
+	 */
+	public static function ajax_update_project(){
+		$request = Tilda_Admin::project_sanitize($_POST);
+
+		if ( ! isset( $request['id'] ) ) {
+			wp_send_json_error( __( 'Id not specified' ), 422 );
+		}
+
+		if ( ! isset( $request['enabled'] ) ) {
+			wp_send_json_error( __( 'Enable status not specified' ), 422 );
+		}
+
+		$project = Tilda::get_local_project($request['id']);
+		$project->enabled = $request['enabled'];
+
+		Tilda_Admin::update_local_project($project);
+
+		wp_send_json($project, 200);
+	}
+
+	/**
+	 * Handle request to wp-ajax.php with action: get_keys
+	 */
+	public static function ajax_get_keys() {
+	    wp_send_json( Tilda::get_local_keys(), 200);
+	}
+
+	/**
+	 * Handle request to wp-ajax.php with action: update_common_settings
+	 */
+	public static function ajax_update_common_settings() {
+		$options = get_option( Tilda_Admin::OPTION_OPTIONS );
+		$request = Tilda_Admin::options_sanitize($_POST);
+
+		foreach ( $request as $option_name => $option_value ) {
+			if ( ! isset( $options[ $option_name ] ) ) {
+				continue;
+			}
+
+			$options[ $option_name ] = $option_value;
+		}
+
+		update_option( Tilda_Admin::OPTION_OPTIONS, $options );
+
+		wp_send_json($options, 200);
+	}
 
     public static function options_validate($input)
     {
@@ -434,7 +677,8 @@ class Tilda_Admin
             }
         }
 
-        if (empty($input['acceptcssinlist']) || $input['acceptcssinlist'] != 'no') {
+        //Those settings moved to project level
+        /*if (empty($input['acceptcssinlist']) || $input['acceptcssinlist'] != 'no') {
             $input['acceptcssinlist'] = 'yes';
         } else {
             $input['acceptcssinlist'] = 'no';
@@ -444,7 +688,7 @@ class Tilda_Admin
             $input['type_stored'] = 'meta';
         } else {
             $input['type_stored'] = 'html';
-        }
+        }*/
 
         if (isset($input['secret_key'])) {
             $input['secret_key'] = preg_replace('/[^a-zA-Z0-9]+/iu','', $input['secret_key']);
@@ -455,6 +699,116 @@ class Tilda_Admin
         }
 
         return $input;
+    }
+
+	public static function pages_validate( $array ) {
+		//TODO validate $pages array before saving to DB
+		return $array;
+	}
+
+	public static function maps_validate( $array ) {
+		//TODO validate $maps array before saving to DB
+		return $array;
+	}
+
+	/**
+     * Sanitize tilda_options_keys array before saving it to DB
+     * Used by register_setting() in admin_init()
+	 * @param $pairs
+	 *
+	 * @return mixed
+	 */
+	public static function keys_sanitize($pairs){
+	    foreach ($pairs as $key => $value){
+	        $pairs[$key] = static::options_sanitize($value);
+	    }
+	    return $pairs;
+    }
+
+
+	/**
+	 * Remove unwanted symbols/values from project's data
+	 * @param $input
+	 *
+	 * @return array
+	 */
+    public static function project_sanitize($input){
+	    //Booleans
+	    foreach ( array( 'enabled' ) as $key ) {
+		    if ( isset( $input[ $key ] ) ) {
+			    switch ( $input[ $key ] ) {
+				    case 'true':
+					    $input[ $key ] = true;
+					    break;
+				    case 'false':
+					    $input[ $key ] = false;
+					    break;
+				    default:
+					    $input[ $key ] = boolval( $input[ $key ] );
+			    }
+		    }
+	    }
+
+	    //Alfanumerics
+	    foreach ( array( 'id' ) as $key ) {
+		    if ( isset( $input[ $key ] ) ) {
+			    $input[ $key ] = preg_replace( '/[^a-zA-Z0-9]+/iu', '', $input[ $key ] );
+		    }
+	    }
+
+	    return $input;
+    }
+
+	/**
+	 * Remove unwanted symbols/values from array of projects
+	 * @param $input
+	 *
+	 * @return array
+	 */
+	public static function projects_sanitize( $array ) {
+		return array_map( function ( $element ) {
+			return Tilda_Admin::project_sanitize( $element );
+		}, $array );
+	}
+
+	/**
+     * Remove unwanted symbols/values from options array
+	 * @param $input
+	 *
+	 * @return mixed
+	 */
+	public static function options_sanitize($input){
+	    //Enums
+	    if ( isset( $input['storageforfiles'] ) ) {
+		    if ( ! in_array( $input['storageforfiles'], array( 'cdn', 'local' ) ) ) {
+			    $input['storageforfiles'] = 'cdn';
+		    }
+	    }
+
+	    //Booleans
+		foreach ( array( 'store_html_only', 'apply_css_in_list' ) as $key ) {
+			if ( isset( $input[ $key ] ) ) {
+				switch ( $input[ $key ] ) {
+					case 'true':
+						$input[ $key ] = true;
+						break;
+					case 'false':
+						$input[ $key ] = false;
+						break;
+					default:
+						$input[ $key ] = boolval( $input[ $key ] );
+				}
+			}
+		}
+
+        //Alfanumerics
+		foreach ( array( 'id', 'public_key', 'secret_key' ) as $key ) {
+			if ( isset( $input[ $key ] ) ) {
+				$input[ $key ] = preg_replace( '/[^a-zA-Z0-9]+/iu', '', $input[ $key ] );
+			}
+		}
+
+	    return $input;
     }
 
     private static function validate_required_libs(){
@@ -521,24 +875,20 @@ class Tilda_Admin
     }
 
     /**
-     * Метод запрашивает данные указанного проекта с Тильды, включая страницы проекта, и сохраняет эти данные в опции tilda_projects
+     * Метод запрашивает данные указанного проекта с Тильды и сохраняет эти данные в опции tilda_projects
      * @param int $project_id - код проекта в Тильде
      * @return stdClass $project обновленные данные по проекту
      */
-    public static function update_project($project_id)
+    public static function update_project($project_id, $public_key = null, $secret_key = null)
     {
-        $project = Tilda::get_projectexport($project_id);
+        $project = Tilda::get_projectexport($project_id, $public_key, $secret_key);
         $projects = Tilda::get_local_projects();
 
-        $pages = Tilda::get_pageslist($project_id);
-        if ($pages && count($pages) > 0) {
-            $project->pages = array();
-            foreach ($pages as $page) {
-                $project->pages[$page->id] = $page;
-            }
-        } else {
-            $project->pages = array();
-        }
+	    if ( isset( $projects[ $project_id ] ) && $projects[ $project_id ]->enabled === false ) {
+		    $project->enabled = false;
+	    } else {
+		    $project->enabled = true;
+	    }
 
         $projects[$project_id] = $project;
 
@@ -568,33 +918,104 @@ class Tilda_Admin
             wp_mkdir_p($pages_path);
         }
 
-        update_option('tilda_projects', $projects);
+        Tilda_Admin::update_local_projects($projects);
         return $project;
     }
 
-    /**
-     * Обновляем информацию о соответствии page_id в post_id
-     * Нужно для реализации механизма обновления по расписанию
-     *
-     * @param $page_id код страницы в Тильде
-     * @param $post_id код страницы или поста в вордпрессе
-     * @return array массив связи
-     */
-    public static function update_maps($page_id, $post_id)
-    {
-        $maps = Tilda::get_map_pages();
-        if(! $maps) {
-            $maps = array();
-        }
-        $maps[$page_id] = $post_id;
+	/**
+	 * Метод запрашивает данные страница для указанного проекта с Тильды и сохраняет эти данные в опции tilda_pages
+	 * @param int $project_id - код проекта в Тильде
+	 * @return array $local_pages
+	 */
+	public static function update_pages( $project_id, $public_key, $secret_key ) {
+		$local_pages  = Tilda::get_local_pages();
+		$server_pages = Tilda::get_pageslist( $project_id, $public_key, $secret_key);
+		$new_pages    = array();
+		$page_ids     = array();
+		if ( $server_pages && count( $server_pages ) > 0 ) {
+			foreach ( $server_pages as $page ) {
+				$new_pages[ $page->id ] = $page;
+				$page_ids[]             = $page->id;
+			}
+		}
+		$local_pages[ $project_id ] = $new_pages;
+		update_option( Tilda_Admin::OPTION_PAGES, $local_pages );
+		Tilda_Admin::update_local_map( Tilda_Admin::MAP_PROJECT_PAGES, $project_id, $page_ids );
 
-        update_option('tilda_map_pages', $maps);
-        return $maps;
-    }
+		return $local_pages;
+	}
+
+
+	/**
+     * Update page in db from array and return result array of all pages
+	 * @param $page
+	 * @return false|mixed|void
+	 */
+	public static function update_local_page( $page ) {
+		$pages              = Tilda::get_local_pages();
+		$pages[ $page->id ] = $page;
+		Tilda_Admin::update_local_pages( $pages );
+
+		return $pages;
+	}
+
+	/**
+	 * @param $pages
+	 */
+	public static function update_local_pages( $pages ) {
+		update_option( Tilda_Admin::OPTION_PAGES, $pages );
+	}
+
+	/**
+     * Update project in db from array and return result array of all projects
+	 * @param $project
+	 * @return false|mixed|void
+	 */
+	public static function update_local_project( $project ) {
+		$projects                 = Tilda::get_local_projects();
+		$projects[ $project->id ] = $project;
+		Tilda_Admin::update_local_projects( $projects );
+
+		return $projects;
+	}
+
+	/**
+	 * @param $projects
+	 */
+	public static function update_local_projects( $projects ) {
+		update_option( Tilda_Admin::OPTION_PROJECTS, $projects );
+	}
+
+	/**
+     * Update one map in tilda_map structure
+     * Example $type = 'projects', $map_id = $key_id, $mapped_ids = array($project1, $project2)
+	 * @param $type
+	 * @param $map_id
+	 * @param $mapped_ids
+	 *
+	 * @return false|mixed|void
+	 */
+	public static function update_local_map( $type, $map_id, $mapped_ids ) {
+		$maps = Tilda::get_local_maps();
+		if ( ! isset( $maps[ $type ] ) ) {
+			$maps[ $type ] = array();
+		}
+		$maps[ $type ][ $map_id ] = $mapped_ids;
+		Tilda_Admin::update_local_maps($maps);
+
+		return $maps;
+	}
+
+	/**
+	 * @param $maps
+	 */
+	public static function update_local_maps( $maps ) {
+		update_option( Tilda_Admin::OPTION_MAPS, $maps );
+	}
 
     public static function replace_outer_image_to_local($tildapage, $export_imgpath='')
     {
-        $options = get_option('tilda_options');
+        $options = get_option(Tilda_Admin::OPTION_OPTIONS);
 
         $exportimages = array();
         $replaceimages = array();
@@ -637,8 +1058,19 @@ class Tilda_Admin
      */
     public static function export_tilda_page($page_id, $project_id, $post_id)
     {
+    	$key_id = Tilda::get_key_for_project_id($project_id);
+    	$key = Tilda::get_local_keys($key_id);
+
+	    if ( !isset( $key[$key_id] ) ) {
+		    Tilda::$errors->add( 'key_not_found', 'Cannot find key: ' . $key_id );
+
+		    return Tilda::$errors;
+	    }
+
+	    $key = $key[$key_id];
+    	
         // так как при изменении страницы мог изменится css или js, поэтому всегда запрашиваем данные проекта с Тильды
-        $project = self::update_project($project_id);
+        $project = self::update_project($project_id, $key['public_key'], $key['secret_key']);
 
         if (is_wp_error($project)) {
             return $project;
@@ -646,9 +1078,9 @@ class Tilda_Admin
             //echo json_encode($arResult);
             //wp_die();
         }
-        $tildaoptions = get_option('tilda_options');
+        $tildaoptions = get_option(Tilda_Admin::OPTION_OPTIONS);
 
-        $tildapage = Tilda::get_pageexport($page_id);
+        $tildapage = Tilda::get_pageexport($page_id, $key['public_key'], $key['secret_key']);
 
         if (is_wp_error($tildapage)) {
             return $tildapage;
@@ -662,7 +1094,7 @@ class Tilda_Admin
         $tildapage->html = str_replace('\n','||n||',$tildapage->html);
         $tildapage->html = htmlspecialchars_decode($tildapage->html);
 
-        self::update_maps($page_id, $post_id);
+	    Tilda_Admin::update_local_map(Tilda_Admin::MAP_PAGE_POSTS, $page_id, $post_id);
 
         $tildapage = Tilda_Admin::replace_outer_image_to_local($tildapage, $project->export_imgpath);
 
@@ -733,7 +1165,7 @@ class Tilda_Admin
 
         $post = get_post($post_id);
 
-        if (!empty($tildaoptions['type_stored']) && $tildaoptions['type_stored']=='post') {
+        if (!empty($key['store_html_only']) && $key['store_html_only']===false) {
             $post->post_content = strip_tags($tildapage->html,'<style><script><p><br><span><img><b><i><strike><strong><em><u><h1><h2><h3><a><ul><li>');
 
 
@@ -770,7 +1202,7 @@ class Tilda_Admin
             if($tmp > ''){ $post->post_content = nl2br($tmp); }
             else { $post->post_content = nl2br($post->post_content); }
         } else {
-            $post->post_content = 'Page synchronized. Edit page only on site Tilda.cc'; //$tildapage->html;
+            $post->post_content = __('Page synchronized. Edit page only on site Tilda.cc', 'tilda'); //$tildapage->html;
         }
         wp_update_post( $post );
 
@@ -923,8 +1355,8 @@ class Tilda_Admin
         }
 
         $arDownload = $_SESSION['tildaexport']['arDownload'];
-        $arTmp = array();
-        $downloaded=0;
+	    $arTmp      = array();
+	    $downloaded = 0;
         foreach ($arDownload as $file) {
 
             if (time() - self::$ts_start_plugin > 20) {

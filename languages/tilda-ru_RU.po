@@ -114,10 +114,10 @@ msgstr "Пожалуйста, установите права записи дл�
 msgid "Please, install curl library or add option allow_url_fopen=true in php.ini file"
 msgstr "Пожалуйста, установите библиотеку php_curl или флан allow_url_fopen в php.ini"
 
-msgid "Switch off tilda style in posts list"
+msgid "Turn off tilda style in posts list"
 msgstr "Выключить стили Тильды в списке постов"
 
-msgid "Accept tilda style in posts list"
+msgid "Apply tilda style in posts list"
 msgstr "Применять стили Тильды в списке постов"
 
 msgid "Type storage"
@@ -137,3 +137,115 @@ msgstr "Оставлять картинки на CDN"
 
 msgid "Storage for images"
 msgstr "Где хранить картинки"
+
+msgid "Add"
+msgstr "Добавить"
+
+msgid "Add API key"
+msgstr "Добавить API ключ"
+
+msgid "Apply css styles"
+msgstr "Применять стили"
+
+msgid "Projects"
+msgstr "Проекты"
+
+msgid "Public key"
+msgstr "Публичный ключ"
+
+msgid "Secret key"
+msgstr "Секретный ключ"
+
+msgid "You can find Public key at site configuration in section `Export->API Integration`"
+msgstr "Публичный ключ вы можете найти в настройках сайта в Tilda в разделе `Экспорт->API Intergration`"
+
+msgid "You can find Secret key at site configuration in section `Export->API Integration`"
+msgstr "Секретный ключ вы можете найти в настройках сайта в Tilda в разделе `Экспорт->API Intergration`"
+
+msgid "Save only HTML or additionally save text for 3rd party plugins usage (rss, yml, etc)"
+msgstr "Сохранять только HTML или дополнительно текст для использования сторонними плагинами (например rss,yml)"
+
+msgid "Enable/disable css styles in posts list"
+msgstr "Включить/отключить css стили в списке постов"
+
+msgid "Copy"
+msgstr "Скопировать"
+
+msgid "Tilda API configuration"
+msgstr "Настройка Тильда API"
+
+msgid "Common options"
+msgstr "Общие настройки"
+
+msgid "Posts"
+msgstr "Записи"
+
+msgid "Pages"
+msgstr "Страницы"
+
+msgid "Attachments"
+msgstr "Медиафайлы"
+
+msgid "Are you sure, you want to delete API key?"
+msgstr "Вы уверены что хотите удалить API ключ?"
+
+msgid "Can't add this key"
+msgstr "Не удалось добавить ключ"
+
+msgid "Maximum number of keys is"
+msgstr "Максимальное число ключей"
+
+msgid "Keys could not be empty"
+msgstr "Ключ не может быть пустым"
+
+msgid "Key already exist"
+msgstr "Такой ключ уже существует"
+
+
+msgid "Id not specified"
+msgstr "Id не указан"
+
+msgid "Enable status not specified"
+msgstr "Enable статус не указан"
+
+msgid "Project"
+msgstr "Проект"
+
+msgid "Enable"
+msgstr "Включен"
+
+msgid "Url copied to the clipboard"
+msgstr "Url скопирован в буфер обмена"
+
+msgid "Can't copy url to the clipboard"
+msgstr "Не удалось скопировать url в буфер обмена"
+
+msgid "Refresh"
+msgstr "Обновить"
+
+msgid "Keys"
+msgstr "Ключи"
+
+msgid "No added keys yet"
+msgstr "Нет добавленных ключей"
+
+msgid "No available projects"
+msgstr "Нет доступных проектов"
+
+msgid "Common settings successfully updated"
+msgstr "Общие настройки успешно сохранены"
+
+msgid "Success, new key has been added!"
+msgstr "Успешно, новый ключ был добавлен!"
+
+msgid "Success, key was deleted"
+msgstr "Успешно, ключ был удален"
+
+msgid "Wrong key specified"
+msgstr "Указан неверный ключ"
+
+msgid "Success, key was refreshed"
+msgstr "Успешно, ключ был обновлен"
+
+msgid "Page synchronized. Edit page only on site Tilda.cc"
+msgstr "Страница синхронизирована. Редактируйте страницу на сайте Tilda.cc"
