@@ -13,13 +13,11 @@ Export html page from Tilda.cc for import to your wordpress site into post or pa
 == Description ==
 
 Tilda Plugin for WordPress
-It integrates content that has been created on Tilda.cc, with your site by WordPress.
+It integrates web pages created on Tilda with your WordPress website.
 
-Do you have a site on WordPress? Good news - you can now do on Tilda Publishing beautiful pages for your site.
+Do you have a website on WordPress? Then we have good news for you – you can design beautiful pages on Tilda using all the built-in features and then easily integrate them with your website.
 
-Your site is a template that contains permanent elements: a cap, menus, homepage, net posts. But if you want to make
-the page more effectively and add these elements are not present in your template, you can create a page on Tilda, and
-then upload it to the site.
+Your website is a template that contains permanent elements: header, menu, homepage, blog posts. If you want to create a more efficient page and add elements that are not available in your template, you can create a web page on Tilda, and then upload it to your website.
 
 == Installation ==
 
@@ -46,20 +44,20 @@ If you change the page to Tilda you need to click on your site from the page cli
 
 == Frequently Asked Questions ==
 
-Q: How automate update page on worpress after publish page on Tilda?
-A: Set on Tilda.cc next url for callback http://example.com/wp-admin/admin-ajax.php?action=nopriv_tilda_sync_event
+Q: How do I automate page updates on WordPress after publishing my Tilda pages?
+A: On Tilda, go to the Site Settings → Export → API Integration and set the following Webhook URL: http://example.com/wp-admin/admin-ajax.php?action=nopriv_tilda_sync_event
 
-Q: Where find official repository for this plugin?
-A: Official repository on [GitHub page](https://github.com/greensun7/tilda-wordpress-plugin).
+Q: Where can I find the official repository for this plugin?
+A: Please find the official repository on this [GitHub page](https://github.com/greensun7/tilda-wordpress-plugin).
 
-Q: Something is broken, or I have a great idea.
-A: Please create an issue on the [GitHub page](https://github.com/greensun7/tilda-wordpress-plugin) or send email on team@tilda.cc. Creating a pull request with a fix is an even better option.
+Q: Something’s broken / I have a great idea, how can I contact you?
+A: Please create an issue on the [GitHub page](https://github.com/greensun7/tilda-wordpress-plugin) or send an email to team@tilda.cc. Creating a pull request is an even better option.
 
 
 == Screenshots ==
 
-1. After create page: screenshort3.jpg
-2. Page where plugin on: screenshort2.jpg
+1. After create page: screenshot-1.jpg
+2. Page where plugin on: screenshot-2.jpg
 3. Page with list project and pages from tilda.cc http://images.tildacdn.info/4af42b78-3494-4a85-ba10-15c2315af6f6/1.jpg
 
 == Changelog ==
