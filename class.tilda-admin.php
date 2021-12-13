@@ -1162,6 +1162,7 @@ class Tilda_Admin
 
         $tildapage->html = str_replace('$(','jQuery(', $tildapage->html);
         $tildapage->html = str_replace('$.','jQuery.', $tildapage->html);
+        $tildapage->html = str_replace('jQuery.cachedScript("tilda', 'jQuery.cachedScript("'. $upload_dir.'js/tilda', $tildapage->html);
 
         $post = get_post($post_id);
 
@@ -1324,7 +1325,7 @@ class Tilda_Admin
         wp_die();
     }
 
-     /**
+    /**
      * метод вызывается ajax-запросом из админки
      *  http://example.com/wp-admin/admin-ajax.php?action=tilda_admin_export_file
      *  закачивает файлы порциями
