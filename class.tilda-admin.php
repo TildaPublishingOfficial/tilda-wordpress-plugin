@@ -1092,7 +1092,22 @@ class Tilda_Admin
         $tildapage->html = str_replace('<\/script>', '<||s||script>', $tildapage->html);
         // ||n|| is custom escaping symbol for \n to bypass serialization/deserialization process
         $tildapage->html = str_replace('\n','||n||',$tildapage->html);
+
+        //Content of data-field-imgs-value should not be html decoded
+        $isZeroGalleryFound = preg_match_all('/data-field-imgs-value=\"([^"]*)\"/i', $tildapage->html, $matches);
+        if ($isZeroGalleryFound && !empty($matches[1])) {
+            foreach ($matches[1] as $key => $match) {
+                $tildapage->html = str_replace($match, "||imgsvalue-{$key}||", $tildapage->html);
+            }
+        }
+
         $tildapage->html = htmlspecialchars_decode($tildapage->html);
+
+        if ($isZeroGalleryFound && !empty($matches[1])) {
+            foreach ($matches[1] as $key => $match) {
+                $tildapage->html = str_replace("||imgsvalue-{$key}||", $match, $tildapage->html);
+            }
+        }
 
         Tilda_Admin::update_local_map(Tilda_Admin::MAP_PAGE_POSTS, $page_id, $post_id);
 
@@ -1162,7 +1177,7 @@ class Tilda_Admin
 
         $tildapage->html = str_replace('$(','jQuery(', $tildapage->html);
         $tildapage->html = str_replace('$.','jQuery.', $tildapage->html);
-        $tildapage->html = str_replace('jQuery.cachedScript("tilda', 'jQuery.cachedScript("'. $upload_dir.'js/tilda', $tildapage->html);
+        $tildapage->html = str_replace('jQuery.cachedScript("tilda', 'jQuery.cachedScript("'. $upload_path.'js/tilda', $tildapage->html);
 
         $post = get_post($post_id);
 
