@@ -37,8 +37,6 @@ class Tilda_Admin
             self::$ts_start_plugin = time();
         }
 
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
         self::$initiated = true;
 
         add_action('admin_init', array('Tilda_Admin', 'admin_init'));
@@ -122,7 +120,6 @@ class Tilda_Admin
                 $page_post_map[ $map_page_id ] = $map_post_id;
             }
         }
-        //map_page_post ready to save
 
         //If everything goes fine until this, then save new data structure
         Tilda_Admin::update_keys($keys);
@@ -156,8 +153,6 @@ class Tilda_Admin
 
     public static function admin_init()
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
         register_setting(
             static::OPTION_KEYS,
             static::OPTION_KEYS,
@@ -193,13 +188,11 @@ class Tilda_Admin
 
     public static function admin_menu()
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
         self::load_menu();
     }
 
     public static function load_menu()
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
         add_submenu_page(
             'options-general.php',
             'Tilda Publishing',
@@ -212,16 +205,11 @@ class Tilda_Admin
 
     public static function add_meta_box()
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
         $post = get_post();
         $data = get_post_meta($post->ID, '_tilda', true);
 
         $options = get_option(Tilda_Admin::OPTION_OPTIONS);
         $screens = (isset($options['enabledposttypes'])) ? $options['enabledposttypes'] : array('post','page');
-
-        //$screens = array('post', 'page');
-
 
         foreach ($screens as $screen) {
 
@@ -234,7 +222,7 @@ class Tilda_Admin
                     'advanced',
                     'high'
                 );
-            };
+            }
             if (isset($data["status"]) && $data["status"] == 'on') {
                 add_meta_box(
                     'tilda_pages_list',
@@ -244,17 +232,15 @@ class Tilda_Admin
                     'advanced',
                     'high'
                 );
-            };
+            }
         }
     }
 
     public static function pages_list_callback($post)
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
         $data = get_post_meta($post->ID, '_tilda', true);
-        $page_id = isset($data["page_id"]) ? $data["page_id"] : false;
-        $project_id = isset($data["project_id"]) ? $data["project_id"] : false;
+        //$page_id = isset($data["page_id"]) ? $data["page_id"] : false;
+        //$project_id = isset($data["project_id"]) ? $data["project_id"] : false;
 
         if (isset($data['update_data']) && $data['update_data'] == 'update_data') {
             /* обновляем список проектов и страниц */
@@ -276,8 +262,6 @@ class Tilda_Admin
     }
     public static function save_tilda_data($postID)
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
         if (!isset($_POST['tilda'])) {
             return;
         }
@@ -306,8 +290,6 @@ class Tilda_Admin
 
     public static function admin_enqueue_scripts($hook)
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
         wp_register_style('tilda_css', TILDA_PLUGIN_URL . 'css/styles.css', array() , '3');
         wp_enqueue_style('tilda_css');
 
@@ -357,7 +339,6 @@ class Tilda_Admin
      */
     public static function initialize()
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
         $keys = Tilda::get_local_keys();
 
         $success_project_ids = array();
@@ -391,16 +372,12 @@ class Tilda_Admin
 
     private static function scandir($dir)
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
         $list = scandir($dir);
         return array_values($list);
     }
 
     private static function clear_dir($dir)
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
         $list = self::scandir($dir);
 
         foreach ($list as $file) {
@@ -677,19 +654,6 @@ class Tilda_Admin
             }
         }
 
-        //Those settings moved to project level
-        /*if (empty($input['acceptcssinlist']) || $input['acceptcssinlist'] != 'no') {
-            $input['acceptcssinlist'] = 'yes';
-        } else {
-            $input['acceptcssinlist'] = 'no';
-        }
-
-        if (empty($input['type_stored']) || $input['type_stored'] != 'html') {
-            $input['type_stored'] = 'meta';
-        } else {
-            $input['type_stored'] = 'html';
-        }*/
-
         if (isset($input['secret_key'])) {
             $input['secret_key'] = preg_replace('/[^a-zA-Z0-9]+/iu','', $input['secret_key']);
         }
@@ -811,30 +775,23 @@ class Tilda_Admin
         return $input;
     }
 
-    private static function validate_required_libs(){
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
+    private static function validate_required_libs()
+    {
         $libs = self::$libs;
-        foreach ($libs as $lib_name){
-            if(!extension_loaded($lib_name)){
-                Tilda::$errors->add( 'no_library',__('Not found library ','tilda').$lib_name);
+        foreach ($libs as $lib_name) {
+            if (!extension_loaded($lib_name)) {
+                Tilda::$errors->add('no_library', __('Not found library ', 'tilda') . $lib_name);
             }
         }
-
-
     }
 
     public static function display_configuration_page()
     {
-//        self::validate_required_libs();
-
         self::view('configuration');
     }
 
     public static function switcher_callback($post)
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
         $data = get_post_meta($post->ID, '_tilda', true);
         if (! is_array($data)) {
             $data = array();
@@ -848,8 +805,6 @@ class Tilda_Admin
 
     public static function view($name, array $args = array())
     {
-        // Tilda_Admin::log(__CLASS__."::".__FUNCTION__, __FILE__, __LINE__);
-
         $args = apply_filters('tilda_view_arguments', $args, $name);
 
         foreach ($args AS $key => $val) {
@@ -896,10 +851,7 @@ class Tilda_Admin
 
         if (!is_dir($upload_dir)) {
             wp_mkdir_p($upload_dir);
-            // mkdir($upload_dir, 0755);
         }
-
-        // self::clear_dir($upload_dir);
 
         $css_path = $upload_dir . 'css/';
         $js_path = $upload_dir . 'js/';
@@ -907,14 +859,11 @@ class Tilda_Admin
 
         if (!is_dir($css_path)) {
             wp_mkdir_p($css_path);
-            //mkdir($css_path, 0755);
         }
         if (!is_dir($js_path)) {
-            //mkdir($js_path, 0755);
             wp_mkdir_p($js_path);
         }
         if (!is_dir($pages_path)) {
-            //mkdir($pages_path, 0755);
             wp_mkdir_p($pages_path);
         }
 
@@ -1074,9 +1023,6 @@ class Tilda_Admin
 
         if (is_wp_error($project)) {
             return $project;
-            //$arResult['error'] = __("Error. Can't find project with this 'projectid' parameter");
-            //echo json_encode($arResult);
-            //wp_die();
         }
         $tildaoptions = get_option(Tilda_Admin::OPTION_OPTIONS);
 
@@ -1084,9 +1030,6 @@ class Tilda_Admin
 
         if (is_wp_error($tildapage)) {
             return $tildapage;
-            //$arResult['error'] = __("Error. Can't find page with this 'pageid' parameter");
-            //echo json_encode($arResult);
-            //wp_die();
         }
         // ||s|| is custom escaping symbol used to bypass '<\/script>' text from wordpress engine processing
         $tildapage->html = str_replace('<\/script>', '<||s||script>', $tildapage->html);
@@ -1230,7 +1173,6 @@ class Tilda_Admin
         $tildapage->sync_time = current_time('mysql');
 
         $meta['current_page'] = $tildapage;
-        //unset($meta['current_page']->html);
         update_post_meta($post_id, '_tilda', $meta);
 
         if (empty($tildaoptions['storageforfiles']) || $tildaoptions['storageforfiles'] == 'local') {
@@ -1318,11 +1260,6 @@ class Tilda_Admin
 
         if (!session_id()) {
             session_start();
-            /*if (session_status() != PHP_SESSION_ACTIVE) {
-                Tilda::$errors->add( 'no_start_session', 'Cannoyt start session.');
-                echo Tilda::json_errors();
-                wp_die();
-            }*/
         }
 
         $_SESSION['tildaexport'] = array(
@@ -1338,8 +1275,6 @@ class Tilda_Admin
         $arResult['page_id'] = $page_id;
         $arResult['project_id'] = $project_id;
         $arResult['post_id'] = $post_id;
-
-        //$arResult['dump'] = $arDownload;
 
         echo json_encode($arResult);
         wp_die();
@@ -1359,11 +1294,6 @@ class Tilda_Admin
 
         if (!session_id()) {
             session_start();
-            /*if (session_status() != PHP_SESSION_ACTIVE) {
-                Tilda::$errors->add( 'no_start_session', 'Cannoyt start session.');
-                echo Tilda::json_errors();
-                wp_die();
-            }*/
         }
 
         $arResult = array();
