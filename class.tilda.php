@@ -258,6 +258,9 @@ class Tilda
         $post = get_post();
         if ($post) {
             $data = get_post_meta($post->ID, '_tilda', true);
+            if (empty($data['project_id'])) {
+                $data['project_id'] = (!empty($data['current_page']->projectid)) ? $data['current_page']->projectid : null;
+            }
 
             $key_id = Tilda::get_key_for_project_id($data['project_id']);
             $key = Tilda::get_local_keys($key_id);
@@ -323,6 +326,9 @@ class Tilda
             return $classes;
         }
         $data = get_post_meta($post->ID, '_tilda', true);
+        if (empty($data['project_id'])) {
+            $data['project_id'] = (!empty($data['current_page']->projectid)) ? $data['current_page']->projectid : null;
+        }
 
         $key_id = Tilda::get_key_for_project_id($data['project_id']);
         $key = Tilda::get_local_keys($key_id);
