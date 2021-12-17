@@ -253,11 +253,16 @@ class Tilda
 
     public static function enqueue_scripts()
     {
-        $options = get_option('tilda_options');
+        //$options = get_option('tilda_options');
 
         $post = get_post();
         if ($post) {
             $data = get_post_meta($post->ID, '_tilda', true);
+
+            if (!is_array($data)) {
+                return false;
+            }
+
             if (empty($data['project_id'])) {
                 $data['project_id'] = (!empty($data['current_page']->projectid)) ? $data['current_page']->projectid : null;
             }
@@ -273,13 +278,9 @@ class Tilda
                 return false;
             }
 
-            if(isset($data['status']) && $data['status'] == 'on') {
+            if (isset($data["status"]) && $data["status"] == 'on') {
                 Tilda::$active_on_page = true;
-            } else {
-                Tilda::$active_on_page = false;
-            }
 
-            if (isset($data) && isset($data["status"]) && $data["status"] == 'on') {
                 $page = self::get_page_prepared($data["page_id"],$data["project_id"], $post->ID);
 
                 $css_links = $page->css;
@@ -308,6 +309,8 @@ class Tilda
                         wp_enqueue_script($name, $file, false, $ver);
                     }
                 }
+            } else {
+                Tilda::$active_on_page = false;
             }
         }
 
@@ -326,6 +329,11 @@ class Tilda
             return $classes;
         }
         $data = get_post_meta($post->ID, '_tilda', true);
+
+        if (!is_array($data)) {
+            return $classes;
+        }
+
         if (empty($data['project_id'])) {
             $data['project_id'] = (!empty($data['current_page']->projectid)) ? $data['current_page']->projectid : null;
         }
