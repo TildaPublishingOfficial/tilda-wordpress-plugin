@@ -1109,6 +1109,11 @@ class Tilda_Admin
             }
         }
 
+        //remove all css <link> occurrences that was already added to the <header> tag
+        foreach ($tildapage->css as $css) {
+            $tildapage->html = str_replace('<link rel="stylesheet" href="' . $css->to . '">', '', $tildapage->html);
+        }
+
         Tilda_Admin::update_local_map(Tilda_Admin::MAP_PAGE_POSTS, $page_id, $post_id);
 
         $tildapage = Tilda_Admin::replace_outer_image_to_local($tildapage, $project->export_imgpath);
