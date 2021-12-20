@@ -153,9 +153,14 @@ class Tilda
         // put this line inside a function,
         // presumably in response to something the user does
         // otherwise it will schedule a new event on every page visit
-        if(empty($_REQUEST['page_id']) || empty($_REQUEST['project_id'])) {
-            echo "ERROR unknown page_id or project_id";
-            wp_die();
+        if (empty($_REQUEST['page_id']) || empty($_REQUEST['project_id'])) {
+            if (!empty($_REQUEST['projectid']) && !empty($_REQUEST['pageid'])) {
+                $_REQUEST['page_id'] = $_REQUEST['pageid'];
+                $_REQUEST['project_id'] = $_REQUEST['projectid'];
+            } else {
+                echo "ERROR unknown page_id or project_id";
+                wp_die();
+            }
         }
 
         $maps = self::get_local_map(Tilda::MAP_PAGE_POSTS);
@@ -170,16 +175,29 @@ class Tilda
             wp_die();
         }
 
-        /* public key generate in Tilda.cc and insert Admin User into wordpress */
-        if (empty($_REQUEST['publickey']) || $_REQUEST['publickey'] != self::get_public_key()) {
+        if (empty($_REQUEST['publickey'])) {
+            echo "Access denied";
+            wp_die();
+        }
+
+        $isPublicKeyValid = false;
+        $arAllKeys = self::get_local_keys();
+        foreach ($arAllKeys as $arKey) {
+            if ($arKey['public_key'] === $_REQUEST['publickey']) {
+                $isPublicKeyValid = true;
+                break;
+            }
+        }
+        if (!$isPublicKeyValid) {
             echo "Access denied";
             wp_die();
         }
 
         /* access allow for tilda.cc and api.tildacdn.com */
         if (
-            $_SERVER['REMOTE_ADDR']<>"194.177.22.186"
+            $_SERVER['REMOTE_ADDR']<>'194.177.22.186'
             && $_SERVER['REMOTE_ADDR']<>'95.213.201.187'
+            && $_SERVER['REMOTE_ADDR']<>'194.177.20.162'
         ) {
             echo "Access denied";
             wp_die();

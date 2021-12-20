@@ -40,7 +40,7 @@ https://help-ru.tilda.ws/wordpress
 ## FAQ
 
 В: Можно ли автоматически обновлять страницу на вордпрессе, после публикации страницы на Тильде?
-О: Да, можно. Для этого нужно указать в настройках API Тильды, следующий урл для callback-вызова http://your-wordpress-site.ru/wp-admin/admin-ajax.php?action=nopriv_tilda_sync_event
+О: Да, можно. Для этого нужно указать в настройках API Тильды, следующий урл для callback-вызова http://your-wordpress-site.ru/wp-admin/admin-ajax.php?action=tilda_sync_event
 
 В: Можно ли скачать плагин из GIT-репозитория
 О: Да, плагин доступен по адресу https://github.com/greensun7/tilda-wordpress-plugin

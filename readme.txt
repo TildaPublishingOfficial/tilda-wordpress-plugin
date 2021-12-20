@@ -4,7 +4,7 @@ Donate link: https://wordpress.org/plugins/tilda-publishing/
 Tags: blog, bulk, convert, crawl, data, import, importer, migrate, move, posts, publishing, tilda, export
 Requires at least: 3.0.1
 Tested up to: 4.9.6
-Stable tag: 0.3.04
+Stable tag: 0.3.05
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,7 +45,7 @@ If you change the page to Tilda you need to click on your site from the page cli
 == Frequently Asked Questions ==
 
 Q: How do I automate page updates on WordPress after publishing my Tilda pages?
-A: On Tilda, go to the Site Settings → Export → API Integration and set the following Webhook URL: http://example.com/wp-admin/admin-ajax.php?action=nopriv_tilda_sync_event
+A: On Tilda, go to the Site Settings → Export → API Integration and set the following Webhook URL: http://example.com/wp-admin/admin-ajax.php?action=tilda_sync_event
 
 Q: Where can I find the official repository for this plugin?
 A: Please find the official repository on this [GitHub page](https://github.com/greensun7/tilda-wordpress-plugin).
@@ -61,6 +61,9 @@ A: Please create an issue on the [GitHub page](https://github.com/greensun7/tild
 3. Page with list project and pages from tilda.cc http://images.tildacdn.info/4af42b78-3494-4a85-ba10-15c2315af6f6/1.jpg
 
 == Changelog ==
+
+= 0.3.05 =
+* Update 0.3.05 - update webhook features according to API changes
 
 = 0.3.04 =
 * Update 0.3.04 - hot fix for 0.3.03
