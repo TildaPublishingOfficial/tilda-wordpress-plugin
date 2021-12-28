@@ -964,6 +964,10 @@ class Tilda_Admin
 
     public static function replace_outer_image_to_local($tildapage, $export_imgpath='')
     {
+        if ($export_imgpath > '' && substr($export_imgpath,-1) !== '/') {
+            $export_imgpath .= '/';
+        }
+
         $options = get_option(Tilda_Admin::OPTION_OPTIONS);
 
         $exportimages = array();
@@ -979,7 +983,7 @@ class Tilda_Admin
                 $uniq[$image->from] = 1;
 
                 if ($export_imgpath > '') {
-                    $exportimages[] = '|'.$export_imgpath.'/'.$image->to.'|i';
+                    $exportimages[] = '|'.$export_imgpath.$image->to.'|i';
                 } else {
                     $exportimages[] = '|'.$image->to.'|i';
                 }
