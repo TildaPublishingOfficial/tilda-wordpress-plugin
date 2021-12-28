@@ -188,7 +188,7 @@ foreach( $locales as $tmp_locale ){
 
         <div class="tilda-tooltip">
             <span class="webhook_url_container">
-                <input id="webhook_url" type="text" size="65" value="<?php echo get_option('siteurl') ?>/wp-admin/admin-ajax.php?action=nopriv_tilda_sync_event" readonly/>
+                <input id="webhook_url" type="text" size="65" value="<?php echo get_option('siteurl') ?>/wp-admin/admin-ajax.php?action=tilda_sync_event" readonly/>
                 <span class="dashicons dashicons-admin-page"> </span>
             </span>
             <span class="tilda-tooltip-text"><?php echo __('Copy', 'tilda'); ?></span>
