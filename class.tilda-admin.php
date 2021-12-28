@@ -1035,6 +1035,28 @@ class Tilda_Admin
         if (is_wp_error($tildapage)) {
             return $tildapage;
         }
+
+        $upload_path = Tilda::get_upload_path() . $project->id . '/';
+        $upload_dir = Tilda::get_upload_dir() . $project->id . '/';
+        if(! is_dir($upload_dir) && ! wp_mkdir_p($upload_dir, 0755)) {
+            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir );
+            return Tilda::$errors;
+        }
+        if(! is_dir($upload_dir.'pages/') && ! wp_mkdir_p($upload_dir.'pages/', 0755)) {
+            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'pages/' );
+            return Tilda::$errors;
+        }
+        if(! is_dir($upload_dir.'css/') && ! wp_mkdir_p($upload_dir.'css/', 0755)) {
+            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'css/' );
+            return Tilda::$errors;
+        }
+        if(! is_dir($upload_dir.'js/') && ! wp_mkdir_p($upload_dir.'js/', 0755)) {
+            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'js/' );
+            return Tilda::$errors;
+        }
+
+        $arDownload = array();
+
         // ||s|| is custom escaping symbol used to bypass '<\/script>' text from wordpress engine processing
         $tildapage->html = str_replace('<\/script>', '<||s||script>', $tildapage->html);
         // ||n|| is custom escaping symbol for \n to bypass serialization/deserialization process
@@ -1047,6 +1069,25 @@ class Tilda_Admin
                 $tildapage->html = str_replace($match, "||imgsvalue-{$key}||", $tildapage->html);
             }
         }
+
+        //Find async loading js scripts and add them to the download queue
+        $isAsyncJsFound = preg_match_all('/s\.src=\"\/js\/([^"]+)/i', $tildapage->html, $matches);
+        if ($isAsyncJsFound && !empty($matches[1])) {
+            foreach ($matches[1] as $key => $match) {
+                if (substr($match, -3) === '.js') {
+                    $oDownload = new stdClass();
+                    $oDownload->from = 'https://static.tildacdn.com/js/' . $match;
+                    $oDownload->to = $match;
+                    $tildapage->js[] = $oDownload;
+                    $tildapage->html = str_replace(
+                        's.src="/js/' . $match . '"',
+                        's.src="' . $upload_path . 'js/' . $match . '"',
+                        $tildapage->html
+                    );
+                }
+            }
+        }
+
 
         $tildapage->html = htmlspecialchars_decode($tildapage->html);
 
@@ -1077,26 +1118,6 @@ class Tilda_Admin
         $meta['project_id'] = $tildapage->projectid;
         $meta['post_id'] = $post_id;
 
-        $arDownload = array();
-
-        $upload_path = Tilda::get_upload_path() . $project->id . '/';
-        $upload_dir = Tilda::get_upload_dir() . $project->id . '/';
-        if(! is_dir($upload_dir) && ! wp_mkdir_p($upload_dir, 0755)) {
-            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir );
-            return Tilda::$errors;
-        }
-        if(! is_dir($upload_dir.'pages/') && ! wp_mkdir_p($upload_dir.'pages/', 0755)) {
-            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'pages/' );
-            return Tilda::$errors;
-        }
-        if(! is_dir($upload_dir.'css/') && ! wp_mkdir_p($upload_dir.'css/', 0755)) {
-            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'css/' );
-            return Tilda::$errors;
-        }
-        if(! is_dir($upload_dir.'js/') && ! wp_mkdir_p($upload_dir.'js/', 0755)) {
-            Tilda::$errors->add( 'no_directory', 'Cannot create directory: '.$upload_dir.'js/' );
-            return Tilda::$errors;
-        }
 
         if (isset($tildapage->css) && is_array($tildapage->css)) {
             $arCSS = $tildapage->css;
