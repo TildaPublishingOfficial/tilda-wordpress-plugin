@@ -324,6 +324,9 @@ class Tilda_Admin
         $locale = ( empty( $locale ) ) ? get_locale() : $locale;
         $mo     = new MO;
         $mofile = dirname( __FILE__ ) . '/languages/tilda-' . $locale . '.mo';
+        if (!file_exists($mofile)){
+            $mofile = dirname( __FILE__ ) . '/languages/tilda-en_US.mo';
+        }
         $mo->import_from_file( $mofile );
 
         $localization = array();

@@ -1,0 +1,251 @@
+# Copyright (C) 2012 Infoway Theme Pro
+# This file is distributed under the same license as the WordPress package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Tilda\n"
+"Report-Msgid-Bugs-To: admin@inkthemes.comPOT-Creation-Date: 2012-01-11 12:47:23+00:00\n"
+"POT-Creation-Date: 2013-02-14 13:20+0200\n"
+"PO-Revision-Date: 2018-05-24 20:28+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.7\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: _e\n"
+"X-Poedit-Basepath: .\n"
+"Language: en_US\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+msgid "Error. Can't find page with this 'pageid' parameter"
+msgstr "Error. Can't find page with this 'pageid' parameter"
+
+msgid "Error. Can't find project with this 'projectid' parameter"
+msgstr "Error. Can't find project with this 'projectid' parameter"
+
+msgid "Wrong Secret Key length"
+msgstr "Wrong Secret Key length"
+
+msgid "Wrong Public Key length"
+msgstr "Wrong Public Key length"
+
+msgid "Bad request line. Missing parameter: secretkey"
+msgstr "Bad request line. Missing parameter: secretkey"
+
+msgid "Bad request line. Missing parameter: publickey"
+msgstr "Bad request line. Missing parameter: publickey"
+
+msgid "Bad request line. Missing parameter: projectid"
+msgstr "Bad request line. Missing parameter: projectid"
+
+msgid "Refresh pages list"
+msgstr "Refresh pages list"
+
+msgid "Projects list is empty"
+msgstr "Projects list is empty"
+
+msgid "The security keys is not set"
+msgstr "The security keys is not set"
+
+msgid "Too much requests per hour. Limit: 200 requests per 1 hour"
+msgstr "Too much requests per hour. Limit: 200 requests per 1 hour"
+
+msgid "Not found library "
+msgstr "Not found library "
+
+msgid "Error. Can't find post with this 'post_id' parameter"
+msgstr "Error. Can't find post with this 'post_id' parameter"
+
+msgid "Input title and click Save for activate Tilda for this page"
+msgstr "Input title and click Save for activate Tilda for this page"
+
+msgid "Activate Tilda for this page?"
+msgstr "Activate Tilda for this page?"
+
+msgid "Tilda accounts assign"
+msgstr "Tilda accounts assign"
+
+msgid "Show page"
+msgstr "Show page"
+
+msgid "Sync in progress"
+msgstr "Sync in progress"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Synchronization"
+msgstr "Synchronization"
+
+msgid "Get another page"
+msgstr "Get another page"
+
+msgid "Please, select page from list"
+msgstr "Please, select page from list"
+
+msgid "Cancel connect"
+msgstr "Cancel connect"
+
+msgid "Refresh list"
+msgstr "Refresh list"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Save text for another plugins"
+msgstr "Save text for another plugins"
+
+msgid "Save only HTML"
+msgstr "Save only HTML"
+
+msgid "Sync worked more 30 sec and not all files download. Please, click button Synchronization for continue download files from Tilda.cc"
+msgstr "Sync worked more 30 sec and not all files download. Please, click button Synchronization for continue download files from Tilda.cc"
+
+msgid "Selected page will be copied to your site. Further if you change something on the page on Tilda, you will need to update the page manually by clicking “Synchronization”"
+msgstr "Selected page will be copied to your site. Further if you change something on the page on Tilda, you will need to update the page manually by clicking “Synchronization”"
+
+msgid "Please, set mode Write for directory"
+msgstr "Please, set mode Write for directory"
+
+msgid "Please, install curl library or add option allow_url_fopen=true in php.ini file"
+msgstr "Please, install curl library or add option allow_url_fopen=true in php.ini file"
+
+msgid "Turn off tilda style in posts list"
+msgstr "Turn off tilda style in posts list"
+
+msgid "Apply tilda style in posts list"
+msgstr "Apply tilda style in posts list"
+
+msgid "Type storage"
+msgstr "Type storage"
+
+msgid "Tilda CSS in List of posts"
+msgstr "Tilda CSS in List of posts"
+
+msgid "Types of post where show Tilda button"
+msgstr "Types of post where show Tilda button"
+
+msgid "Download images locally"
+msgstr "Download images locally"
+
+msgid "Leave images on CDN"
+msgstr "Leave images on CDN"
+
+msgid "Storage for images"
+msgstr "Storage for images"
+
+msgid "Add"
+msgstr "Add"
+
+msgid "Add API key"
+msgstr "Add API key"
+
+msgid "Apply css styles"
+msgstr "Apply css styles"
+
+msgid "Projects"
+msgstr "Projects"
+
+msgid "Public key"
+msgstr "Public key"
+
+msgid "Secret key"
+msgstr "Secret key"
+
+msgid "You can find Public key at site configuration in section `Export->API Integration`"
+msgstr "You can find Public key at site configuration in section `Export->API Integration`"
+
+msgid "You can find Secret key at site configuration in section `Export->API Integration`"
+msgstr "You can find Secret key at site configuration in section `Export->API Integration`"
+
+msgid "Save only HTML or additionally save text for 3rd party plugins usage (rss, yml, etc)"
+msgstr "Save only HTML or additionally save text for 3rd party plugins usage (rss, yml, etc)"
+
+msgid "Enable/disable css styles in posts list"
+msgstr "Enable/disable css styles in posts list"
+
+msgid "Copy"
+msgstr "Copy"
+
+msgid "Tilda API configuration"
+msgstr "Tilda API configuration"
+
+msgid "Common options"
+msgstr "Common options"
+
+msgid "Posts"
+msgstr "Posts"
+
+msgid "Pages"
+msgstr "Pages"
+
+msgid "Attachments"
+msgstr "Attachments"
+
+msgid "Are you sure, you want to delete API key?"
+msgstr "Are you sure, you want to delete API key?"
+
+msgid "Can't add this key"
+msgstr "Can't add this key"
+
+msgid "Maximum number of keys is"
+msgstr "Maximum number of keys is"
+
+msgid "Keys could not be empty"
+msgstr "Keys could not be empty"
+
+msgid "Key already exist"
+msgstr "Key already exist"
+
+
+msgid "Id not specified"
+msgstr "Id not specified"
+
+msgid "Enable status not specified"
+msgstr "Enable status not specified"
+
+msgid "Project"
+msgstr "Project"
+
+msgid "Enable"
+msgstr "Enable"
+
+msgid "Url copied to the clipboard"
+msgstr "Url copied to the clipboard"
+
+msgid "Can't copy url to the clipboard"
+msgstr "Can't copy url to the clipboard"
+
+msgid "Refresh"
+msgstr "Refresh"
+
+msgid "Keys"
+msgstr "Keys"
+
+msgid "No added keys yet"
+msgstr "No added keys yet"
+
+msgid "No available projects"
+msgstr "No available projects"
+
+msgid "Common settings successfully updated"
+msgstr "Common settings successfully updated"
+
+msgid "Success, new key has been added!"
+msgstr "Success, new key has been added!"
+
+msgid "Success, key was deleted"
+msgstr "Success, key was deleted"
+
+msgid "Wrong key specified"
+msgstr "Wrong key specified"
+
+msgid "Success, key was refreshed"
+msgstr "Success, key was refreshed"
+
+msgid "Page synchronized. Edit page only on site Tilda.cc"
+msgstr "Page synchronized. Edit page only on site Tilda.cc"
