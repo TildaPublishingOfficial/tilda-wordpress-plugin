@@ -26,7 +26,7 @@ foreach( $locales as $tmp_locale ){
 	}
 }*/
 ?>
-
+<script>window.tilda_plugin_url = '<?php echo plugin_dir_url( __DIR__ );?>';</script>
 <div class="tilda wrap">
 
     <?php
@@ -129,14 +129,14 @@ foreach( $locales as $tmp_locale ){
             <tbody id="tilda_keys_table_body">
             <tr>
                 <td colspan="5" align="center">
-                    <img width="32" height="32" src="/wp-content/plugins/tilda-wordpress-plugin/images/ajax-loader.gif" alt="Loading" />
+                    <img width="32" height="32" src="<?php echo plugin_dir_url( __DIR__ );?>images/ajax-loader.gif" alt="Loading" />
                 </td>
             </tr>
             </tbody>
             <tfoot>
             <tr id="tilda_add_key_waiting" style="display: none">
                 <td colspan="5" align="center">
-                    <img width="32" height="32" src="/wp-content/plugins/tilda-wordpress-plugin/images/ajax-loader.gif" alt="Loading" />
+                    <img width="32" height="32" src="<?php echo plugin_dir_url( __DIR__ );?>images/ajax-loader.gif" alt="Loading" />
                 </td>
             </tr>
             <tr id="tilda_add_key_table" class="tilda-hidden">
@@ -177,7 +177,7 @@ foreach( $locales as $tmp_locale ){
             <tbody id="tilda-projects-table-body">
             <tr>
                 <td colspan="5" align="center">
-                    <img width="32" height="32" src="/wp-content/plugins/tilda-wordpress-plugin/images/ajax-loader.gif" alt="Loading" />
+                    <img width="32" height="32" src="<?php echo plugin_dir_url( __DIR__ );?>images/ajax-loader.gif" alt="Loading" />
                 </td>
             </tr>
             </tbody>

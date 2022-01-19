@@ -114,10 +114,11 @@
         }
 
         function htmlProjectTableWaiting() {
+            var pluginUrl = (window.tilda_plugin_url !== undefined) ? window.tilda_plugin_url : '/wp-content/plugins/tilda-publishing/';
             return ''
                 + '<tr>'
                 +   '<td colspan="5" align="center">'
-                +       '<img width="32" height="32" src="/wp-content/plugins/tilda-wordpress-plugin/images/ajax-loader.gif" alt="Loading" />'
+                +       '<img width="32" height="32" src="'+pluginUrl+'images/ajax-loader.gif" alt="Loading" />'
                 +   '</td>'
                 + '</tr>'
                 + '';
