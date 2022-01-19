@@ -1074,9 +1074,9 @@ class Tilda_Admin
         }
 
         //Find async loading js scripts and add them to the download queue
-        $isAsyncJsFound = preg_match_all('/s\.src=\"\/js\/([^"]+)/i', $tildapage->html, $matches);
-        if ($isAsyncJsFound && !empty($matches[1])) {
-            foreach ($matches[1] as $key => $match) {
+        $isAsyncJsFound = preg_match_all('/s\.src=\"\/js\/([^"]+)/i', $tildapage->html, $asyncJsMatches);
+        if ($isAsyncJsFound && !empty($asyncJsMatches[1])) {
+            foreach ($asyncJsMatches[1] as $key => $match) {
                 if (substr($match, -3) === '.js') {
                     $oDownload = new stdClass();
                     $oDownload->from = 'https://static.tildacdn.com/js/' . $match;
