@@ -249,3 +249,6 @@ msgstr "Success, key was refreshed"
 
 msgid "Page synchronized. Edit page only on site Tilda.cc"
 msgstr "Page synchronized. Edit page only on site Tilda.cc"
+
+msgid "Paste this URL on Tilda in Site Settings → Export → Integration API to make changes in Tilda automatically sync with WordPress."
+msgstr "Paste this URL on Tilda in Site Settings → Export → Integration API to make changes in Tilda automatically sync with WordPress."

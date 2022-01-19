@@ -14,7 +14,7 @@
 $tilda_options    = get_option( 'tilda_options' );
 $enabledposttypes = isset( $tilda_options['enabledposttypes'] ) ? $tilda_options['enabledposttypes'] : array('post','page');
 $storageforfiles = isset( $tilda_options['storageforfiles'] ) ? $tilda_options['storageforfiles'] : 'cdn';
-$locales = array( 'ru_RU' );
+/*$locales = array( 'ru_RU' );
 foreach( $locales as $tmp_locale ){
 	$mo = new MO;
 	$mofile = dirname(__FILE__).'/../languages/tilda-'.$tmp_locale.'.mo';
@@ -24,7 +24,7 @@ foreach( $locales as $tmp_locale ){
 		$msgid  = $entry->singular;
 		$msgstr = $entry->translations[0];
 	}
-}
+}*/
 ?>
 
 <div class="tilda wrap">
@@ -184,7 +184,7 @@ foreach( $locales as $tmp_locale ){
         </table>
 
         <h2 class="mt-40">Webhook URL</h2>
-        <p>Пропишите этот URL в Tilda в разделе `Настройки сайта -> API интеграции` чтобы изменения в Tilda автоматически синхронизировались с Wordpress</p>
+        <p><?php echo __('Paste this URL on Tilda in Site Settings → Export → Integration API to make changes in Tilda automatically sync with WordPress.'); ?></p>
 
         <div class="tilda-tooltip">
             <span class="webhook_url_container">
