@@ -281,6 +281,10 @@ class Tilda
                 return false;
             }
 
+            if (isset($data['status']) && $data['status'] === 'off') {
+                return false;
+            }
+
             if (empty($data['project_id'])) {
                 $data['project_id'] = (!empty($data['current_page']->projectid)) ? $data['current_page']->projectid : null;
             }
