@@ -356,12 +356,19 @@ class Tilda
             return $classes;
         }
 
+        if (isset($data['status']) && $data['status'] === 'off') {
+            return $classes;
+        }
+
         if (empty($data['project_id'])) {
             $data['project_id'] = (!empty($data['current_page']->projectid)) ? $data['current_page']->projectid : null;
         }
 
         $key_id = Tilda::get_key_for_project_id($data['project_id']);
         $key = Tilda::get_local_keys($key_id);
+        if (!isset($key[$key_id])) {
+            return $classes;
+        }
         $key = $key[$key_id];
 
         if (
