@@ -155,12 +155,12 @@
                     if (json.need_download > 0 ){
                         tilda_export_files();
                     } else {
-                        $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="javascript:window.location.reload()">Refresh page</a>');
+                        $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Sync completed successfully. <a href="javascript:window.location.reload()">Refresh page</a>');
                         $('#ajaxsync').removeAttr('disabled').removeClass('disabled');
                         window.location.reload();
                     }
                 } else {
-                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="javascript:window.location.reload()">Refresh page</a>');
+                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Sync completed successfully. <a href="javascript:window.location.reload()">Refresh page</a>');
                     $('#ajaxsync').removeAttr('disabled').removeClass('disabled');
                     window.location.reload();
                 }
@@ -193,7 +193,7 @@
                     
                     tilda_export_files();
                 } else {
-                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Synchronization success. <a href="javascript:window.location.reload()">Refresh page</a>');
+                    $('#tilda_block_sync_progress').find('.tilda_sync_label').html('Sync completed successfully. <a href="javascript:window.location.reload()">Refresh page</a>');
                 }
             },'json');
         }
