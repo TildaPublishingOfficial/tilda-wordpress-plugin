@@ -130,8 +130,8 @@ if ($has_current) {
             </button>
         </p>
 
-        <input type="hidden" name="tilda[project_id]" value="<?php echo  intval($data["project_id"]); ?>"/>
-        <input type="hidden" name="tilda[status]" value="<?php echo  esc_attr($status) ?>"/>
+        <input type="hidden" name="tilda[project_id]" value="<?php echo (isset($data["project_id"])) ? intval($data["project_id"]) : 0; ?>"/>
+        <input type="hidden" name="tilda[status]" value="<?php echo esc_attr($status) ?>"/>
     </div>
 
 </div>
