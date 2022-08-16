@@ -835,15 +835,16 @@ class Tilda_Admin
         fclose($f);
     }
 
-    /**
-     * Метод запрашивает данные указанного проекта с Тильды и сохраняет эти данные в опции tilda_projects
-     * @param int $project_id - код проекта в Тильде
-     * @return stdClass $project обновленные данные по проекту
-     */
-    public static function update_project($project_id, $public_key = null, $secret_key = null)
-    {
-        $project = Tilda::get_projectexport($project_id, $public_key, $secret_key);
-        $projects = Tilda::get_local_projects();
+	/**
+	 * Метод запрашивает данные указанного проекта с Тильды и сохраняет эти данные в опции tilda_projects
+	 *
+	 * @param int $project_id - код проекта в Тильде
+	 *
+	 * @return stdClass $project обновленные данные по проекту
+	 */
+	public static function update_project( $project_id, $public_key = null, $secret_key = null ) {
+		$project  = Tilda::get_projectinfo( $project_id, $public_key, $secret_key );
+		$projects = Tilda::get_local_projects();
 
         if ( isset( $projects[ $project_id ] ) && $projects[ $project_id ]->enabled === false ) {
             $project->enabled = false;

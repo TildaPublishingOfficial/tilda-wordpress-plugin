@@ -453,29 +453,24 @@ class Tilda
         $public_key = (empty($public_key)) ? TILDA_PUBLIC_KEY : $public_key;
         $secret_key = (empty($secret_key)) ? TILDA_SECRET_KEY : $secret_key;
 
-        $suffix = '';
-        $code = $type;
-        switch ($type) {
-            case 'projectslist':
-                break;
-            case 'project':
-                $suffix = 'projectid=' . $id;
-                break;
-            case 'projectexport':
-                $suffix = 'projectid=' . $id;
-                break;
-            case 'pageslist':
-                $suffix = 'projectid=' . $id;
-                break;
-            case 'page':
-                $suffix = 'pageid=' . $id;
-                break;
-            case 'pageexport':
-                $suffix = 'pageid=' . $id;
-                break;
-        }
-        $type = 'get' . $type;
-        $suffix = empty($suffix) ? $suffix : '&' . $suffix;
+		$suffix = '';
+		$code   = $type;
+		switch ( $type ) {
+			case 'projectslist':
+				break;
+//			case 'project':
+//			case 'projectexport':
+			case 'projectinfo':
+			case 'pageslist':
+				$suffix = 'projectid=' . $id;
+				break;
+			case 'pageexport':
+			case 'page':
+				$suffix = 'pageid=' . $id;
+				break;
+		}
+		$type   = 'get' . $type;
+		$suffix = empty( $suffix ) ? $suffix : '&' . $suffix;
 
         $url = TILDA_API_URL . '/' . $type . '/?publickey=' . $public_key . '&secretkey=' . $secret_key . $suffix;
 
@@ -518,18 +513,32 @@ class Tilda
 
     }
 
-    public static function get_projectexport( $project_id, $public_key = null, $secret_key = null ) {
-        if ( empty( $public_key ) && empty( $secret_key ) ) {
-            $key_id     = Tilda::get_key_for_project_id( $project_id );
-            $keys       = Tilda::get_local_keys();
-            $key        = $keys[ $key_id ];
-            $public_key = $key['public_key'];
-            $secret_key = $key['secret_key'];
-        }
+	/**
+	 * DEPRECATED
+	 */
+	/*public static function get_projectexport( $project_id, $public_key = null, $secret_key = null ) {
+		if ( empty( $public_key ) && empty( $secret_key ) ) {
+			$key_id     = Tilda::get_key_for_project_id( $project_id );
+			$keys       = Tilda::get_local_keys();
+			$key        = $keys[ $key_id ];
+			$public_key = $key['public_key'];
+			$secret_key = $key['secret_key'];
+		}
 
+		return self::get_from_api( 'projectexport', $project_id, $public_key, $secret_key );
+	}*/
 
-        return self::get_from_api( 'projectexport', $project_id, $public_key, $secret_key );
-    }
+	public static function get_projectinfo( $project_id, $public_key = null, $secret_key = null ) {
+		if ( empty( $public_key ) && empty( $secret_key ) ) {
+			$key_id     = Tilda::get_key_for_project_id( $project_id );
+			$keys       = Tilda::get_local_keys();
+			$key        = $keys[ $key_id ];
+			$public_key = $key['public_key'];
+			$secret_key = $key['secret_key'];
+		}
+
+		return self::get_from_api( 'projectinfo', $project_id, $public_key, $secret_key );
+	}
 
     public static function get_pageslist( $project_id, $public_key = null, $secret_key = null ) {
         if ( empty( $public_key ) && empty( $secret_key ) ) {
