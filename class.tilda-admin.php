@@ -177,14 +177,17 @@ class Tilda_Admin
             array('Tilda_Admin', 'options_validate')
         );
 
-        add_settings_section(
-            'tilda_keys',
-            '',
-            false,
-            'tilda-config'
-        );
+		add_settings_section(
+			'tilda_keys',
+			'',
+			[ 'Tilda_Admin', 'custom_callback' ],
+			'tilda-config'
+		);
+	}
 
-    }
+	public static function custom_callback() {
+		echo '';
+	}
 
     public static function admin_menu()
     {
