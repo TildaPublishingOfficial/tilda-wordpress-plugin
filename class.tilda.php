@@ -193,15 +193,11 @@ class Tilda
             wp_die();
         }
 
-        /* access allow for tilda.cc and api.tildacdn.com */
-        if (
-            $_SERVER['REMOTE_ADDR']<>'194.177.22.186'
-            && $_SERVER['REMOTE_ADDR']<>'95.213.201.187'
-            && $_SERVER['REMOTE_ADDR']<>'194.177.20.162'
-        ) {
-            echo "Access denied";
-            wp_die();
-        }
+		/* access allow for tilda.cc and api.tildacdn.com */
+		if ( ! in_array( $_SERVER['REMOTE_ADDR'], [ '81.163.23.245', '194.177.22.186', '95.213.201.187' ] ) ) {
+			echo 'Access denied';
+			wp_die();
+		}
 
         wp_schedule_single_event( time() + 1, 'tilda_sync_single_event', array(intval($_REQUEST['page_id']), intval($_REQUEST['project_id']), $maps[intval($_REQUEST['page_id'])]) );
         echo "OK";
