@@ -3,12 +3,12 @@ Contributors: tildapublishing
 Donate link: https://wordpress.org/plugins/tilda-publishing/
 Tags: blog, bulk, convert, crawl, data, import, importer, migrate, move, posts, publishing, tilda, export
 Requires at least: 3.0.1
-Tested up to: 5.8.2
-Stable tag: 0.3.13
+Tested up to: 6.0.1
+Stable tag: 0.3.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Export html page from Tilda.cc for import to your wordpress site into post or page.
+Export html page from Tilda.cc for import to your WordPress site into post or page.
 
 == Description ==
 
@@ -51,7 +51,7 @@ Q: Where can I find the official repository for this plugin?
 A: Please find the official repository on this [GitHub page](https://github.com/greensun7/tilda-wordpress-plugin).
 
 Q: Something’s broken / I have a great idea, how can I contact you?
-A: Please create an issue on the [GitHub page](https://github.com/greensun7/tilda-wordpress-plugin) or send an email to team@tilda.cc. Creating a pull request is an even better option.
+A: Please create an issue on the [GitHub page](https://github.com/greensun7/tilda-wordpress-plugin) or email team@tilda.cc. Creating a pull request is an even better option.
 
 
 == Screenshots ==
@@ -62,22 +62,27 @@ A: Please create an issue on the [GitHub page](https://github.com/greensun7/tild
 
 == Changelog ==
 
-= 0.3.13
+= 0.3.14 =
+* refactoring
+* use getprojectinfo instead of deprecated getprojectexport
+* change tilda API server IP
+
+= 0.3.13 =
 * Update 0.3.13 - fix markup corruption on empty project_id
 
-= 0.3.12
+= 0.3.12 =
 * Update 0.3.12 - Improved network reliability
 
-= 0.3.11
+= 0.3.11 =
 * Update 0.3.11 - fix for nontilda pages
 
-= 0.3.10
+= 0.3.10 =
 * Update 0.3.10 - update en_US locale
 
-= 0.3.09
+= 0.3.09 =
 * Update 0.3.09 - fix unexpected array overwriting
 
-= 0.3.08
+= 0.3.08 =
 * Update 0.3.08 - fix incorrect image path and improve en_US translations
 
 = 0.3.07 =
@@ -178,13 +183,13 @@ A: Please create an issue on the [GitHub page](https://github.com/greensun7/tild
 * add option in plugin settings for save text in post for other plugin (rss, ... etc)
 
 = 0.2.7 =
-* sync updated css and js from project from manual sync (fix js or css error: unknow tXXX_init ... )
+* sync updated css and js from project from manual sync (fix js or css error: unknown tXXX_init ... )
 
 = 0.2.6 =
-* sync updated css and js from project from webhook (fix js or css error: unknow tXXX_init ... )
+* sync updated css and js from project from webhook (fix js or css error: unknown tXXX_init ... )
 
 = 0.2.5 =
-* for any sync page load data from project (fix js or css error: unknow tXXX_init ... )
+* for any sync page load data from project (fix js or css error: unknown tXXX_init ... )
 
 = 0.2.4 =
 * add scroll if many pages in project of Tilda (fix css bug in list pages)
@@ -193,7 +198,7 @@ A: Please create an issue on the [GitHub page](https://github.com/greensun7/tild
 * add support PHP version 5.0-5.3 (bugfix: fatal error on activation plugin)
 
 = 0.2.2 =
-* bugfix ajax query for non-standart wordpress directory
+* bugfix ajax query for non-standard WordPress directory
 
 = 0.2 =
 * Rename plugin
