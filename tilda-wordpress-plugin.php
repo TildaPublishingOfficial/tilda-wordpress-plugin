@@ -84,7 +84,6 @@ Update 0.2.10 - add support upload without curl library
 Update 0.2.9 - add english language
 */
 
-
 /*
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -104,9 +103,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // Turn off all error reporting
 //error_reporting(0);
 
-if ( !function_exists( 'add_action' ) ) {
-    echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
-    exit;
+if ( ! function_exists( 'add_action' ) ) {
+	echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
+	exit;
 }
 
 define( 'TILDA_VERSION', '0.3.13' );
@@ -117,13 +116,12 @@ define( 'TILDA_DELETE_LIMIT', 100000 );
 
 require_once( TILDA_PLUGIN_DIR . 'class.tilda.php' );
 
-register_activation_hook( __FILE__, array( 'Tilda', 'plugin_activation' ) );
-register_deactivation_hook( __FILE__, array( 'Tilda', 'plugin_deactivation' ) );
+register_activation_hook( __FILE__, [ 'Tilda', 'plugin_activation' ] );
+register_deactivation_hook( __FILE__, [ 'Tilda', 'plugin_deactivation' ] );
 
-add_action( 'init', array( 'Tilda', 'init' ) );
-
+add_action( 'init', [ 'Tilda', 'init' ] );
 
 if ( is_admin() ) {
-    require_once( TILDA_PLUGIN_DIR . 'class.tilda-admin.php' );
-    add_action( 'init', array( 'Tilda_Admin', 'init' ) );
+	require_once( TILDA_PLUGIN_DIR . 'class.tilda-admin.php' );
+	add_action( 'init', [ 'Tilda_Admin', 'init' ] );
 }
