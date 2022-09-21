@@ -1171,6 +1171,24 @@ class Tilda_Admin {
 		$tildapage->html = str_replace( '$.', 'jQuery.', $tildapage->html );
 		$tildapage->html = str_replace( 'jQuery.cachedScript("tilda', 'jQuery.cachedScript("' . $upload_path . 'js/tilda', $tildapage->html );
 
+		$matches = [];
+		if ( preg_match_all( '/s\.src="([a-z0-9-.]+\.min\.js)";/i', $tildapage->html, $matches ) ) {
+			foreach ( $matches[0] ?? [] as $key => $match ) {
+				if ( ! empty( $matches[1][ $key ] ) ) {
+					$tildapage->html = str_replace( $match, 's.src="' . $upload_path . 'js/' . $matches[1][ $key ] . '";', $tildapage->html );
+				}
+			}
+		}
+
+		$matches = [];
+		if ( preg_match_all( '/<script src="([a-z0-9-.]+\.min\.js)">/i', $tildapage->html, $matches ) ) {
+			foreach ( $matches[0] ?? [] as $key => $match ) {
+				if ( ! empty( $matches[1][ $key ] ) ) {
+					$tildapage->html = str_replace( $match, '<script src="' . $upload_path . 'js/' . $matches[1][ $key ] . '">', $tildapage->html );
+				}
+			}
+		}
+
 		$post = get_post( $post_id );
 
 		if ( isset( $key['store_html_only'] ) && $key['store_html_only'] === false ) {
