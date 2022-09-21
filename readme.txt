@@ -62,6 +62,9 @@ A: Please create an issue on the [GitHub page](https://github.com/greensun7/tild
 
 == Changelog ==
 
+= 0.3.16 =
+* Fix for JS included in page body
+
 = 0.3.15 =
 * Fix cleaning projects/pages local data after keys removal
 
