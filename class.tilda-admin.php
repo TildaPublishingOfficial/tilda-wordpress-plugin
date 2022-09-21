@@ -407,34 +407,45 @@ class Tilda_Admin {
 
 		$maps = Tilda::get_local_maps();
 
-		$project_ids_to_delete = [];
-		if ( isset( $maps[ Tilda_Admin::MAP_KEY_PROJECTS ] ) ) {
-			if ( isset( $maps[ Tilda_Admin::MAP_KEY_PROJECTS ][ $key_id ] ) ) {
-				$project_ids_to_delete = $maps[ Tilda_Admin::MAP_KEY_PROJECTS ][ $key_id ];
-				unset( $maps[ Tilda_Admin::MAP_KEY_PROJECTS ][ $key_id ] );
-			}
-		}
-
-		$page_ids_to_delete = [];
-		if ( isset( $maps[ Tilda_Admin::MAP_PROJECT_PAGES ] ) ) {
-			foreach ( $project_ids_to_delete as $project_id ) {
-				if ( isset( $maps[ Tilda_Admin::MAP_PROJECT_PAGES ][ $project_id ] ) ) {
-					$page_ids_to_delete = array_merge(
-						$page_ids_to_delete,
-						$maps[ Tilda_Admin::MAP_PROJECT_PAGES ][ $project_id ]
-					);
-					unset( $maps[ Tilda_Admin::MAP_PROJECT_PAGES ][ $project_id ] );
+		if ( empty( $keys ) ) {
+			$maps[ Tilda_Admin::MAP_KEY_PROJECTS ] = [];
+			Tilda_Admin::update_local_projects( [] );
+			$maps[ Tilda_Admin::MAP_PROJECT_PAGES ] = [];
+			Tilda_Admin::update_local_pages( [] );
+		} else {
+			$project_ids_to_delete = [];
+			if ( isset( $maps[ Tilda_Admin::MAP_KEY_PROJECTS ] ) ) {
+				if ( isset( $maps[ Tilda_Admin::MAP_KEY_PROJECTS ][ $key_id ] ) ) {
+					$project_ids_to_delete = $maps[ Tilda_Admin::MAP_KEY_PROJECTS ][ $key_id ];
+					unset( $maps[ Tilda_Admin::MAP_KEY_PROJECTS ][ $key_id ] );
 				}
 			}
+
+			$page_ids_to_delete = [];
+			if ( isset( $maps[ Tilda_Admin::MAP_PROJECT_PAGES ] ) ) {
+				foreach ( $project_ids_to_delete as $project_id ) {
+					if ( isset( $maps[ Tilda_Admin::MAP_PROJECT_PAGES ][ $project_id ] ) ) {
+						$page_ids_to_delete = array_merge(
+							$page_ids_to_delete,
+							$maps[ Tilda_Admin::MAP_PROJECT_PAGES ][ $project_id ]
+						);
+						unset( $maps[ Tilda_Admin::MAP_PROJECT_PAGES ][ $project_id ] );
+					}
+				}
+			}
+
+			$projects = Tilda::get_local_projects();
+			$projects = array_diff_key( $projects, array_flip( $project_ids_to_delete ) );
+			Tilda_Admin::update_local_projects( $projects );
+
+			$pages = Tilda::get_local_pages();
+			foreach ( $pages as $project_id => $project_pages ) {
+				if ( in_array( $project_id, $project_ids_to_delete ) ) {
+					unset( $pages[ $project_id ] );
+				}
+			}
+			Tilda_Admin::update_local_pages( $pages );
 		}
-
-		$projects = Tilda::get_local_projects();
-		$projects = array_diff_key( $projects, array_flip( $project_ids_to_delete ) );
-		Tilda_Admin::update_local_projects( $projects );
-
-		$pages = Tilda::get_local_pages();
-		$pages = array_diff_key( $pages, array_flip( $page_ids_to_delete ) );
-		Tilda_Admin::update_local_pages( $pages );
 
 		update_option( Tilda_Admin::OPTION_MAPS, $maps );
 	}

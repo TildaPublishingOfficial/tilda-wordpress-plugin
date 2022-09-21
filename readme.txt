@@ -62,10 +62,13 @@ A: Please create an issue on the [GitHub page](https://github.com/greensun7/tild
 
 == Changelog ==
 
+= 0.3.15 =
+* Fix cleaning projects/pages local data after keys removal
+
 = 0.3.14 =
-* refactoring
-* use getprojectinfo instead of deprecated getprojectexport
-* change tilda API server IP
+* Refactoring
+* Use getprojectinfo instead of deprecated getprojectexport
+* Change tilda API server IP
 
 = 0.3.13 =
 * Update 0.3.13 - fix markup corruption on empty project_id

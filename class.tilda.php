@@ -451,7 +451,7 @@ class Tilda {
 		$type   = 'get' . $type;
 		$suffix = empty( $suffix ) ? $suffix : '&' . $suffix;
 
-		$url = TILDA_API_URL . '/' . $type . '/?publickey=' . $public_key . '&secretkey=' . $secret_key . $suffix;
+		$url = TILDA_API_URL . $type . '/?publickey=' . $public_key . '&secretkey=' . $secret_key . $suffix;
 
 		if ( function_exists( 'curl_init' ) ) {
 			if ( $curl = curl_init() ) {
