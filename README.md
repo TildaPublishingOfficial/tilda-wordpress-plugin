@@ -1,12 +1,11 @@
 # Плагин Tilda для WordPress
-Интегрирует контент, который был создан на Tilda, с вашим сайтом на WordPress.  
-https://help-ru.tilda.ws/wordpress-plug-in
 
+Интегрирует контент, который был создан на Tilda, с вашим сайтом на WordPress.  
 
 ## Подключение плагина для WordPress
 
 Подробная инструкция установки плагина  
-https://help-ru.tilda.ws/wordpress
+https://help-ru.tilda.cc/wordpress
 
 ## Краткая инструкция
 
@@ -43,4 +42,4 @@ https://help-ru.tilda.ws/wordpress
 О: Да, можно. Для этого нужно указать в настройках API Тильды, следующий урл для callback-вызова http://your-wordpress-site.ru/wp-admin/admin-ajax.php?action=tilda_sync_event
 
 В: Можно ли скачать плагин из GIT-репозитория
-О: Да, плагин доступен по адресу https://github.com/greensun7/tilda-wordpress-plugin
+О: Да, плагин доступен по адресу https://github.com/TildaPublishingOfficial/tilda-wordpress-plugin
