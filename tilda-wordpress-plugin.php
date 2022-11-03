@@ -2,10 +2,12 @@
 /*
 Plugin Name: Tilda Publishing
 Description: Tilda позволяет делать яркую подачу материала, качественную верстку и эффектную типографику, близкую к журнальной. Каким бы ни был ваш контент — Tilda знает, как его показать. С чего начать: 1) Нажмите ссылку «Активировать» слева от этого описания; 2) <a href="http://www.tilda.cc/" target="_blank">Зарегистрируйтесь</a>, чтобы получить API-ключ; 3) Перейдите на страницу настройки Tilda Publishing и введите свой API-ключ. Читайте подробную инструкцию по подключению.
-Version: 0.3.17
+Version: 0.3.18
 Author: Tilda Publishing
 License: GPLv2 or later
 Text Domain: api tilda
+
+Update 0.3.16 - add backward compatibility
 
 Update 0.3.17 - change deprecated .andSelf() to .addBack()
 
