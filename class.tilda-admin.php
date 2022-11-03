@@ -1173,7 +1173,8 @@ class Tilda_Admin {
 
 		$matches = [];
 		if ( preg_match_all( '/s\.src="([a-z0-9-.]+\.min\.js)";/i', $tildapage->html, $matches ) ) {
-			foreach ( $matches[0] ?? [] as $key => $match ) {
+			$checked_matches = isset($matches[0]) ? $matches[0] : [];
+			foreach ( $checked_matches as $key => $match ) {
 				if ( ! empty( $matches[1][ $key ] ) ) {
 					$tildapage->html = str_replace( $match, 's.src="' . $upload_path . 'js/' . $matches[1][ $key ] . '";', $tildapage->html );
 				}
@@ -1182,7 +1183,8 @@ class Tilda_Admin {
 
 		$matches = [];
 		if ( preg_match_all( '/<script src="([a-z0-9-.]+\.min\.js)">/i', $tildapage->html, $matches ) ) {
-			foreach ( $matches[0] ?? [] as $key => $match ) {
+			$checked_matches = isset($matches[0]) ? $matches[0] : [];
+			foreach ( $checked_matches as $key => $match ) {
 				if ( ! empty( $matches[1][ $key ] ) ) {
 					$tildapage->html = str_replace( $match, '<script src="' . $upload_path . 'js/' . $matches[1][ $key ] . '">', $tildapage->html );
 				}
