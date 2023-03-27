@@ -6,6 +6,9 @@
 
 class Tilda {
 	private static $initiated = false;
+	/**
+	 * @var WP_Error
+	 */
 	public static $errors;
 	public static $active_on_page = null;
 

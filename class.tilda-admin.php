@@ -1173,7 +1173,7 @@ class Tilda_Admin {
 
 		$matches = [];
 		if ( preg_match_all( '/s\.src="([a-z0-9-.]+\.min\.js)";/i', $tildapage->html, $matches ) ) {
-			$checked_matches = isset($matches[0]) ? $matches[0] : [];
+			$checked_matches = isset( $matches[0] ) ? $matches[0] : [];
 			foreach ( $checked_matches as $key => $match ) {
 				if ( ! empty( $matches[1][ $key ] ) ) {
 					$tildapage->html = str_replace( $match, 's.src="' . $upload_path . 'js/' . $matches[1][ $key ] . '";', $tildapage->html );
@@ -1183,7 +1183,7 @@ class Tilda_Admin {
 
 		$matches = [];
 		if ( preg_match_all( '/<script src="([a-z0-9-.]+\.min\.js)">/i', $tildapage->html, $matches ) ) {
-			$checked_matches = isset($matches[0]) ? $matches[0] : [];
+			$checked_matches = isset( $matches[0] ) ? $matches[0] : [];
 			foreach ( $checked_matches as $key => $match ) {
 				if ( ! empty( $matches[1][ $key ] ) ) {
 					$tildapage->html = str_replace( $match, '<script src="' . $upload_path . 'js/' . $matches[1][ $key ] . '">', $tildapage->html );
@@ -1388,18 +1388,27 @@ class Tilda_Admin {
 					}
 
 					/* replace  short jQuery function $(...) to jQuery(...) */
-					if ( strpos( $file['to_dir'], 'tilda-blocks-' ) > 0 && strpos( $file['to_dir'], '.js' ) > 0 ) {
+					if (
+						strpos( $file['to_dir'], 'tilda-blocks-' ) !== false
+						&& strpos( $file['to_dir'], '.js' ) !== false
+					) {
 						$content = str_replace( '$(', 'jQuery(', $content );
 						$content = str_replace( '$.', 'jQuery.', $content );
 					}
 
-					$ext = strtolower( substr( $file['from_url'], - 4 ) );
+					$parts     = explode( '.', strtolower( $file['from_url'] ) );
+					$extension = array_pop( $parts );
+
 					if (
-						! in_array( $ext, [ '.jpg', '.png', '.gif', 'jpeg' ] )
-						&& strpos( $content, 'The resource could not be found.' ) === false
-						&& strpos( strtolower( $content ), 'not found.' ) === false
-						&& file_put_contents( $file['to_dir'], $content ) === false
+						in_array( $extension, [ 'jpg', 'jpeg', 'png', 'gif', 'svg', 'ico' ] )
+						&& (
+							strpos( $content, 'The resource could not be found.' ) !== false
+							|| strpos( strtolower( $content ), 'not found.' ) !== false
+						)
 					) {
+						$downloaded ++;
+						continue;
+					} elseif ( file_put_contents( $file['to_dir'], $content ) === false ) {
 						Tilda::$errors->add( 'error_download', 'Cannot save file to [' . $file['to_dir'] . '].' );
 						echo Tilda::json_errors();
 						wp_die();
