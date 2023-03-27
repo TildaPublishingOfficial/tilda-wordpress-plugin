@@ -3,8 +3,8 @@ Contributors: tildapublishing
 Donate link: https://wordpress.org/plugins/tilda-publishing/
 Tags: blog, bulk, convert, crawl, data, import, importer, migrate, move, posts, publishing, tilda, export
 Requires at least: 3.0.1
-Tested up to: 6.0.2
-Stable tag: 0.3.18
+Tested up to: 6.1.1
+Stable tag: 0.3.19
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,10 +48,10 @@ Q: How do I automate page updates on WordPress after publishing my Tilda pages?
 A: On Tilda, go to the Site Settings → Export → API Integration and set the following Webhook URL: http://example.com/wp-admin/admin-ajax.php?action=tilda_sync_event
 
 Q: Where can I find the official repository for this plugin?
-A: Please find the official repository on this [GitHub page](https://github.com/greensun7/tilda-wordpress-plugin).
+A: Please find the official repository on this [GitHub page](https://github.com/TildaPublishingOfficial/tilda-wordpress-plugin).
 
 Q: Something’s broken / I have a great idea, how can I contact you?
-A: Please create an issue on the [GitHub page](https://github.com/greensun7/tilda-wordpress-plugin) or email team@tilda.cc. Creating a pull request is an even better option.
+A: Please create an issue on the [GitHub page](https://github.com/TildaPublishingOfficial/tilda-wordpress-plugin) or email team@tilda.cc. Creating a pull request is an even better option.
 
 
 == Screenshots ==
@@ -61,6 +61,9 @@ A: Please create an issue on the [GitHub page](https://github.com/greensun7/tild
 3. Page with list project and pages from tilda.cc http://images.tildacdn.info/4af42b78-3494-4a85-ba10-15c2315af6f6/1.jpg
 
 == Changelog ==
+
+= 0.3.19 =
+* Fix saving images locally
 
 = 0.3.18 =
 * Add backward compatibility
