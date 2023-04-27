@@ -1182,11 +1182,11 @@ class Tilda_Admin {
 		}
 
 		$matches = [];
-		if ( preg_match_all( '/<script src="([a-z0-9-.]+\.min\.js)">/i', $tildapage->html, $matches ) ) {
+		if ( preg_match_all( '/<script src=[\'"]([a-z0-9-.]+\.min\.js)[\'"]/i', $tildapage->html, $matches ) ) {
 			$checked_matches = isset( $matches[0] ) ? $matches[0] : [];
 			foreach ( $checked_matches as $key => $match ) {
 				if ( ! empty( $matches[1][ $key ] ) ) {
-					$tildapage->html = str_replace( $match, '<script src="' . $upload_path . 'js/' . $matches[1][ $key ] . '">', $tildapage->html );
+					$tildapage->html = str_replace( $match, '<script src="' . $upload_path . 'js/' . $matches[1][ $key ] . '"', $tildapage->html );
 				}
 			}
 		}
