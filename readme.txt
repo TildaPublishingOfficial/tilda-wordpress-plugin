@@ -4,7 +4,7 @@ Donate link: https://wordpress.org/plugins/tilda-publishing/
 Tags: blog, bulk, convert, crawl, data, import, importer, migrate, move, posts, publishing, tilda, export
 Requires at least: 3.0.1
 Tested up to: 6.2
-Stable tag: 0.3.20
+Stable tag: 0.3.21
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,6 +61,9 @@ A: Please create an issue on the [GitHub page](https://github.com/TildaPublishin
 3. Page with list project and pages from tilda.cc http://images.tildacdn.info/4af42b78-3494-4a85-ba10-15c2315af6f6/1.jpg
 
 == Changelog ==
+
+= 0.3.21 =
+* Check permissions in admin-ajax.php
 
 = 0.3.20 =
 * Fix changing JS paths
