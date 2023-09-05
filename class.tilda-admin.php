@@ -454,6 +454,10 @@ class Tilda_Admin {
 	 * Handle request to wp-ajax.php with action: add_new_key
 	 */
 	public static function ajax_add_new_key() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		$request  = Tilda_Admin::options_sanitize( $_POST );
 		$defaults = [
 			'store_html_only'   => true,
@@ -509,6 +513,10 @@ class Tilda_Admin {
 	 * Delete key and all assigned projects
 	 */
 	public static function ajax_delete_key() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		$request = Tilda_Admin::options_sanitize( $_GET );
 
 		if ( ! isset( $request['id'] ) ) {
@@ -527,6 +535,10 @@ class Tilda_Admin {
 	 * Update minor parameters for dedicated key
 	 */
 	public static function ajax_update_key() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		$request = Tilda_Admin::options_sanitize( $_GET );
 
 		if ( ! isset( $request['id'] ) ) {
@@ -552,6 +564,10 @@ class Tilda_Admin {
 	 * Refetch projects and pages from API and save it to the DB
 	 */
 	public static function ajax_refresh_key() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		$request = Tilda_Admin::options_sanitize( $_GET );
 
 		if ( empty( $request['id'] ) ) {
@@ -585,6 +601,10 @@ class Tilda_Admin {
 	 * Handle request to wp-ajax.php with action: get_projects
 	 */
 	public static function ajax_get_projects() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		$projects = Tilda::get_local_projects();
 		if ( empty( $projects ) ) {
 			$projects = [];
@@ -596,6 +616,10 @@ class Tilda_Admin {
 	 * Handle request to wp-ajax.php with action: update_project
 	 */
 	public static function ajax_update_project() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		$request = Tilda_Admin::project_sanitize( $_POST );
 
 		if ( ! isset( $request['id'] ) ) {
@@ -618,6 +642,10 @@ class Tilda_Admin {
 	 * Handle request to wp-ajax.php with action: get_keys
 	 */
 	public static function ajax_get_keys() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		wp_send_json( Tilda::get_local_keys(), 200 );
 	}
 
@@ -625,6 +653,10 @@ class Tilda_Admin {
 	 * Handle request to wp-ajax.php with action: update_common_settings
 	 */
 	public static function ajax_update_common_settings() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		$options = get_option( Tilda_Admin::OPTION_OPTIONS );
 		$request = Tilda_Admin::options_sanitize( $_POST );
 
@@ -1307,6 +1339,10 @@ class Tilda_Admin {
 	 *
 	 */
 	public static function ajax_sync() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		$arResult = [];
 		if ( empty( $_REQUEST['page_id'] ) || empty( $_REQUEST['project_id'] ) || empty( $_REQUEST['post_id'] ) ) {
 			$arResult['error'] = __( 'Bad request line. Missing parameter: projectid', 'tilda' );
@@ -1355,6 +1391,10 @@ class Tilda_Admin {
 	 *
 	 */
 	public static function ajax_export_file() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		if ( empty( self::$ts_start_plugin ) ) {
 			self::$ts_start_plugin = time();
 		}
@@ -1435,6 +1475,10 @@ class Tilda_Admin {
 	}
 
 	public static function ajax_switcher_status() {
+		if ( ! current_user_can( 'level_7' ) ) {
+			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
 		if (
 			empty( $_REQUEST['post_id'] )
 			|| empty( $_REQUEST['tilda_status'] )
