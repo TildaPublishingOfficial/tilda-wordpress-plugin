@@ -1142,6 +1142,25 @@ class Tilda_Admin {
 
 		$tildapage->html = htmlspecialchars_decode( $tildapage->html );
 
+		// Find zero form fields and decode unicode
+		if (
+			preg_match_all(
+				'/<textarea class="tn-atom__inputs-textarea">(.*)<\/textarea>/',
+				$tildapage->html,
+				$fieldsMatches
+			)
+			&& isset( $fieldsMatches[1] )
+			&& is_array( $fieldsMatches[1] )
+		) {
+			foreach ( $fieldsMatches[1] as $fieldsMatch ) {
+				$tildapage->html = str_replace(
+					$fieldsMatch,
+					json_encode( json_decode( $fieldsMatch ), JSON_UNESCAPED_UNICODE ),
+					$tildapage->html
+				);
+			}
+		}
+
 		if ( $isZeroGalleryFound && ! empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $key => $match ) {
 				$tildapage->html = str_replace( "||imgsvalue-{$key}||", $match, $tildapage->html );
