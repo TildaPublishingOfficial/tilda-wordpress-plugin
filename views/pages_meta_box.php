@@ -20,6 +20,22 @@ if ($has_current) {
     <div class="current_page">
         <img src="<?php echo plugins_url('../images/icon_tilda.png', __FILE__) ?>" class="alignleft"/>
 
+	    <?php
+	    wp_nonce_field(
+		    't_admin_sync',
+		    't_admin_sync_nonce',
+		    false
+	    );
+	    ?>
+
+	    <?php
+	    wp_nonce_field(
+		    't_admin_export_file',
+		    't_admin_export_file_nonce',
+		    false
+	    );
+	    ?>
+
         <div class="info">
             <div class="title"><?php echo __("Show page",'tilda')?>:</div>
             <div class="name"><?php echo  esc_html($data["current_page"]->title) ?></div>
@@ -114,6 +130,15 @@ if ($has_current) {
             <?php echo __("Selected page will be copied to your site. Further if you change something on the page on Tilda, you will need to update the page manually by clicking “Synchronization”",'tilda')?>
         </p>
     <?php } ?>
+
+	<?php
+	wp_nonce_field(
+		't_admin_switcher_status',
+		't_admin_switcher_status_nonce',
+		false
+	);
+	?>
+
     <?php Tilda::show_errors(); ?>
     <div class="clear"></div>
     <div class="">

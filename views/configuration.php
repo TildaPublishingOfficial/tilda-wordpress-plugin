@@ -51,6 +51,22 @@ foreach( $locales as $tmp_locale ){
     <div>
         <h1><?php echo __("Settings",'tilda')?> Tilda.cc API</h1>
 
+	    <?php
+	    wp_nonce_field(
+		    't_get_keys',
+		    't_get_keys_nonce',
+		    false
+	    );
+	    ?>
+
+	    <?php
+	    wp_nonce_field(
+		    't_get_projects',
+		    't_get_projects_nonce',
+		    false
+	    );
+	    ?>
+
         <div id="error_tab" class="error notice" style="display: none">
             <p>Errors will be shown here</p>
         </div>
@@ -83,6 +99,13 @@ foreach( $locales as $tmp_locale ){
                 </tr>
                 </tbody>
             </table>
+	        <?php
+	        wp_nonce_field(
+		        't_update_common_settings',
+		        't_update_common_settings_nonce',
+                false
+            );
+	        ?>
         </div>
 
         <h2 class="mt-40"><?php echo __('Keys'); ?></h2>
@@ -133,6 +156,29 @@ foreach( $locales as $tmp_locale ){
                 </td>
             </tr>
             </tbody>
+	        <?php
+	        wp_nonce_field(
+		        't_update_key',
+		        't_update_key_nonce',
+		        false
+	        );
+	        ?>
+
+	        <?php
+	        wp_nonce_field(
+		        't_refresh_key',
+		        't_refresh_key_nonce',
+		        false
+	        );
+	        ?>
+
+	        <?php
+	        wp_nonce_field(
+		        't_delete_key',
+		        't_delete_key_nonce',
+		        false
+	        );
+	        ?>
             <tfoot>
             <tr id="tilda_add_key_waiting" style="display: none">
                 <td colspan="5" align="center">
@@ -154,6 +200,13 @@ foreach( $locales as $tmp_locale ){
                 </td>
                 <td>
                     <button id="save_new_key" class="button button-primary"><?php echo __('Save', 'tilda') ?></button>
+	                <?php
+	                wp_nonce_field(
+		                't_add_new_key',
+		                't_add_new_key_nonce',
+		                false
+	                );
+	                ?>
                 </td>
             </tr>
             </tfoot>
@@ -182,6 +235,13 @@ foreach( $locales as $tmp_locale ){
             </tr>
             </tbody>
         </table>
+	    <?php
+	    wp_nonce_field(
+		    't_update_project',
+		    't_update_project_nonce',
+		    false
+	    );
+	    ?>
 
         <h2 class="mt-40">Webhook URL</h2>
         <p><?php echo __('Paste this URL on Tilda in Site Settings → Export → Integration API to make changes in Tilda automatically sync with WordPress.'); ?></p>

@@ -458,6 +458,10 @@ class Tilda_Admin {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
 		}
 
+		if ( ! wp_verify_nonce( $_POST['t_nonce'], 't_add_new_key' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
+		}
+
 		$request  = Tilda_Admin::options_sanitize( $_POST );
 		$defaults = [
 			'store_html_only'   => true,
@@ -517,6 +521,10 @@ class Tilda_Admin {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
 		}
 
+		if ( ! wp_verify_nonce( $_GET['t_nonce'], 't_delete_key' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
+		}
+
 		$request = Tilda_Admin::options_sanitize( $_GET );
 
 		if ( ! isset( $request['id'] ) ) {
@@ -537,6 +545,10 @@ class Tilda_Admin {
 	public static function ajax_update_key() {
 		if ( ! current_user_can( 'level_7' ) ) {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
+		if ( ! wp_verify_nonce( $_GET['t_nonce'], 't_update_key' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
 		}
 
 		$request = Tilda_Admin::options_sanitize( $_GET );
@@ -566,6 +578,10 @@ class Tilda_Admin {
 	public static function ajax_refresh_key() {
 		if ( ! current_user_can( 'level_7' ) ) {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
+		if ( ! wp_verify_nonce( $_GET['t_nonce'], 't_refresh_key' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
 		}
 
 		$request = Tilda_Admin::options_sanitize( $_GET );
@@ -605,6 +621,10 @@ class Tilda_Admin {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
 		}
 
+		if ( ! wp_verify_nonce( $_GET['t_nonce'], 't_get_projects' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
+		}
+
 		$projects = Tilda::get_local_projects();
 		if ( empty( $projects ) ) {
 			$projects = [];
@@ -618,6 +638,10 @@ class Tilda_Admin {
 	public static function ajax_update_project() {
 		if ( ! current_user_can( 'level_7' ) ) {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
+		if ( ! wp_verify_nonce( $_POST['t_nonce'], 't_update_project' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
 		}
 
 		$request = Tilda_Admin::project_sanitize( $_POST );
@@ -646,6 +670,10 @@ class Tilda_Admin {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
 		}
 
+		if ( ! wp_verify_nonce( $_POST['t_nonce'], 't_get_keys' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
+		}
+
 		wp_send_json( Tilda::get_local_keys(), 200 );
 	}
 
@@ -655,6 +683,10 @@ class Tilda_Admin {
 	public static function ajax_update_common_settings() {
 		if ( ! current_user_can( 'level_7' ) ) {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
+		if ( ! wp_verify_nonce( $_POST['t_nonce'], 't_update_common_settings' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
 		}
 
 		$options = get_option( Tilda_Admin::OPTION_OPTIONS );
@@ -1362,6 +1394,10 @@ class Tilda_Admin {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
 		}
 
+		if ( ! wp_verify_nonce( $_POST['t_nonce'], 't_admin_sync' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
+		}
+
 		$arResult = [];
 		if ( empty( $_REQUEST['page_id'] ) || empty( $_REQUEST['project_id'] ) || empty( $_REQUEST['post_id'] ) ) {
 			$arResult['error'] = __( 'Bad request line. Missing parameter: projectid', 'tilda' );
@@ -1412,6 +1448,10 @@ class Tilda_Admin {
 	public static function ajax_export_file() {
 		if ( ! current_user_can( 'level_7' ) ) {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
+		if ( ! wp_verify_nonce( $_POST['t_nonce'], 't_admin_export_file' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
 		}
 
 		if ( empty( self::$ts_start_plugin ) ) {
@@ -1496,6 +1536,10 @@ class Tilda_Admin {
 	public static function ajax_switcher_status() {
 		if ( ! current_user_can( 'level_7' ) ) {
 			wp_die( '<p>' . __( 'You need a higher level of permission.' ) . '<p>', 403 );
+		}
+
+		if ( ! wp_verify_nonce( $_POST['t_nonce'], 't_admin_switcher_status' ) ) {
+			wp_die( '<p>' . __( 'Invalid request' ) . '<p>', 403 );
 		}
 
 		if (

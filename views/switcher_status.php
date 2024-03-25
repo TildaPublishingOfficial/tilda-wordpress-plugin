@@ -38,6 +38,14 @@ wp_nonce_field('tilda_switcher', 'tilda_nonce');
                    id="tilda_toggle"
                    class="button <?php echo  esc_attr($toggle_class) ?>"
                    value="<?php echo __("Activate Tilda for this page?",'tilda')?>">
+
+	        <?php
+	        wp_nonce_field(
+		        't_admin_switcher_status',
+		        't_admin_switcher_status_nonce',
+		        false
+	        );
+	        ?>
             &nbsp;&nbsp;&nbsp;
             <?php if (!Tilda::verify_access()): ?>
                 <a href="options-general.php?page=tilda-config">

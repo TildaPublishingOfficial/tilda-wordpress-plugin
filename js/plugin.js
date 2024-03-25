@@ -67,9 +67,10 @@
             $tilda_status.val(val);
 
             var data = {
-                'action': 'tilda_admin_switcher_status',
-                'tilda_status': val,
-                'post_id': $('#post_ID').val()
+                action: 'tilda_admin_switcher_status',
+                tilda_status: val,
+                post_id: $('#post_ID').val(),
+                t_nonce: $("#t_admin_switcher_status_nonce").val()
             };
             
             $.post('admin-ajax.php', data, function(json) {
@@ -135,6 +136,7 @@
         function tilda_export_files() {
             var data = {
                 action: 'tilda_admin_export_file',
+                t_nonce: $("#t_admin_export_file_nonce").val()
             };
             
             $.post('admin-ajax.php', data, function(json) {
@@ -173,7 +175,8 @@
                 action: 'tilda_admin_sync',
                 project_id: $project_id,
                 page_id: $page_id,
-                post_id: $post_id
+                post_id: $post_id,
+                t_nonce: $("#t_admin_sync_nonce").val()
             };
             
             $('#tilda_progress_bar').hide();

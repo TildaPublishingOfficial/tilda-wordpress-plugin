@@ -145,7 +145,7 @@
         w.switchStore = function (element, id) {
             var checkbox = $('#store_checkbox_' + id);
             var current = checkbox.prop('checked');
-            $('#store_checkbox_' + id).prop('checked', !current);
+            checkbox.prop('checked', !current);
             $(element).attr('src', (!current) ? imgSwitcherOn : imgSwitcherOff);
             ajaxChangeKey(id, 'store_html_only', !current);
         }
@@ -153,7 +153,7 @@
         w.switchApplyCss = function (element, id) {
             var checkbox = $('#apply_css_checkbox_' + id);
             var current = checkbox.prop('checked');
-            $('#apply_css_checkbox_' + id).prop('checked', !current);
+            checkbox.prop('checked', !current);
             $(element).attr('src', (!current) ? imgSwitcherOn : imgSwitcherOff);
             ajaxChangeKey(id, 'apply_css_in_list', !current);
         }
@@ -161,7 +161,7 @@
         w.switchEnableProject = function (element, id) {
             var checkbox = $('#project_enable_checkbox_' + id);
             var current = checkbox.prop('checked');
-            $('#project_enable_checkbox_' + id).prop('checked', !current);
+            checkbox.prop('checked', !current);
             $(element).attr('src', (!current) ? imgSwitcherOn : imgSwitcherOff);
             ajaxChangeProjectEnabled(id, !current);
         }
@@ -204,30 +204,64 @@
 
         function ajaxGetKeyList() {
             return new Promise(function (resolve) {
-                $.post(w.ajaxurl, {action: 'get_keys'}, resolve);
+                $.post(
+                    w.ajaxurl,
+                    {
+                        action: 'get_keys',
+                        t_nonce: $("#t_get_keys_nonce").val()
+                    },
+                    resolve
+                );
             });
         }
 
         function ajaxGetProjectList() {
             return new Promise(function (resolve) {
-                $.get(w.ajaxurl, {action: 'get_projects'}, resolve);
+                $.get(
+                    w.ajaxurl,
+                    {
+                        action: 'get_projects',
+                        t_nonce: $("#t_get_projects_nonce").val()
+                    },
+                    resolve
+                );
             });
         }
 
         function ajaxKeyRefresh(id) {
             return new Promise(function (resolve) {
-                $.get(w.ajaxurl, {action: 'refresh_key', id: id}, resolve);
+                $.get(
+                    w.ajaxurl,
+                    {
+                        action: 'refresh_key',
+                        id: id,
+                        t_nonce: $("#t_refresh_key_nonce").val()
+                    },
+                    resolve
+                );
             });
         }
 
         function ajaxKeyDelete(id) {
             return new Promise(function (resolve) {
-                $.get(w.ajaxurl, {action: 'delete_key', id: id}, resolve);
+                $.get(
+                    w.ajaxurl,
+                    {
+                        action: 'delete_key',
+                        id: id,
+                        t_nonce: $("#t_delete_key_nonce").val()
+                    },
+                    resolve
+                );
             });
         }
 
         function ajaxChangeKey(id, param_name, param_value) {
-            var data = {action: 'update_key', id: id};
+            var data = {
+                action: 'update_key',
+                id: id,
+                t_nonce: $("#t_update_key_nonce").val()
+            };
             data[param_name] = param_value;
             return new Promise(function (resolve) {
                 $.get(w.ajaxurl, data, resolve);
@@ -235,7 +269,12 @@
         }
 
         function ajaxChangeProjectEnabled(id, newvalue) {
-            var data = {action: 'update_project', id: id, enabled: newvalue};
+            var data = {
+                action: 'update_project',
+                id: id,
+                enabled: newvalue,
+                t_nonce: $("#t_update_project_nonce").val()
+            };
             return new Promise(function (resolve) {
                 $.post(w.ajaxurl, data, resolve);
             });
@@ -248,6 +287,7 @@
                 secret_key: secret_key,
                 store_html_only: store_html_only,
                 apply_css_in_list: apply_css_in_list,
+                t_nonce: $("#t_add_new_key_nonce").val()
             }
             return new Promise(function(resolve, reject){
                 $.post(w.ajaxurl, data)
@@ -268,7 +308,8 @@
             var data = {
                 action: 'tilda_admin_update_common_settings',
                 enabledposttypes: enabledposttypes,
-                storageforfiles: $commonSettingsForm.storageforfiles.val()
+                storageforfiles: $commonSettingsForm.storageforfiles.val(),
+                t_nonce: $("#t_update_common_settings_nonce").val()
             };
 
             return new Promise(function (resolve) {
