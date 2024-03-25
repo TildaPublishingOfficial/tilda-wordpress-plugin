@@ -1,7 +1,7 @@
-=== Plugin Name ===
+=== Tilda-publishing ===
 Contributors: tildapublishing
 Donate link: https://wordpress.org/plugins/tilda-publishing/
-Tags: blog, bulk, convert, crawl, data, import, importer, migrate, move, posts, publishing, tilda, export
+Tags: blog, post, publishing, tilda, export
 Requires at least: 3.0.1
 Tested up to: 6.4.3
 Stable tag: 0.3.24
