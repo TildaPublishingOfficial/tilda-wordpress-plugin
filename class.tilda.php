@@ -258,7 +258,7 @@ class Tilda {
 		if ( $post ) {
 			$data = get_post_meta( $post->ID, '_tilda', true );
 
-			if ( ! is_array( $data ) ) {
+			if ( ! is_array( $data ) || ! isset( $data['page_id'] ) ) {
 				return false;
 			}
 
@@ -271,6 +271,11 @@ class Tilda {
 			}
 
 			$key_id = Tilda::get_key_for_project_id( $data['project_id'] );
+
+			if ( empty( $key_id ) ) {
+				return false;
+			}
+
 			$key    = Tilda::get_local_keys( $key_id );
 			$key    = $key[ $key_id ];
 
