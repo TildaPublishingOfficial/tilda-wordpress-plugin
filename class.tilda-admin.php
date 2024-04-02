@@ -1146,7 +1146,7 @@ class Tilda_Admin {
 		// ||n|| is custom escaping symbol for \n to bypass serialization/deserialization process
 		$tildapage->html = str_replace( '\n', '||n||', $tildapage->html );
 
-		//Content of data-field-imgs-value should not be html decoded
+		// content of data-field-imgs-value should not be html decoded
 		$isZeroGalleryFound = preg_match_all( '/data-field-imgs-value=\"([^"]*)\"/i', $tildapage->html, $matches );
 		if ( $isZeroGalleryFound && ! empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $key => $match ) {
@@ -1154,7 +1154,7 @@ class Tilda_Admin {
 			}
 		}
 
-		//Find async loading js scripts and add them to the download queue
+		// find async loading js scripts and add them to the download queue
 		$isAsyncJsFound = preg_match_all( '/s\.src=\"\/js\/([^"]+)/i', $tildapage->html, $asyncJsMatches );
 		if ( $isAsyncJsFound && ! empty( $asyncJsMatches[1] ) ) {
 			foreach ( $asyncJsMatches[1] as $key => $match ) {
@@ -1174,7 +1174,7 @@ class Tilda_Admin {
 
 		$tildapage->html = htmlspecialchars_decode( $tildapage->html );
 
-		// Find zero form fields and decode unicode
+		// find zero form fields and decode unicode
 		if (
 			preg_match_all(
 				'/<textarea class="tn-atom__inputs-textarea">(.*)<\/textarea>/',
@@ -1199,7 +1199,7 @@ class Tilda_Admin {
 			}
 		}
 
-		//remove all css <link> occurrences that was already added to the <header> tag
+		// remove all css <link> occurrences that was already added to the <header> tag
 		foreach ( $tildapage->css as $css ) {
 			$tildapage->html = str_replace( '<link rel="stylesheet" href="' . $css->to . '">', '', $tildapage->html );
 		}
@@ -1255,7 +1255,7 @@ class Tilda_Admin {
 		$tildapage->html = str_replace( 'jQuery.cachedScript("tilda', 'jQuery.cachedScript("' . $upload_path . 'js/tilda', $tildapage->html );
 
 		$matches = [];
-		if ( preg_match_all( '/s\.src="([a-z0-9-.]+\.min\.js)";/i', $tildapage->html, $matches ) ) {
+		if ( preg_match_all( '/s\.src="([a-z0-9\-.]+\.min\.js)";/i', $tildapage->html, $matches ) ) {
 			$checked_matches = isset( $matches[0] ) ? $matches[0] : [];
 			foreach ( $checked_matches as $key => $match ) {
 				if ( ! empty( $matches[1][ $key ] ) ) {
@@ -1265,7 +1265,7 @@ class Tilda_Admin {
 		}
 
 		$matches = [];
-		if ( preg_match_all( '/<script src=[\'"]([a-z0-9-.]+\.min\.js)[\'"]/i', $tildapage->html, $matches ) ) {
+		if ( preg_match_all( '/<script src=[\'"]([a-z0-9\-.]+\.min\.js)[\'"]/i', $tildapage->html, $matches ) ) {
 			$checked_matches = isset( $matches[0] ) ? $matches[0] : [];
 			foreach ( $checked_matches as $key => $match ) {
 				if ( ! empty( $matches[1][ $key ] ) ) {
