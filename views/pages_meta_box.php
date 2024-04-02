@@ -15,26 +15,23 @@ if (empty($data['post_id'])) {
     global $post;
     $data['post_id'] = $post->ID;
 }
+
+wp_nonce_field(
+	't_admin_sync',
+	't_admin_sync_nonce',
+	false
+);
+
+wp_nonce_field(
+	't_admin_export_file',
+	't_admin_export_file_nonce',
+	false
+);
+
 if ($has_current) {
     ?>
     <div class="current_page">
         <img src="<?php echo plugins_url('../images/icon_tilda.png', __FILE__) ?>" class="alignleft"/>
-
-	    <?php
-	    wp_nonce_field(
-		    't_admin_sync',
-		    't_admin_sync_nonce',
-		    false
-	    );
-	    ?>
-
-	    <?php
-	    wp_nonce_field(
-		    't_admin_export_file',
-		    't_admin_export_file_nonce',
-		    false
-	    );
-	    ?>
 
         <div class="info">
             <div class="title"><?php echo __("Show page",'tilda')?>:</div>
