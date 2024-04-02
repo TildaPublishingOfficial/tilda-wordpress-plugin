@@ -1320,6 +1320,8 @@ class Tilda_Admin {
 		}
 		wp_update_post( $post );
 
+		$tildapage->html = str_replace('\\', '\\\\', $tildapage->html);
+
 		$tildapage->sync_time = current_time( 'mysql' );
 
 		$meta['current_page'] = $tildapage;
