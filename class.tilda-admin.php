@@ -1230,7 +1230,7 @@ class Tilda_Admin {
 		foreach ( $arCSS as $file ) {
 			$tildapage->css[] = $upload_path . 'css/' . $file->to;
 			$arDownload[]     = [
-				'from_url' => $file->from,
+				'from_url' => $file->from . '?t=' . time(),
 				'to_dir'   => $upload_dir . 'css/' . $file->to,
 			];
 		}
