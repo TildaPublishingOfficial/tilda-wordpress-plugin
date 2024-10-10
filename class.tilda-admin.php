@@ -1160,7 +1160,7 @@ class Tilda_Admin {
 			foreach ( $asyncJsMatches[1] as $key => $match ) {
 				if ( substr( $match, - 3 ) === '.js' ) {
 					$oDownload       = new stdClass();
-					$oDownload->from = 'https://static.tildacdn.com/js/' . $match;
+					$oDownload->from = 'https://static.tildacdn.com/js/' . $match . '?t=' . time();
 					$oDownload->to   = $match;
 					$tildapage->js[] = $oDownload;
 					$tildapage->html = str_replace(
@@ -1229,8 +1229,9 @@ class Tilda_Admin {
 		$tildapage->css = [];
 		foreach ( $arCSS as $file ) {
 			$tildapage->css[] = $upload_path . 'css/' . $file->to;
+			$timestamp        = substr( $file->from, - 4 ) === '.css' ? ( '?t=' . time() ) : '';
 			$arDownload[]     = [
-				'from_url' => $file->from,
+				'from_url' => $file->from . $timestamp,
 				'to_dir'   => $upload_dir . 'css/' . $file->to,
 			];
 		}
@@ -1243,9 +1244,9 @@ class Tilda_Admin {
 		$tildapage->js = [];
 		foreach ( $arJS as $file ) {
 			$tildapage->js[] = $upload_path . 'js/' . $file->to;
-
-			$arDownload[] = [
-				'from_url' => $file->from,
+			$timestamp       = substr( $file->from, - 3 ) === '.js' ? ( '?t=' . time() ) : '';
+			$arDownload[]    = [
+				'from_url' => $file->from . $timestamp,
 				'to_dir'   => $upload_dir . 'js/' . $file->to,
 			];
 		}
@@ -1320,7 +1321,7 @@ class Tilda_Admin {
 		}
 		wp_update_post( $post );
 
-		$tildapage->html = str_replace('\\', '\\\\', $tildapage->html);
+		$tildapage->html = str_replace( '\\', '\\\\', $tildapage->html );
 
 		$tildapage->sync_time = current_time( 'mysql' );
 
