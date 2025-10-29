@@ -1187,7 +1187,7 @@ class Tilda_Admin {
 			foreach ( $fieldsMatches[1] as $fieldsMatch ) {
 				$tildapage->html = str_replace(
 					$fieldsMatch,
-					json_encode( json_decode( $fieldsMatch ), JSON_UNESCAPED_UNICODE ),
+					json_encode( json_decode( $fieldsMatch ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ),
 					$tildapage->html
 				);
 			}
