@@ -763,16 +763,37 @@ class Tilda {
 			if ( $curl = curl_init() ) {
 				curl_setopt( $curl, CURLOPT_URL, $url );
 				curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
-				curl_setopt( $curl, CURLOPT_ENCODING , '' );
+				curl_setopt( $curl, CURLOPT_ENCODING , 'identity' );
+				curl_setopt( $curl, CURLOPT_TIMEOUT, 60 );
+				curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 10 );
 				$out = curl_exec( $curl );
-				curl_close( $curl );
-			} else {
-				self::$errors->add( 'download_error', 'Cannot get file: ' . $url );
 
+				$http_code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+				$curl_errno = curl_errno( $curl );
+				$curl_error = curl_error( $curl );
+
+				curl_close( $curl );
+
+				if ( $curl_errno > 0 || $http_code != 200 || empty( $out ) ) {
+					error_log( 'Tilda CURL Error/Debug: ' . $url );
+					error_log( 'HTTP Code: ' . $http_code . ', cURL Errno: ' . $curl_errno . ', cURL Error: ' . $curl_error );
+					error_log( 'Content Length: ' . strlen( $out ) );
+				}
+
+				if ( $curl_errno > 0 ) {
+					self::$errors->add( 'download_error', 'cURL error (' . $curl_errno . '): ' . $curl_error );
+					return self::$errors;
+				}
+			} else {
+				self::$errors->add( 'download_error', 'Cannot init curl for: ' . $url );
 				return self::$errors;
 			}
 		} else {
 			$out = file_get_contents( $url );
+			if ( $out === false ) {
+				self::$errors->add( 'download_error', 'file_get_contents failed for: ' . $url );
+				return self::$errors;
+			}
 		}
 
 		return $out;
