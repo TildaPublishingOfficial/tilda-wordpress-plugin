@@ -1154,6 +1154,18 @@ class Tilda_Admin {
 			}
 		}
 
+		// content of tn-atom__inputs-data data-value should not be html decoded
+		$isZeroFormDataValueFound = preg_match_all(
+			'/class="tn-atom__inputs-data"[^>]*data-value=\"([^"]*)\"/i',
+			$tildapage->html,
+			$inputsDataValueMatches
+		);
+		if ( $isZeroFormDataValueFound && ! empty( $inputsDataValueMatches[1] ) ) {
+			foreach ( $inputsDataValueMatches[1] as $key => $match ) {
+				$tildapage->html = str_replace( $match, "||inputsvalue-{$key}||", $tildapage->html );
+			}
+		}
+
 		// find async loading js scripts and add them to the download queue
 		$isAsyncJsFound = preg_match_all( '/s\.src=\"\/js\/([^"]+)/i', $tildapage->html, $asyncJsMatches );
 		if ( $isAsyncJsFound && ! empty( $asyncJsMatches[1] ) ) {
@@ -1196,6 +1208,12 @@ class Tilda_Admin {
 		if ( $isZeroGalleryFound && ! empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $key => $match ) {
 				$tildapage->html = str_replace( "||imgsvalue-{$key}||", $match, $tildapage->html );
+			}
+		}
+
+		if ( $isZeroFormDataValueFound && ! empty( $inputsDataValueMatches[1] ) ) {
+			foreach ( $inputsDataValueMatches[1] as $key => $match ) {
+				$tildapage->html = str_replace( "||inputsvalue-{$key}||", $match, $tildapage->html );
 			}
 		}
 
