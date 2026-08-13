@@ -62,6 +62,12 @@ A: Please create an issue on the [GitHub page](https://github.com/TildaPublishin
 
 == Changelog ==
 
+= 0.3.29 =
+* Fixed Zero forms import
+
+= 0.3.28 =
+* Fix: Corrected the display of forms in Zero blocks.
+
 = 0.3.27 =
 * Add timestamp to JS/CSS file links to save up-to-date versions
 
